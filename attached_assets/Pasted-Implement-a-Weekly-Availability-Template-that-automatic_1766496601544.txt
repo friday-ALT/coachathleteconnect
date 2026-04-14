@@ -1,0 +1,68 @@
+Implement a Weekly Availability Template that automatically populates a coach’s 30-day availability calendar.
+
+CONTEXT
+- App: CoachConnect (athletes + soccer coaches)
+- Roles: coach, athlete
+- Coaches define their usual weekly availability once.
+- The system generates the next 30 days of availability from that template.
+
+FEATURE 1 — COACH WEEKLY AVAILABILITY TEMPLATE
+Requirements:
+1) Add a “Availability Template” section in the Coach profile/dashboard.
+2) The template represents ONE WEEK (Mon–Sun).
+3) For each day, the coach can add 0..N availability blocks with:
+   - start_time
+   - end_time
+4) Coach can:
+   - Add, edit, delete time blocks
+   - Enable/disable a day
+5) Save this template to the database.
+6) Only the coach owner can edit their template (enforce at data layer).
+
+Suggested table:
+- coach_availability_template
+  - id
+  - coach_id
+  - day_of_week (0–6)
+  - start_time
+  - end_time
+  - timezone
+  - is_active
+
+FEATURE 2 — SYSTEM-GENERATED 30-DAY AVAILABILITY
+Requirements:
+1) Generate availability for the next 30 days by:
+   - taking the weekly template
+   - projecting it forward based on day_of_week
+   - respecting coach timezone
+2) This generation must:
+   - exclude past dates
+   - update automatically when the template changes
+3) If availability exceptions exist (vacation, blackout), exclude those times.
+4) Do NOT allow athletes to see or book times outside generated availability.
+
+FEATURE 3 — ATHLETE VIEW
+1) On coach profile, add a “View Availability” button.
+2) Clicking it shows the coach’s next 30 days of availability.
+3) Display:
+   - date
+   - time range
+   - availability status
+4) Athlete can click an available slot to request a session.
+5) Enforce rule:
+   - Athlete must have an ACCEPTED connection with the coach to request a session.
+   - Otherwise show a prompt to connect first.
+
+SECURITY & AUTHORIZATION
+- Only coaches can edit their availability template.
+- Athletes have read-only access to generated availability.
+- Enforce authorization at the database or backend level (not UI-only).
+
+OUTPUT
+- SQL / DB migrations
+- Authorization policies (RLS or middleware)
+- Availability generation logic
+- UI components/pages added or updated (with file paths)
+- Manual QA checklist
+
+Do not refactor unrelated code. Focus only on this feature.

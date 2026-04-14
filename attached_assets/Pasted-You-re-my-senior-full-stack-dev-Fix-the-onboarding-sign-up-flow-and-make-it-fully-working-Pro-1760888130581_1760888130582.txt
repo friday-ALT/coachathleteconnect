@@ -1,0 +1,56 @@
+You’re my senior full-stack dev. Fix the onboarding/sign-up flow and make it fully working.
+
+### Problems to fix
+1) The **Sign Up page shows nothing**.
+2) The **two tabs** for sign up (**Athlete** and **Coach**) don’t render properly.
+3) The **“I’m a Coach” tab shows nothing**.
+
+### What I want (explicit)
+- Route: `/signup` (or `/onboarding` if already used). It must render without blank screens.
+- At the **top**, render a **tab/segmented control** with two options:
+  - **Athlete**
+  - **Coach**
+- Switching tabs must **swap forms** without page reload and **persist the selection** in the URL (e.g., `?role=athlete|coach`).
+- **Athlete form fields**: email, phone, age (int), skillLevel (Beginner/Intermediate/Advanced), location (city/state), password, confirm password.
+- **Coach form fields**: name, location (city/state), experience (<=160 chars), pricePerHour (int), email, phone, password, confirm password, profile picture upload.
+- Client + server validation with helpful error messages; disable submit while pending.
+- On submit, call **`POST /api/auth/register`** and create:
+  - `User { email, phone, passwordHash, role }`
+  - `AthleteProfile` or `CoachProfile` accordingly
+- After success, **auto-login** (or redirect to `/login`) and then to **`/dashboard`** which shows the two large cards **Athlete** and **Coach** (working links).
+- Make sure the **Coach view** (inside `/dashboard`) actually renders its request list UI (no empty screen).
+
+### Implementation details
+- Stack already in repo: Next.js App Router + TypeScript + Tailwind + shadcn/ui + Prisma + NextAuth (Credentials).
+- Build a dedicated component: `components/auth/SignupTabs.tsx` that owns the tab UI and swaps:
+  - `SignupFormAthlete.tsx`
+  - `SignupFormCoach.tsx`
+- Use shadcn/ui `Tabs` or a custom toggle; keep state in `useSearchParams` so `?role=` is the source of truth.
+- Add Zod schemas for both forms; refine/parse on server.
+- Ensure no React errors: guard `window` access; don’t call client hooks in server components.
+- **Do not** show blank screens. If data is missing, render an empty state with a message.
+- Link “Don’t have an account? Sign up” from `/login` → `/signup?role=athlete` by default.
+- Add `AdBanner` component to `/dashboard` (shows only when `NEXT_PUBLIC_ADSENSE_CLIENT` is set).
+
+### Bug-hunt & fixes to apply
+- If `/signup` is a **server component** that uses client hooks, convert to `use client` or split client parts.
+- Check for runtime errors in the console; fix any undefined imports or circular imports.
+- Verify NextAuth credentials provider accepts registration flow (or keep register API separate and then signIn).
+- Ensure Prisma create calls use correct models and enums; run migrations if schema changed.
+
+### Acceptance criteria (must pass)
+- Visiting `/signup?role=athlete` shows **Athlete form** immediately and can submit successfully.
+- Visiting `/signup?role=coach` shows **Coach form** immediately and can submit successfully.
+- Toggling tabs swaps the forms with no full reload and no blank UI.
+- After registration, I end up on `/dashboard`.
+- `/dashboard` renders two large cards: **Athlete** and **Coach**. Clicking **Coach** shows the coach requests screen (even if empty, show a proper empty state).
+- No console errors; Lighthouse shows no major accessibility errors.
+- If `NEXT_PUBLIC_ADSENSE_CLIENT` is set, `<AdBanner>` renders; otherwise a placeholder.
+
+### Deliverables
+- Working `/signup` page and components.
+- Any new files under `components/auth/` and `app/(auth)/signup/` (or similar).
+- Updated API route `POST /api/auth/register`.
+- Brief list of changed files and why.
+
+Proceed now. If something is ambiguous, make a sensible choice and keep going—don’t pause.

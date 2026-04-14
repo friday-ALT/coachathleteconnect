@@ -1,0 +1,59 @@
+Implement strict role entry and exit flow with locked dashboards and no home-page navigation while inside a role.
+
+CONTEXT
+Users can have both Athlete and Coach roles. After onboarding, users must explicitly choose which role to enter. Once inside a role, they must stay in that dashboard until they explicitly exit the role.
+
+GOAL
+- Clear separation between onboarding, role selection, and role dashboards
+- No free navigation back to the landing/home page while inside a role
+- Explicit “Exit Role” control required to switch roles
+
+REQUIREMENTS
+
+PART 1 — ONBOARDING
+1) Signup/login creates an authenticated account.
+2) User completes base profile.
+3) User selects enabled roles (Athlete, Coach, or both).
+4) After onboarding, redirect to a Role Selection screen:
+   - “I’m an Athlete”
+   - “I’m a Coach”
+
+PART 2 — ROLE ENTRY
+5) Selecting “I’m an Athlete”:
+   - Sets active_role = athlete
+   - Redirects to /athlete/dashboard
+6) Selecting “I’m a Coach”:
+   - Sets active_role = coach
+   - Redirects to /coach/dashboard
+
+PART 3 — ROLE-LOCKED DASHBOARDS
+7) While active_role is set:
+   - Disable or hide the Home button
+   - Block access to landing page (/)
+   - Block access to the other role’s routes
+8) Navigation must be role-specific only.
+
+PART 4 — ROLE EXIT
+9) Add explicit controls:
+   - “Exit Athlete Mode”
+   - “Exit Coach Mode”
+10) Exiting:
+    - Clears active_role
+    - Redirects to Role Selection screen
+11) Role switching is ONLY possible via exit + re-entry.
+
+PART 5 — ENFORCEMENT
+12) Enforce active_role checks at the routing or backend level (not UI-only).
+13) Page refresh must keep the user inside their current dashboard.
+14) Logging out clears active_role and returns user to landing page.
+
+OUTPUT
+- List routes added/changed.
+- Show how active_role is stored and validated.
+- Show how Home navigation is disabled or overridden.
+- Provide a manual QA checklist proving:
+  - dashboards are locked
+  - home cannot be accessed inside a role
+  - role exit is required to switch
+
+Do not refactor unrelated features.

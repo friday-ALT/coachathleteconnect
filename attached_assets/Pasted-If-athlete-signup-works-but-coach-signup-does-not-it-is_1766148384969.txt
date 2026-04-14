@@ -1,0 +1,120 @@
+If athlete signup works but coach signup does not, it is almost always one of these issues: (1) the UI never sends role=coach, (2) the backend rejects/overwrites the role, (3) the database/schema doesn’t allow the coach path, or (4) your auth provider/app logic blocks coach creation in “demo.” Below is the quickest way to pinpoint it and fix it.
+
+The most common causes (and what to check)
+1) The frontend is always sending “athlete”
+
+Typical symptom: your signup form has a “Coach/Athlete” toggle, but the API payload is always role: "athlete" (or no role at all, and the server defaults to athlete).
+
+Check:
+
+Open DevTools → Network → your signup request → Request Payload
+
+Confirm you actually see something like:
+
+role: "coach" when you select coach
+
+Fix:
+
+Ensure the coach option is wired to the state used in the request body.
+
+Ensure the request body includes role.
+
+2) Backend is forcing role to athlete (defaulting or sanitizing)
+
+Typical symptom: payload says coach, but created user ends up athlete or request fails.
+
+Check your signup handler for patterns like:
+
+role = "athlete" (hard-coded default)
+
+role = req.body.role ?? "athlete" but req.body.role isn’t whitelisted
+
+Validation schema only allows "athlete"
+
+Fix:
+
+Update validation (Zod/Joi/Yup/etc.) to allow "coach".
+
+Only default when role is missing, not when role is present.
+
+3) Authorization rule prevents creating coaches (especially in “demo”)
+
+Typical symptom: signup returns 403/401 or a message like “not allowed,” “insufficient permissions,” “coach accounts disabled,” etc.
+
+Check:
+
+Response status code and body from the signup request.
+
+Look for feature flags like DEMO_MODE=true, ALLOW_COACH_SIGNUP=false
+
+Fix:
+
+In demo mode, allow coach signup (or create a demo-only endpoint/flag).
+
+If you restrict coaches to invite-only, add an override for demo.
+
+4) Database/model mismatch (coach profile required fields)
+
+Typical symptom: server throws a DB error when role is coach, e.g. “NOT NULL constraint failed: coachProfile…”, “foreign key constraint”, etc.
+
+This happens when:
+
+You create a CoachProfile automatically but required fields aren’t provided, or
+
+Your schema expects a coach row but code doesn’t create it.
+
+Fix options:
+
+Make coach profile fields nullable at creation and complete them later, or
+
+Create the coach profile with safe defaults during signup in a transaction, or
+
+Only create the coach profile after onboarding step 2.
+
+5) Route mismatch: coach signup points to a different endpoint
+
+Typical symptom: athlete uses /api/auth/signup but coach uses /api/coach/signup that’s broken/unwired.
+
+Fix:
+
+Unify both flows through the same endpoint and pass role.
+
+What to do right now (fast diagnosis)
+
+Do this in order:
+
+Try signing up as coach.
+
+In DevTools → Network, click the signup request and tell me:
+
+Request URL
+
+Request payload (copy/paste the JSON)
+
+Response status (e.g., 400/401/403/500)
+
+Response body (error message)
+
+That single snapshot usually reveals the cause immediately.
+
+Typical “correct” implementation (reference)
+
+Regardless of stack, the robust approach is:
+
+One signup endpoint: POST /signup
+
+Payload: { email, password, role: "athlete" | "coach" }
+
+Backend:
+
+validate role is one of the allowed values
+
+create user with role
+
+if role = coach, create CoachProfile (or defer)
+
+do it transactionally
+
+Demo mode:
+
+explicitly allow both roles

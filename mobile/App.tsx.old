@@ -1,0 +1,50 @@
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { WebView } from 'react-native-webview';
+import Constants from 'expo-constants';
+import { useState } from 'react';
+
+export default function App() {
+  const [loading, setLoading] = useState(true);
+  
+  // In development, this will be your Replit URL
+  // In production, this will be your published Replit deployment URL
+  const webUrl = Constants.expoConfig?.extra?.webUrl || 'https://your-repl-url.replit.app';
+
+  return (
+    <View style={styles.container}>
+      <StatusBar style="auto" />
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#26a641" />
+        </View>
+      )}
+      <WebView
+        source={{ uri: webUrl }}
+        style={styles.webview}
+        onLoadStart={() => setLoading(true)}
+        onLoadEnd={() => setLoading(false)}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  webview: {
+    flex: 1,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+});

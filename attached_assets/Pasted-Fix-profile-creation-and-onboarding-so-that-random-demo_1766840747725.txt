@@ -1,0 +1,53 @@
+Fix profile creation and onboarding so that random/demo data is never used and profiles are created correctly per role.
+
+PROBLEM
+When I log in as a real user (e.g., Mateusz Johannes), both Coach and Athlete profiles show incorrect, random/demo data (city, age, skill level, rate, experience). This data appears to be leftover from demo/testing logic and is incorrectly reused when logging in.
+
+GOALS
+- Eliminate all random/demo profile data for real users.
+- Ensure profiles are role-specific, clean, and user-entered.
+- Force proper onboarding when entering a role for the first time.
+
+REQUIREMENTS
+
+1) Profile Creation Rules
+- Signup should ONLY create an authenticated user (email/password).
+- Signup must NOT create a coach or athlete profile with placeholder or random data.
+- Coach and Athlete profiles must be separate tables/collections.
+
+2) Role-Based Onboarding Enforcement
+- When a user enters Coach Mode:
+  - If no coach profile exists, create an EMPTY profile and redirect to Coach Onboarding.
+  - If coach profile exists but is incomplete, redirect to Coach Onboarding.
+  - Only allow access to Coach Dashboard after profile completion.
+- Same logic applies independently for Athlete Mode.
+
+3) Remove Random Data
+- Remove any code that:
+  - seeds random cities, ages, skill levels, rates, experience
+  - auto-fills profile fields
+  - creates demo profiles for real users
+- Demo/seed data (if needed) must be DEV-only and never run for authenticated users.
+
+4) Data Integrity
+- Add `is_complete` boolean to athlete and coach profiles.
+- Profile edit/save sets `is_complete = true` only when required fields are filled.
+- Prevent dashboards from loading if `is_complete = false`.
+
+5) UI/UX
+- On first role entry, redirect to a clear onboarding form.
+- Show progress/confirmation (“Complete your Coach Profile”).
+- Do not preload fake values into form fields.
+
+6) Cleanup
+- Identify and remove or migrate any existing profiles with demo/random data.
+- For affected users (including Mateusz Johannes), reset profiles so onboarding runs again.
+
+OUTPUT
+- List files changed.
+- Show where random/demo data was removed.
+- Show onboarding enforcement logic.
+- Show profile schema updates.
+- Provide a manual QA checklist to confirm this is fixed.
+
+Do not refactor unrelated features.

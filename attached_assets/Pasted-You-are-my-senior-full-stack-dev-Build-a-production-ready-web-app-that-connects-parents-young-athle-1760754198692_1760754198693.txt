@@ -1,0 +1,86 @@
+You are my senior full-stack dev. Build a production-ready web app that connects parents/young athletes with soccer coaches.
+
+## Tech & Standards
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS + shadcn/ui for UI
+- Postgres (via Prisma ORM). Use a hosted DB (can default to Neon).
+- Auth: email + password with phone number capture (Clerk or NextAuth + custom credentials). Store phone as verified/unverified.
+- File storage for avatars: UploadThing or Next.js route + S3-compatible bucket.
+- Payments: prepare price fields but do NOT take payment yet (out of scope). 
+- Ads: integrate Google AdSense via script tags with env var for AD_CLIENT; show demo placeholders if env var missing.
+- Accessibility, SEO (metadata, OG tags), sitemap/robots, dark mode toggle.
+- Basic rate limiting on auth and search API routes.
+
+## Core Concept
+Two roles: **Athlete** and **Coach**. After login, user lands on a simple “role switch” page with two large square tabs: **Athlete** and **Coach**. Each role has its own onboarding form (slider/tab switch at the top of the signup page).
+
+### Onboarding (single page with a slider at top)
+- Toggle labels: “Athlete” | “Coach”.
+- Athlete required fields: email, phone number, age, skill level (Beginner/Intermediate/Advanced), location (city/state + optional lat/lng), password.
+- Coach required fields: name, location (city/state + optional lat/lng), short line of previous experience (max 160 chars), charging rate/price (per hour), email, phone number, password, profile picture.
+- Validation + helpful errors. Save to DB.
+
+## Data Model (Prisma)
+- User { id, email (unique), phone, password_hash, role: 'ATHLETE' | 'COACH', createdAt }
+- AthleteProfile { id, userId (fk), age: int, skillLevel: enum('Beginner','Intermediate','Advanced'), locationCity, locationState, lat, lng }
+- CoachProfile { id, userId (fk), name, locationCity, locationState, lat, lng, experience: string, pricePerHour: int (in cents), ratingAvg: float, ratingCount: int, avatarUrl }
+- TimeSlotRequest { id, athleteId (fk to User), coachId (fk to User), groupSize: int, desiredPosition: string, note: string?, status: enum('PENDING','ACCEPTED','DECLINED'), createdAt }
+- Review { id, athleteId (fk), coachId (fk), rating: int (1–5), comment: string?, createdAt }
+
+Migrations included.
+
+## Pages & Routes (App Router)
+- `/` → Login page with email/password + phone input. Link to “Create account” which opens onboarding with the Athlete/Coach slider.
+- `/onboarding` → Slider at top to switch between Athlete/Coach forms (see fields above).
+- `/dashboard` → Two large square tabs: **Athlete** | **Coach** (visible based on role; if user has both, show both tabs). 
+   - Athlete tab → Search screen:
+     - Search bar + filters: age (int), group size (int), skill level (enum).
+     - Results list of coaches with: rating (out of 5), profile picture, coach name, location, price.
+     - Each card has “Request Time Slot” button → modal form with fields: group size, position, optional note.
+   - Coach tab → Requests screen:
+     - Table/list of incoming **TimeSlotRequest** items with athlete name, age, position, profile picture, location, requested group size.
+     - Actions: Accept / Decline (updates status).
+- `/profile` → Edit (role-based fields). Upload avatar.
+- `/reviews` → Athletes can leave a rating (1–5) + comment for a coach they requested and was accepted.
+- `/api` routes:
+  - `POST /api/auth/*` (if using NextAuth, set up Credentials provider).
+  - `GET /api/coaches` with query params: `skillLevel`, `age`, `groupSize`, `q` (name/location search). Paginated, indexed queries.
+  - `POST /api/requests` (create TimeSlotRequest).
+  - `PATCH /api/requests/:id` (accept/decline; coach-only).
+  - `POST /api/reviews` (athlete-only; validates relationship).
+- Protect routes with middleware; role-based guards.
+
+## UI/UX Details
+- Landing/Login: minimal, modern design. 
+- Dashboard: two large cards (Athlete, Coach) centered on desktop; stacked on mobile.
+- Coach list item:
+  - Avatar, Name, Location (city/state), Price (e.g., “$45/hr”).
+  - Rating stars (0–5) with count (e.g., “4.7 (23)”).
+- Filters chip bar + search input. Persist filters in URL query.
+- Toasts for success/failure; skeleton loaders; empty states.
+
+## AdSense
+- Add a `components/AdBanner.tsx` that renders AdSense code only when `process.env.NEXT_PUBLIC_ADSENSE_CLIENT` is set. Otherwise render a placeholder.
+- Place AdBanner on coach list page (between cards) and dashboard footer.
+- Provide README instructions to add AdSense client ID and comply with policies.
+
+## Security & Privacy
+- Do not store plain passwords. Use bcrypt.
+- Validate and sanitize all inputs server-side. 
+- Avoid exposing phone/email publicly in search results—only visible inside a request flow or on the coach detail card after a request is accepted.
+- Add a simple Terms/Privacy page template.
+
+## Testing & Tooling
+- ESLint + Prettier.
+- Basic Playwright tests: login works; coach search returns; create request flow.
+- Seed script to create sample coaches/athletes.
+
+## Deliverables
+1) Full project scaffolding with the pages, API routes, Prisma schema, and UI described.
+2) Seed script with a few sample coaches (with ratings and prices) and a couple athletes.
+3) README with:
+   - Local setup (env vars for DB, auth, storage, AdSense).
+   - Prisma migrate + seed commands.
+   - Running dev and build.
+   - One-click deploy steps for Vercel + Postgres (Neon).
+4) After generating code, list all files created/modified and why. If anything is ambiguous, choose sensible defaults and proceed.

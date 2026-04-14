@@ -1,0 +1,44 @@
+Perform a full security, privacy, authorization, and functionality verification pass for my CoachConnect app (athlete/coach marketplace).
+
+GOALS
+1) Advanced security + authorization:
+   - Users must not be able to view or edit protected/private data they are not allowed to access.
+   - Users must not be able to edit any profile except their own.
+   - Role separation must be enforced: athlete vs coach actions are distinct and cannot be bypassed.
+   - Prevent IDOR and privilege escalation (e.g., editing another user's profile by changing an ID, changing role fields, etc.).
+2) Full functional scan:
+   - Creating profiles works for athlete and coach.
+   - Athlete dashboard shows outgoing training requests.
+   - Coach dashboard shows incoming training requests.
+   - Coaches can accept/decline; athletes see status updates.
+   - Search works and returns correct results for filters: name, location, group size, skill level.
+
+REQUIREMENTS
+A) Identify current auth + data access approach (Supabase RLS, Firebase rules, or backend middleware). Enforce authorization at the DATA LAYER (not only in UI).
+B) Implement or correct access rules so:
+   - Profile reads: public fields are viewable; private fields restricted appropriately.
+   - Profile writes: only owner can update their profile; protected fields (user_id, role, verified, etc.) cannot be changed by regular users.
+   - Training requests:
+     - Athlete can only read their outgoing requests.
+     - Coach can only read incoming requests to them.
+     - Only coach can accept/decline.
+C) Add validation to prevent mass assignment:
+   - Whitelist allowed fields on all update endpoints/mutations.
+D) Add logging for authorization failures and request workflows.
+E) Add automated tests:
+   - Authorization tests for profile editing (attempt edit other user must fail)
+   - Authorization tests for request access (athlete cannot view other athletes’ requests, coach cannot view other coaches’ incoming)
+   - Search filter tests for name/location/group size/skill level
+F) Provide a “Security & QA Report” in output:
+   - What you checked
+   - What you fixed
+   - Remaining risks
+   - How to reproduce verification steps
+
+OUTPUT FORMAT
+1) List files changed
+2) Show updated policies/rules (RLS or backend middleware)
+3) Show test files added and how to run them
+4) Provide a manual QA checklist (step-by-step)
+
+Do not refactor unrelated UI. Focus on security correctness and functional correctness.

@@ -1,0 +1,74 @@
+You are a senior full-stack engineer. Implement a “Coach Availability Calendar” feature for my soccer app that connects athletes and coaches. The solution must be production-ready, secure, and testable.
+
+CONTEXT
+- App type: soccer training marketplace connecting athletes and coaches
+- Roles: "athlete" and "coach"
+- The feature must work in demo + development environments
+- Coaches must be able to edit their availability; athletes must only view it
+- Availability is shown on the coach’s profile when an athlete clicks into it
+
+GOALS (BEST IMPLEMENTATION)
+1) Add an “Availability” tab on the Coach Profile page.
+2) Athlete experience (READ-ONLY):
+   - Show a calendar for the next 30 days (rolling window) with 30-minute slots.
+   - Display available times clearly; unavailable times are disabled or hidden.
+   - Clicking an available slot triggers a “Request Session” action (can be a stub modal for now, but wiring must be clean for later booking integration).
+3) Coach experience (EDITABLE):
+   - In the same Availability tab, coaches can:
+     a) Set weekly recurring availability (Mon–Sun with time ranges)
+     b) Add date-specific exceptions:
+        - BLOCK (vacation/blackout) for a full day or a time range
+        - ADD extra availability for a date/time range
+   - Include UX shortcuts: “Copy weekly template to all weeks” and “Clear day” (basic but functional).
+4) Data model must use “Recurring Rules + Exceptions” (DO NOT store 30 separate days):
+   - coach_availability_rules: coach_id, day_of_week, start_time, end_time, timezone, is_active
+   - coach_availability_exceptions: coach_id, date, start_time (nullable), end_time (nullable), type (BLOCK|ADD)
+   - If a sessions/bookings table exists, subtract booked times from availability to prevent double booking. If it does not exist, create a minimal sessions table with start_at/end_at/status and wire the subtraction logic.
+5) Timezone correctness:
+   - Store coach timezone in coach profile (e.g., America/New_York).
+   - Store bookings as UTC timestamps.
+   - Render availability in the viewer’s local timezone BUT label the coach’s timezone clearly and ensure slot selection uses a consistent interpretation.
+6) Security (must be enforced at the database level):
+   - Use Supabase Row Level Security (RLS):
+     - Only the coach (auth.uid()) can insert/update/delete their own rules and exceptions.
+     - Athletes (or any authenticated user) can read coach availability (read access can be authenticated-only; choose the safer default).
+7) Reliability / Troubleshooting:
+   - Add structured logging around:
+     - fetching availability
+     - computing the 30-day slot grid
+     - saving rules/exceptions
+   - Include clear error states in UI (loading, empty, error).
+8) Testing:
+   - Add at least:
+     - one integration test for availability computation (rules + exceptions)
+     - one authorization test proving athletes cannot write
+   - Provide a simple manual test checklist.
+
+DELIVERABLES (REQUIRED OUTPUT FORMAT)
+A) Database
+   1. SQL to create tables (and minimal sessions/bookings if needed)
+   2. Indexes + unique constraints (prevent duplicates)
+   3. RLS policies for each table
+B) Backend/data access layer
+   - Functions to:
+     - upsert weekly rules
+     - add/remove exceptions
+     - fetch computed availability slots for next 30 days
+   - If using Supabase client directly from frontend, still create a clean service layer module (e.g., lib/availability.ts).
+C) Frontend
+   - CoachProfile page update:
+     - Add Availability tab
+     - Athlete view (read-only calendar)
+     - Coach view (editor + save)
+   - Calendar UI can be simple but must be usable (month + list view is acceptable). No placeholder-only UI.
+D) Debugging
+   - Common failure points (timezone, RLS, missing env vars)
+   - How to verify in Replit logs
+E) Step-by-step implementation instructions by file path
+   - List every file to create/edit, with code blocks
+
+IMPORTANT CONSTRAINTS
+- Do not skip any item above.
+- Do not assume existing schema; inspect current project structure and adapt.
+- If a conflicting structure exists, propose the smallest change that works.
+- All code must compile and run in my existing Replit project.

@@ -1,0 +1,34 @@
+Fix the auth + onboarding flow so logged-in users are not asked to sign up again when selecting “I’m an Athlete” or “I’m a Coach”.
+
+PROBLEM
+I can log in successfully and I land on the home/landing page. But when I click “I’m an Athlete” (or “I’m a Coach”), the app forces me to re-enter my name and email again, like I’m signing up. This is incorrect. Signup/onboarding should happen during signup (first time), not during login/role entry.
+
+GOAL
+- Signup: create account + complete onboarding once.
+- Login: authenticate only; then route user into the app without re-entering identity fields.
+- Role entry (“I’m an Athlete/Coach”) should never send the user to signup if they are already logged in.
+
+REQUIREMENTS
+1) Correct routing
+- “I’m an Athlete/Coach” should go to a role selection/role entry flow:
+  - If NOT authenticated: redirect to login (or signup if user chooses).
+  - If authenticated: set active_role and route to the appropriate dashboard.
+- Remove any direct navigation from these buttons to signup pages for authenticated users.
+
+2) Session recognition
+- Ensure auth session is persisted and read on page load.
+- On landing/home, detect authenticated session and adjust CTA behavior accordingly.
+
+3) Profile completion behavior
+- If the user is authenticated and their role profile is incomplete:
+  - Show “Complete your [Athlete/Coach] Profile”
+  - DO NOT ask for email/password again.
+  - DO NOT ask for name/email if already stored in base profile/auth; preload from existing data.
+- Profile forms should update profile tables only, not create new auth users.
+
+4) Output
+- Identify which routes/components currently trigger the re-signup.
+- Update the button handlers and route guards.
+- Show file-by-file changes and a QA checklist:
+  - login -> click “I’m an Athlete” -> goes to athlete dashboard (or athlete profile completion if incomplete) without re-entering email
+  - login -> click “I’m a Coach” -> goes to coach dashboard (or coach profile completion) without re-entering email

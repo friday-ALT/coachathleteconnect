@@ -1,0 +1,90 @@
+═══════════════════════════════════════════════════════════════
+                 COACHCONNECT - QUICK REFERENCE
+═══════════════════════════════════════════════════════════════
+
+📱 DEMO ACCOUNT
+───────────────────────────────────────────────────────────────
+Email:    demo@coachconnect.app
+Password: Demo2026!
+
+Or tap "Try Demo" button in the app!
+
+═══════════════════════════════════════════════════════════════
+
+🚀 BUILD FOR APP STORE
+───────────────────────────────────────────────────────────────
+1. Deploy backend to production (Railway/Render)
+2. Update API URL in mobile/app.json and mobile/eas.json
+3. Run: cd mobile && eas build --platform all --profile production
+4. Run: eas submit --platform all
+5. Configure store listings with demo credentials
+6. Wait for approval (1-3 days)
+
+═══════════════════════════════════════════════════════════════
+
+🧪 TEST LOCALLY
+───────────────────────────────────────────────────────────────
+Terminal 1: cd DesignSyncMobile-2 && npm run dev
+Terminal 2: cd mobile && npx expo start
+
+Then tap "Try Demo" in the app!
+
+═══════════════════════════════════════════════════════════════
+
+📚 DOCUMENTATION
+───────────────────────────────────────────────────────────────
+START_HERE.md              - Overview & getting started
+BUILD_FOR_APP_STORE.md     - Fast track build guide
+APP_STORE_CHECKLIST.md     - Step-by-step checklist
+APP_STORE_SUBMISSION.md    - Complete submission guide
+DEMO_ACCOUNT.md            - Demo account details
+INDEX.md                   - All documentation
+
+═══════════════════════════════════════════════════════════════
+
+⚡ QUICK COMMANDS
+───────────────────────────────────────────────────────────────
+Build:   cd mobile && eas build --platform all --profile production
+Submit:  cd mobile && eas submit --platform all
+Update:  cd mobile && eas update --branch production --message "Updates"
+Status:  eas build:list
+
+═══════════════════════════════════════════════════════════════
+
+📝 FOR APP STORE REVIEWERS
+───────────────────────────────────────────────────────────────
+Quick Access: Tap "Try Demo" on welcome screen
+
+Manual Login:
+Email: demo@coachconnect.app
+Password: Demo2026!
+
+Testing:
+1. Tap "Try Demo"
+2. Select "Athlete" or "Coach"
+3. Explore features
+4. Use swap icon to switch roles
+
+═══════════════════════════════════════════════════════════════
+
+🎯 WHAT'S INCLUDED
+───────────────────────────────────────────────────────────────
+✅ Demo account with both Athlete & Coach profiles
+✅ "Try Demo" button on welcome screen
+✅ "Try Demo Account" button on login screen
+✅ Production-ready build configuration
+✅ Complete documentation
+✅ EAS build setup
+
+═══════════════════════════════════════════════════════════════
+
+🔐 SECURITY NOTE
+───────────────────────────────────────────────────────────────
+Demo credentials are in: server/demoAuth.ts
+Change them before production if desired.
+
+═══════════════════════════════════════════════════════════════
+
+✨ YOU'RE READY TO LAUNCH! 🚀
+
+═══════════════════════════════════════════════════════════════

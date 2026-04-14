@@ -1,0 +1,48 @@
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                    ┃
+┃              COACHCONNECT DEMO ACCOUNT             ┃
+┃                                                    ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+   📱 QUICK ACCESS
+   ───────────────────────────────────────────────
+   Tap "Try Demo" button on welcome screen
+
+
+   🔑 MANUAL LOGIN
+   ───────────────────────────────────────────────
+   Email:    demo@coachconnect.app
+   Password: Demo2026!
+
+
+   ✨ FEATURES
+   ───────────────────────────────────────────────
+   • Both Athlete and Coach profiles
+   • No email verification needed
+   • Full access to all features
+   • Switch between roles anytime
+
+
+   📋 FOR APP STORE REVIEWERS
+   ───────────────────────────────────────────────
+   1. Launch app
+   2. Tap "Try Demo" on welcome screen
+   3. Select "Athlete" or "Coach"
+   4. Explore features
+   5. Use swap icon to switch roles
+
+
+   🚀 BUILD COMMAND
+   ───────────────────────────────────────────────
+   cd mobile
+   eas build --platform all --profile production
+
+
+   📚 DOCUMENTATION
+   ───────────────────────────────────────────────
+   See START_HERE.md for complete guide
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  💡 TIP: Print this card and keep it handy!       ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

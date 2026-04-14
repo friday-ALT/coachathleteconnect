@@ -1,0 +1,57 @@
+Create a real Coach profile for “Yohannes” (demo showcase coach) and remove him from the static Biography section.
+
+GOAL
+I am demoing this app. I want “Yohannes” to appear as an actual coach inside the product:
+- visible in Athlete → Find Coaches results
+- clickable to open a Coach Profile page
+- has a coach bio/statement populated from the existing Biography text (if present)
+I do NOT want “Yohannes” to be a static About/Biography page entry anymore.
+
+REQUIREMENTS
+
+1) Remove from static Biography (if present)
+- Locate the About/Biography section that renders bios (BioCard list, array, etc.).
+- If “Yohannes” appears there, remove that entry so he no longer renders on the static About page.
+- Keep the Biography section itself; only remove Yohannes from it.
+
+2) Create a real Coach user + coach profile
+Create a seeded/demo coach profile record for “Yohannes” in the database so it is treated like a real coach.
+
+- If the app uses Supabase Auth:
+  a) Create a database seed script (or admin-only setup script) that:
+     - creates the coach profile row for Yohannes
+     - ensures it links to a valid user id (either:
+        i) create a dedicated demo auth user if your project supports server/admin creation, OR
+        ii) create a “public coach profile” record if your schema supports coach profiles without auth users, OR
+        iii) add a one-time “Attach demo coach to current logged-in user” admin function for setup)
+  b) Ensure Yohannes is marked as role=coach / coach_profile exists / coach is searchable.
+
+- If the app uses a custom backend:
+  - Add a safe seed routine to create Yohannes in dev/demo only.
+
+3) Populate fields (minimal, demo-ready)
+Populate at minimum:
+- display_name: “Yohannes”
+- role: coach
+- city/state (use whatever is required by schema; do not use random placeholders)
+- bio/statement: use the existing Biography statement text associated with Yohannes (verbatim) OR the text currently used for his Biography entry
+- experience/hourly_rate/skills: set only if required by schema; otherwise leave blank and allow me to complete later.
+
+4) Make him discoverable
+- Ensure Athlete → Find Coaches query returns Yohannes.
+- Ensure search filters don’t exclude him (name/location/skill level/group size), or set required searchable fields so he can be found.
+
+5) Safety / separation
+- This is a demo seed. Do NOT let regular athletes edit Yohannes.
+- Ensure profile editing remains owner-only.
+- Seed logic must run ONLY in dev/demo (feature-flagged), not in production.
+
+OUTPUT
+- List files changed/added.
+- Show the seed script or setup method.
+- Explain exactly where Yohannes will appear in the app (which screen, which list).
+- Provide steps for me to verify:
+  1) log in as an athlete
+  2) go to Find Coaches
+  3) search “Yohannes”
+  4) open his profile page

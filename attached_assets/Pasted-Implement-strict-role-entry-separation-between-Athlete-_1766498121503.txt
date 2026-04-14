@@ -1,0 +1,58 @@
+Implement strict role entry separation between Athlete and Coach modes.
+
+PROBLEM
+The app currently allows users to switch too fluidly between “Enter as Athlete” and “Enter as Coach.” This causes confusion and weakens security. We need explicit, role-locked sessions with confirmation-based entry and no instant switching.
+
+GOAL
+- One account can have both roles.
+- Only ONE role can be active per session.
+- Entering a role must be explicit, confirmed, and persistent until logout or exit.
+- Switching roles must require confirmation and a reset of context.
+
+REQUIREMENTS
+
+1) Landing / Entry Flow
+- Show “Enter as Athlete” and “Enter as Coach” options on the front page.
+- Selecting one leads to login (if not logged in).
+- After login, do NOT auto-switch roles silently.
+
+2) Role Confirmation Screen
+- If user has both athlete and coach profiles:
+  - Show a confirmation screen when entering a role.
+  - Example text:
+    “You are about to enter Coach Mode. Actions here affect your coach profile and training schedule.”
+  - Require explicit confirmation to continue.
+- If user has only one role, auto-enter that role.
+
+3) Role-Locked Session
+- Persist an `active_role` for the session.
+- Once inside a role:
+  - Navigation, dashboards, and permissions must match ONLY that role.
+  - No instant toggle between roles inside dashboards.
+- To change roles:
+  - User must log out OR use an explicit “Exit Role” action that returns to the entry page.
+
+4) Backend Enforcement
+- Enforce role access at the backend or database layer:
+  - Athlete routes require active_role = athlete
+  - Coach routes require active_role = coach
+- Do not rely on frontend-only checks.
+
+5) Security
+- Prevent privilege escalation (user cannot access coach actions while in athlete mode).
+- Ensure profile edits are role-specific and owner-only.
+
+6) UX
+- Clear labels showing current role (e.g., “Coach Mode”).
+- Clear messaging when exiting or switching roles.
+
+OUTPUT
+- Describe updated auth/session model.
+- Show code changes by file path.
+- Show how active_role is stored and validated.
+- Provide a manual QA checklist verifying:
+  - role cannot be switched without confirmation
+  - dashboards are properly isolated
+  - logout resets role context
+
+Do not refactor unrelated features.

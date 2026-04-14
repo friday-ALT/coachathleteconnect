@@ -1,0 +1,33 @@
+Create/Update the About page to include a new section called “Biography” that showcases our dedicated coaches/founders with their picture and a short statement.
+
+PLACEMENT & LAYOUT
+1) Add a section heading: “Biography”.
+2) Place this “Biography” section ABOVE the “Our Mission” section if “Our Mission” exists. If not, place it near the top of the About page content.
+3) The section must be responsive:
+   - On desktop: show each person in a clean card layout (image + name + statement).
+   - On mobile: stack vertically with full-width cards, no horizontal overflow, readable line length.
+4) Use the site’s existing typography and spacing so it matches the current design. Keep content centered and visually clean.
+
+CONTENT (INITIAL PERSON)
+Add the first biography card for:
+- Name: Yassine Rhoumar
+- Photo: use the provided image asset (add it to the project assets/public folder if not already present) and reference it correctly in the component/page.
+- Statement (verbatim, including quotes):
+  “Built from the perspective of a Division I athlete with experience in the DC United system, CoachConnect was created to give back to the game by connecting players with trusted coaches nationwide. Our mission is to empower athletes through technical excellence, mentorship, and access to high-level training—wherever they play.”
+
+IMPLEMENTATION REQUIREMENTS
+1) Create a reusable “BioCard” component (or equivalent) so we can easily add more coaches later.
+2) Store the bios as an array/object (name, image src, statement) and render them with map(), so adding new coaches is as simple as adding a new entry.
+3) Ensure images are optimized for web:
+   - fixed aspect ratio (e.g., square or 4:5)
+   - object-fit: cover
+   - reasonable max size
+4) Accessibility:
+   - image alt text should be the person’s name
+   - heading levels should be semantic (e.g., h2 for section)
+5) Do not refactor unrelated files. Only touch About page + the new component + styles/assets required.
+
+OUTPUT
+- List the exact files changed/added.
+- Show the final code for the About page section and BioCard component.
+- Confirm where the image was placed and how it is referenced.

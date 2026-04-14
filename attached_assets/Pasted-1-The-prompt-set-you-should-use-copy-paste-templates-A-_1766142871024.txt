@@ -1,0 +1,150 @@
+1) The prompt set you should use (copy/paste templates)
+A. Project Context Prompt (use at the start of any build request)
+
+Paste this once at the top of the conversation or whenever you change major architecture:
+
+Goal: Soccer app connecting athletes and coaches (profiles, discovery, connection requests, messaging, bookings, etc.)
+
+Stack: (fill in) e.g., Next.js + Node/Express + PostgreSQL + Prisma + Auth provider
+
+Hosting: Replit (dev), plus any production host if relevant
+
+Repo layout: /apps/web, /apps/api, /prisma, etc.
+
+Run commands: npm run dev, npm run test, npm run migrate
+
+Env vars: list names only (no secrets)
+
+Definition of Done: feature works end-to-end; tests added; logging; error states handled; no console errors; passes CI
+
+B. “Implement Feature” Prompt (forces end-to-end completeness)
+
+Use this whenever you ask to add a feature:
+
+Implement [FEATURE NAME]. Requirements:
+
+Data model: tables/collections + fields + indexes
+
+API contract: routes, request/response, error codes
+
+AuthZ: who can do what (athlete vs coach)
+
+UI: pages/components, loading/empty/error states
+
+Realtime/notifications (if any): websockets/email/push
+
+Testing: unit + integration + one happy-path E2E
+
+Observability: logs, key metrics, and how to debug failures in Replit
+
+Migration plan: if schema changes
+
+Rollback considerations: what happens if deploy fails
+
+Output format: step-by-step plan, then code changes by file path.
+
+C. “Troubleshoot” Prompt (gets actionable debugging, not generic advice)
+
+Use this when something breaks:
+
+What I expected: …
+
+What happened instead: …
+
+Exact error text/stack trace: …
+
+Where: (URL, route, component, file)
+
+Replit logs: paste last ~50 lines
+
+Repro steps: 1…2…3…
+
+Recent changes: last commit summary
+
+Constraints: cannot change DB / must keep current schema / etc.
+
+2) The core features that must be implemented “as a system” so connections work reliably
+
+For athlete–coach connections, reliability comes from three things: a correct state machine, transactional writes, and consistent authorization.
+
+A. Connection state machine (non-negotiable)
+
+Model connections with explicit statuses:
+
+NONE (no relationship)
+
+PENDING (request sent)
+
+ACCEPTED
+
+DECLINED
+
+BLOCKED (optional, but recommended)
+
+Rules:
+
+Only one active connection record per athlete–coach pair (enforce with a unique index).
+
+Only the recipient can accept/decline.
+
+Either party can block; block overrides everything.
+
+B. Transactional operations (prevents “half-created” bugs)
+
+When a request is sent/accepted:
+
+Write the connection row
+
+Create notification row(s)
+
+Optionally create a conversation thread
+All in one transaction, so you never end up with “request exists but chat thread missing” or vice versa.
+
+C. Authorization checks everywhere (prevents cross-role leaks)
+
+Every endpoint should enforce:
+
+Authenticated user exists
+
+Their role matches required role
+
+They’re part of that connection (or allowed to view public profile)
+
+3) Practical troubleshooting that works on Replit
+A. Add structured logging now
+
+Log request IDs, user IDs, route, status code, duration.
+
+Log DB errors with enough context to reproduce.
+
+B. Add a “health” and “diagnostics” endpoint
+
+/health: app + DB connectivity check
+
+/diagnostics: returns env presence (true/false), DB migration version, and feature flags (no secrets)
+
+C. Use an integration test for the full connection flow
+
+One test should cover:
+
+athlete sends request
+
+coach sees pending request
+
+coach accepts
+
+both can message / view each other depending on your rules
+
+This single test catches the majority of “connections don’t work” regressions.
+
+4) What I need from you to implement this correctly (no guessing)
+
+Paste the following and I will give you a concrete implementation plan with file-by-file changes (and I can tailor it to your exact stack):
+
+Tech stack: frontend framework + backend framework + DB (e.g., Next.js / Express / Supabase / Firebase etc.)
+
+Auth approach: sessions/JWT + where roles are stored
+
+Current connection-related schema or code: whichever you already have (models + routes + UI components)
+
+One example bug: a specific failure you’re seeing (error + repro)

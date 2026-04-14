@@ -1,0 +1,93 @@
+{
+  "expo": {
+    "name": "CoachConnect",
+    "slug": "coachconnect",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#26a641"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.coachconnect.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to upload profile pictures.",
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to upload profile pictures.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to find coaches near you.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true,
+          "NSExceptionDomains": {
+            "localhost": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSIncludesSubdomains": true
+            },
+            "127.0.0.1": {
+              "NSExceptionAllowsInsecureHTTPLoads": true
+            }
+          }
+        }
+      }
+    },
+    "android": {
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#26a641"
+      },
+      "package": "com.coachconnect.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "webUrl": "http://127.0.0.1:3000",
+      "googleWebClientId": "751235022777-ajugar45h73nms0i0fusmnqme89bqg7n.apps.googleusercontent.com",
+      "googleIosClientId": "751235022777-3stt11uiikvo2kgj0b1csliip8tktbmd.apps.googleusercontent.com",
+      "googleAndroidClientId": "",
+      "eas": {
+        "projectId": "cca5065a-3d34-4801-9b47-92806f8b28b7"
+      },
+      "router": {}
+    },
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#26a641",
+          "sounds": []
+        }
+      ]
+    ],
+    "scheme": [
+      "coachconnect",
+      "com.googleusercontent.apps.751235022777-3stt11uiikvo2kgj0b1csliip8tktbmd"
+    ],
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "privacy": "public",
+    "description": "Connect with expert coaches for personalized training sessions. Find coaches, book sessions, and track your progress.",
+    "primaryColor": "#26a641",
+    "owner": "ethanpage747"
+  }
+}

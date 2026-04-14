@@ -1,0 +1,79 @@
+You are my senior full-stack dev working in Replit. Continue development and deliver a fully functional MVP that connects parents/young athletes with soccer coaches.
+
+## Platform & Tooling (Replit-friendly)
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS + shadcn/ui
+- Prisma + PostgreSQL (use Replit PostgreSQL or Neon; expose DATABASE_URL via Replit Secrets)
+- Auth: NextAuth Credentials (email + password); capture phone number. Hash passwords with bcrypt.
+- File uploads for avatars: local /public for now (simple) with server-side validation.
+- Ads: Google AdSense integration via a reusable component; render only if `NEXT_PUBLIC_ADSENSE_CLIENT` is set.
+- Replit specifics: add `replit.nix` if needed, ensure `npm run dev` listens on 0.0.0.0 using the provided PORT.
+
+## Core UX (make this work end-to-end)
+When a user signs in, show a **split screen with two large tabs/cards** side-by-side:
+- Left: **Athlete**
+- Right: **Coach**
+These are visually large, clickable, and responsive (stack on mobile).
+
+### Auth / Entry
+- Landing route `/` is a **Login** page (email, password, phone). Link to “Create account”.
+- **Signup (Onboarding)** page `/onboarding` has a **top slider/tab** to choose **Athlete** or **Coach** and shows the appropriate form.
+
+### Onboarding fields & persistence
+- **Athlete**: email, phone number, age (int), skill level (Beginner/Intermediate/Advanced), location (city/state), password.
+- **Coach**: name, location (city/state), short line of previous experience (≤160 chars), charging rate/price per hour (int), email, phone number, password, profile picture.
+- Validate all fields; save to DB via Prisma. Passwords hashed.
+
+### Dashboard behavior
+Route: `/dashboard` (protected)
+- Show the two large tabs/cards (**Athlete**, **Coach**). If a user has only one role, emphasize that card but keep both visible.
+- Clicking **Athlete** opens the **Athlete view**:
+  - A search bar + filters: `age`, `groupSize`, `skillLevel`.
+  - Render a **paginated list of coaches** with: rating out of 5 (avg), profile picture, name, location, price/hour.
+  - Each coach card has a **“Request Time Slot”** button → modal to submit: `groupSize`, `position`, optional `note`. Persist a TimeSlotRequest.
+- Clicking **Coach** opens the **Coach view**:
+  - Show a list/table of **incoming TimeSlotRequest** items with athlete **name, age, position, avatar, location, requested group size**.
+  - Provide **Accept** and **Decline** actions to update request status.
+
+### API routes (App Router)
+- `POST /api/auth/register` (create user + profile)
+- NextAuth Credentials at `/api/auth/[...nextauth]`
+- `GET /api/coaches?skillLevel=&age=&groupSize=&q=` (indexed, paginated)
+- `POST /api/requests` (athlete only)
+- `PATCH /api/requests/:id` (coach only: accept/decline)
+- `POST /api/reviews` (athlete only, after accepted request)
+- Middleware to protect `/dashboard` and role guard on mutations.
+
+### Data model (Prisma)
+- User { id, email (unique), phone, passwordHash, role: 'ATHLETE' | 'COACH', createdAt }
+- AthleteProfile { id, userId, age, skillLevel ('Beginner'|'Intermediate'|'Advanced'), locationCity, locationState }
+- CoachProfile { id, userId, name, locationCity, locationState, experience, pricePerHour (int), ratingAvg (float, default 0), ratingCount (int, default 0), avatarUrl }
+- TimeSlotRequest { id, athleteId (User), coachId (User), groupSize (int), desiredPosition (string), note (string?), status ('PENDING'|'ACCEPTED'|'DECLINED'), createdAt }
+- Review { id, athleteId, coachId, rating (1–5), comment (string?), createdAt }
+
+Run migrations and include a small **seed script** (2–3 coaches, 1–2 athletes).
+
+### UI details
+- Two big, clickable cards on `/dashboard` labeled **Athlete** and **Coach**; use shadcn/ui Cards with icons.
+- Athlete filter bar: chips + selects; persist to URL query params.
+- Coach list card: avatar, name, location (City, ST), price like “$45/hr”, rating stars with count.
+- Empty states, loading skeletons, and toast notifications on actions.
+- **AdSense**: Create `components/AdBanner.tsx` that renders the AdSense `<ins class="adsbygoogle">` only when `NEXT_PUBLIC_ADSENSE_CLIENT` exists; otherwise show a placeholder box. Place AdBanner between coach cards and in the dashboard footer.
+
+### Security / privacy
+- Hide emails/phones from public lists; only show to the counterpart once a request is **ACCEPTED**.
+- Server-side validation and role checks for all mutations.
+
+### Acceptance tests (can be simple)
+- Can register Athlete, login, reach dashboard.
+- Can register Coach, appears in Athlete search, can submit a request.
+- Coach sees request and can Accept/Decline; status updates without full page reload.
+- AdBanner renders placeholder locally, real tag when env present.
+
+### Deliverables
+1) All pages/components and API routes working locally on Replit.
+2) Prisma schema + migrations + seed.
+3) `README.md` with setup (Replit Secrets: DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_ADSENSE_CLIENT), how to run, and how to add AdSense.
+4) List of files created/modified and brief rationale.
+
+If anything is ambiguous, choose sensible defaults and continue—do not pause for questions. Ship a working MVP.

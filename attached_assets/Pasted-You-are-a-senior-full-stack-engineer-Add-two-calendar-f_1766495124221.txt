@@ -1,0 +1,74 @@
+You are a senior full-stack engineer. Add two calendar features to my CoachConnect app (soccer athletes + coaches). Implement end-to-end with correct database design, role-based authorization, and responsive UI.
+
+FEATURE 1 — COACH TEMPLATE TRAINING SCHEDULE (WEEKLY TEMPLATE)
+Goal:
+- Coaches can create and edit a reusable “Weekly Training Schedule Template” (a 7-day week plan).
+- This is a template schedule (what they intend to run each week), not the same as availability slots (though it may be related later).
+
+Requirements:
+1) Add a “Training Schedule Template” section in the Coach area (Coach dashboard and/or Coach profile edit area).
+2) The template represents one week with:
+   - Day of week (Mon–Sun)
+   - Sessions per day (0..N)
+   - Each session includes: title, start_time, end_time, location (optional), training_type (optional), group_size (optional), notes (optional)
+3) Coaches can:
+   - Add a session to a day
+   - Edit session details
+   - Delete a session
+   - Duplicate/copy a day to another day
+4) Save template to database and load it on revisit.
+5) Authorization:
+   - Only the coach owner can create/update/delete their own template.
+   - Athletes can view the coach’s template only if it is marked public (default: public is OK, but do not expose private notes if you separate fields).
+6) Provide clear UI states: loading, empty (“No template set yet”), error, saved confirmation.
+
+Suggested data model:
+- coach_schedule_templates (id, coach_id, name, timezone, is_public, created_at, updated_at)
+- coach_schedule_template_items (id, template_id, day_of_week, start_time, end_time, title, location, training_type, group_size, notes, sort_order)
+
+FEATURE 2 — ATHLETE “VIEW” BUTTON SHOWS COACH’S NEXT 30 DAYS (EXPLODED VIEW)
+Goal:
+- When an athlete views a coach and clicks a “View” button, show a full “exploded” view of the coach’s next 30 days.
+- This view should render actual upcoming sessions derived from:
+   (a) the coach’s weekly template, projected forward for 30 days
+   AND optionally
+   (b) coach availability rules/exceptions if they exist in the project (do not break existing availability—integrate cleanly if present).
+
+Requirements:
+1) Add a “View” button on coach cards and/or coach profile that opens a dedicated page or modal:
+   - Title: “Next 30 Days”
+   - Shows daily list or calendar/list hybrid (acceptable: list grouped by date).
+2) Generation logic:
+   - For each day in the next 30 days, compute sessions by applying the weekly template items for that weekday.
+   - Respect the coach’s timezone.
+3) If availability rules/exceptions exist:
+   - Flag sessions that fall outside availability as “Unavailable”
+   - Otherwise mark as “Available” (or neutral)
+   - Do not allow booking from unavailable sessions
+4) Display for each session:
+   - date, start/end time, title, location (if set), group size, status badge (Available/Unavailable)
+5) CTA (may be stubbed cleanly):
+   - If Available: allow athlete to click “Request this session/time”
+   - Create a training request record tied to the athlete and coach, with requested time.
+   - Enforce that the athlete must have an ACCEPTED connection with the coach before they can submit the request; if not connected, show a clear message to connect first.
+6) Authorization and privacy:
+   - Athletes can view only public schedule data.
+   - Coaches can view their own full schedule.
+   - Do not expose private notes if present.
+
+ENGINEERING REQUIREMENTS
+- Must be responsive on mobile and desktop.
+- Must not introduce horizontal overflow.
+- Must include role-based access control at the data layer (Supabase RLS or backend middleware), not only in UI.
+- Add indexes and uniqueness constraints where appropriate.
+- Add basic tests:
+  - Coach can edit own template; athlete cannot edit it.
+  - 30-day projection returns correct number of days and correct weekday mapping.
+- Output must include:
+  1) DB migrations/SQL (tables, indexes, constraints)
+  2) Authorization policies/rules (RLS/middleware)
+  3) Service functions/modules to read/write template and compute 30-day view
+  4) UI components/pages added/changed by file path
+  5) Manual QA checklist (step-by-step)
+
+Do not refactor unrelated parts of the app. Implement minimal changes needed to add these features correctly.

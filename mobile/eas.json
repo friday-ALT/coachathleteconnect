@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 13.2.0"
+    "version": ">= 13.2.0",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "development": {
@@ -21,7 +22,7 @@
     },
     "production": {
       "env": {
-        "WEB_URL": "https://your-production-api-url.com"
+        "WEB_URL": "https://coachathleteconnect-production.up.railway.app"
       }
     }
   },

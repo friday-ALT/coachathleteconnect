@@ -75,9 +75,11 @@ export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
 
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    // No web client build present — API-only mode (mobile app backend)
+    app.use("*", (_req, res) => {
+      res.status(200).json({ status: "ok", message: "CoachAthleteConnect API" });
+    });
+    return;
   }
 
   app.use(express.static(distPath));

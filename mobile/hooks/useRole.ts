@@ -1,9 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sessionApi } from '../lib/api';
 import type { Role } from '../types';
+import { SCREENSHOT_MODE, SCREENSHOT_ROLE } from '../constants/config';
 
 export function useRole() {
   const queryClient = useQueryClient();
+
+  if (SCREENSHOT_MODE) {
+    return {
+      activeRole: SCREENSHOT_ROLE as Role,
+      hasAthleteProfile: true,
+      hasCoachProfile: false,
+      athleteProfileComplete: true,
+      coachProfileComplete: false,
+      isLoading: false,
+      enterRole: async (_role: Role) => {},
+      exitRole: async () => {},
+    };
+  }
 
   const { data: session, isLoading, error } = useQuery({
     queryKey: ['session'],

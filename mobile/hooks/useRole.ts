@@ -6,25 +6,13 @@ import { SCREENSHOT_MODE, SCREENSHOT_ROLE } from '../constants/config';
 export function useRole() {
   const queryClient = useQueryClient();
 
-  if (SCREENSHOT_MODE) {
-    return {
-      activeRole: SCREENSHOT_ROLE as Role,
-      hasAthleteProfile: true,
-      hasCoachProfile: false,
-      athleteProfileComplete: true,
-      coachProfileComplete: false,
-      isLoading: false,
-      enterRole: async (_role: Role) => {},
-      exitRole: async () => {},
-    };
-  }
-
   const { data: session, isLoading, error } = useQuery({
     queryKey: ['session'],
     queryFn: sessionApi.getSession,
     retry: false,
     retryOnMount: false,
     staleTime: 5 * 60 * 1000,
+    enabled: !SCREENSHOT_MODE,
   });
 
   const enterRoleMutation = useMutation({
@@ -40,6 +28,19 @@ export function useRole() {
       queryClient.invalidateQueries({ queryKey: ['session'] });
     },
   });
+
+  if (SCREENSHOT_MODE) {
+    return {
+      activeRole: SCREENSHOT_ROLE as Role,
+      hasAthleteProfile: true,
+      hasCoachProfile: false,
+      athleteProfileComplete: true,
+      coachProfileComplete: false,
+      isLoading: false,
+      enterRole: async (_role: Role) => {},
+      exitRole: async () => {},
+    };
+  }
 
   return {
     activeRole: session?.activeRole as Role | null,

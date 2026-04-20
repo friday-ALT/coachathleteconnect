@@ -8,22 +8,13 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  if (SCREENSHOT_MODE) {
-    return {
-      user: { id: 1, email: 'demo@example.com', firstName: 'Demo', lastName: 'User' },
-      isAuthenticated: true,
-      isLoading: false,
-      error: null,
-      logout: () => {},
-    };
-  }
-
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user'],
     queryFn: authApi.getUser,
     retry: false,
     retryOnMount: false,
     staleTime: 5 * 60 * 1000,
+    enabled: !SCREENSHOT_MODE,
   });
 
   const logoutMutation = useMutation({
@@ -35,6 +26,16 @@ export function useAuth() {
       router.replace('/welcome');
     },
   });
+
+  if (SCREENSHOT_MODE) {
+    return {
+      user: { id: 1, email: 'demo@example.com', firstName: 'Demo', lastName: 'User' },
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+      logout: () => {},
+    };
+  }
 
   return {
     user,

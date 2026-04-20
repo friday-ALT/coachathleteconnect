@@ -19,14 +19,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    const server = await registerRoutes(app);
 
-  app.use("*", (_req, res) => {
-    res.status(200).json({ status: "ok", message: "CoachAthleteConnect API" });
-  });
+    app.use("*", (_req, res) => {
+      res.status(200).json({ status: "ok", message: "CoachAthleteConnect API" });
+    });
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen(port, "0.0.0.0", () => {
-    console.log(`CoachAthleteConnect API serving on port ${port}`);
-  });
+    const port = parseInt(process.env.PORT || "5000", 10);
+    server.listen(port, "0.0.0.0", () => {
+      console.log(`CoachAthleteConnect API serving on port ${port}`);
+    });
+  } catch (err) {
+    console.error("Fatal startup error:", err);
+    process.exit(1);
+  }
 })();

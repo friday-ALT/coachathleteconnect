@@ -21,10 +21,8 @@ import { trainingRouter } from './training';
 import { paymentsRouter } from './payments';
 
 export async function registerRoutes(app: Express) {
-  // Auto-seed demo data on every startup in development
-  if (process.env.NODE_ENV === 'development') {
-    seedDemoCoaches().catch((e) => console.warn('Demo seed failed (non-fatal):', e.message));
-  }
+  // Auto-seed demo data on startup
+  seedDemoCoaches().catch((e) => console.warn('Demo seed failed (non-fatal):', e.message));
 
   // General rate limiting on all API routes
   app.use('/api', apiRateLimit);

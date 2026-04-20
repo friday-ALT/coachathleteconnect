@@ -85,6 +85,31 @@ export async function registerRoutes(app: Express) {
     });
   }
 
+  // Privacy Policy page
+  app.get('/privacy', (_req, res) => {
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Privacy Policy – Coach Athlete Connect</title>
+    <style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#333;line-height:1.7}h1{color:#26a641}h2{margin-top:32px}</style></head>
+    <body>
+    <h1>Privacy Policy</h1>
+    <p><strong>Last updated: April 2026</strong></p>
+    <p>Coach Athlete Connect ("we", "our", or "us") operates the Coach Athlete Connect mobile application. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our app.</p>
+    <h2>Information We Collect</h2>
+    <p>We collect information you provide directly, including your name, email address, profile photo, location, and any other information you choose to provide when creating a profile or booking sessions.</p>
+    <h2>How We Use Your Information</h2>
+    <p>We use the information we collect to provide, maintain, and improve our services, match athletes with coaches, process bookings, and communicate with you about your account and sessions.</p>
+    <h2>Google Sign-In</h2>
+    <p>We use Google Sign-In for authentication. When you sign in with Google, we receive your name, email address, and profile photo from Google. We do not receive or store your Google password.</p>
+    <h2>Data Sharing</h2>
+    <p>We do not sell your personal data. Coach and athlete profile information (name, location, specialties, availability) is visible to other users of the platform as part of the core service.</p>
+    <h2>Data Retention</h2>
+    <p>We retain your data for as long as your account is active. You may request deletion of your account and associated data by contacting us.</p>
+    <h2>Security</h2>
+    <p>We implement industry-standard security measures to protect your personal information.</p>
+    <h2>Contact Us</h2>
+    <p>If you have any questions about this Privacy Policy, please contact us at: <a href="mailto:fraserpage737@gmail.com">fraserpage737@gmail.com</a></p>
+    </body></html>`);
+  });
+
   // Global error handler (must be last)
   app.use(errorHandler);
 

@@ -32,6 +32,11 @@ export const authApi = {
     const response = await api.post('/api/auth/google', data);
     return response.data;
   },
+
+  appleLogin: async (data: { identityToken: string; user?: { name?: { firstName?: string; lastName?: string }; email?: string } }) => {
+    const response = await api.post('/api/auth/apple', data);
+    return response.data;
+  },
   
   demoLogin: async () => {
     const response = await api.post('/api/auth/demo-login');

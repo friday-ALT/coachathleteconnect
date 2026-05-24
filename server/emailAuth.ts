@@ -291,20 +291,130 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/auth/apple - Sign in with Apple
+router.post('/apple', async (req: Request, res: Response) => {
+  try {
+    const { identityToken, user: appleUser } = req.body;
+    if (!identityToken) {
+      return res.status(400).json({ error: 'identityToken is required' });
+    }
+
+    // Decode header to get key ID
+    const [headerB64] = identityToken.split('.');
+    const header = JSON.parse(Buffer.from(headerB64, 'base64url').toString());
+
+    // Fetch Apple's public keys
+    const keysRes = await fetch('https://appleid.apple.com/auth/keys');
+    const { keys } = await keysRes.json() as { keys: any[] };
+    const jwk = keys.find((k: any) => k.kid === header.kid);
+    if (!jwk) {
+      return res.status(401).json({ error: 'Apple public key not found' });
+    }
+
+    // Verify the token
+    const { createPublicKey } = await import('crypto');
+    const publicKey = createPublicKey({ key: jwk, format: 'jwk' });
+    const jwt = await import('jsonwebtoken');
+    let payload: any;
+    try {
+      payload = jwt.default.verify(identityToken, publicKey, {
+        algorithms: ['RS256'],
+        issuer: 'https://appleid.apple.com',
+      });
+    } catch {
+      return res.status(401).json({ error: 'Invalid Apple identity token' });
+    }
+
+    const appleId: string = payload.sub;
+    // Apple only sends email + name on first sign-in
+    const email: string | undefined = payload.email || appleUser?.email;
+    const firstName: string = appleUser?.name?.firstName || 'Apple';
+    const lastName: string  = appleUser?.name?.lastName  || 'User';
+
+    if (!email && !appleId) {
+      return res.status(400).json({ error: 'Could not determine user identity from Apple token' });
+    }
+
+    // Upsert user by appleId or email
+    let dbUser: any;
+    const byApple = appleId
+      ? await db.select().from(users).where(eq(users.googleId, `apple:${appleId}`)).limit(1)
+      : [];
+
+    if (byApple.length > 0) {
+      dbUser = byApple[0];
+    } else if (email) {
+      const byEmail = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
+      if (byEmail.length > 0) {
+        dbUser = byEmail[0];
+        // Link apple ID to existing account
+        await db.update(users).set({ googleId: `apple:${appleId}` }).where(eq(users.id, dbUser.id));
+      }
+    }
+
+    if (!dbUser) {
+      // New user — create account
+      const newId = crypto.randomUUID();
+      await db.insert(users).values({
+        id: newId,
+        email: email ? email.toLowerCase() : `apple_${appleId}@privaterelay.appleid.com`,
+        firstName,
+        lastName,
+        authProvider: 'apple',
+        emailVerified: 1,
+        googleId: `apple:${appleId}`,
+      });
+      dbUser = { id: newId, email, firstName, lastName };
+    }
+
+    const token = signToken({
+      sub: dbUser.id,
+      email: dbUser.email || '',
+      firstName: dbUser.firstName || firstName,
+      lastName: dbUser.lastName || lastName,
+    });
+
+    res.json({
+      message: 'Apple sign-in successful',
+      token,
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+        firstName: dbUser.firstName || firstName,
+        lastName: dbUser.lastName || lastName,
+      },
+      existingUser: !!byApple.length,
+    });
+  } catch (error: any) {
+    console.error('Apple sign-in error:', error);
+    res.status(500).json({ error: 'Apple sign-in failed. Please try again.' });
+  }
+});
+
 // POST /api/auth/demo-login - Quick demo login (no credentials required)
 router.post('/demo-login', async (req: Request, res: Response) => {
   try {
     console.log('Demo login endpoint called');
-    
-    // Check if demo user exists, create if not
-    const [existingDemoUser] = await db.select().from(users)
-      .where(eq(users.id, DEMO_CREDENTIALS.userId))
-      .limit(1);
-    
-    if (!existingDemoUser) {
-      await db.insert(users).values(DEMO_USER_DATA);
-      console.log('Created demo user');
-    }
+
+    // Upsert demo user — safe to call repeatedly
+    await db.insert(users)
+      .values({
+        id: DEMO_CREDENTIALS.userId,
+        email: DEMO_CREDENTIALS.email,
+        firstName: DEMO_USER_DATA.firstName as string,
+        lastName: DEMO_USER_DATA.lastName as string,
+        authProvider: 'demo',
+        emailVerified: 1,
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          email: DEMO_CREDENTIALS.email,
+          firstName: DEMO_USER_DATA.firstName as string,
+          lastName: DEMO_USER_DATA.lastName as string,
+          updatedAt: new Date(),
+        },
+      });
 
     const token = signToken({
       sub: DEMO_CREDENTIALS.userId,

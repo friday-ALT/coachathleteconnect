@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 // ─── Screenshot mode ───────────────────────────────────────────────────────────
 // Set to true to skip login and load directly into the app for screenshots.
 // Set back to false before building for the App Store.
-export const SCREENSHOT_MODE = false;
+export const SCREENSHOT_MODE = true;
 export const SCREENSHOT_ROLE: 'athlete' | 'coach' = 'athlete'; // which view to show
 
 /**

@@ -5,6 +5,7 @@ import { insertTimeSlotRequestSchema } from '@shared/schema';
 import { logAuthFailure } from '../security';
 import { sendPushToUser } from '../notifications';
 import { db } from '../db';
+import { createNotification } from './notifications';
 
 export const requestsRouter = Router();
 
@@ -26,12 +27,9 @@ requestsRouter.post('/', isAuthenticated, requireRole('athlete'), async (req: an
     const athleteName = athlete?.firstName
       ? `${athlete.firstName} ${athlete.lastName ?? ''}`.trim()
       : (athlete?.email ?? 'An athlete');
-    sendPushToUser(
-      db, data.coachId,
-      '📅 New Booking Request',
-      `${athleteName} wants to book a session with you.`,
-      { screen: '/(coach)/requests', requestId: request.id }
-    );
+    const notifBody = `${athleteName} wants to book a session with you.`;
+    sendPushToUser(db, data.coachId, '📅 New Booking Request', notifBody, { screen: '/(coach)/requests', requestId: request.id });
+    createNotification(data.coachId, 'session_request', 'New session request', notifBody, { requestId: request.id });
 
     res.status(201).json(request);
   } catch (error: any) {
@@ -103,19 +101,13 @@ requestsRouter.patch('/:id', isAuthenticated, requireRole('coach'), async (req: 
       ? `${coach.firstName} ${coach.lastName ?? ''}`.trim()
       : 'Your coach';
     if (status === 'ACCEPTED') {
-      sendPushToUser(
-        db, request.athleteId,
-        '✅ Session Confirmed!',
-        `${coachName} approved your booking request.`,
-        { screen: '/(athlete)/sessions', requestId: request.id }
-      );
+      const body = `${coachName} confirmed your session request.`;
+      sendPushToUser(db, request.athleteId, '✅ Session Confirmed!', body, { screen: '/(athlete)/sessions', requestId: request.id });
+      createNotification(request.athleteId, 'session_accepted', 'Session confirmed! ✅', body, { requestId: request.id });
     } else {
-      sendPushToUser(
-        db, request.athleteId,
-        '❌ Session Declined',
-        `${coachName} declined your booking request.`,
-        { screen: '/(athlete)/sessions', requestId: request.id }
-      );
+      const body = `${coachName} declined your session request.`;
+      sendPushToUser(db, request.athleteId, '❌ Session Declined', body, { screen: '/(athlete)/sessions', requestId: request.id });
+      createNotification(request.athleteId, 'session_declined', 'Session declined', body, { requestId: request.id });
     }
 
     res.json(updated);

@@ -2,11 +2,15 @@ import { Router } from 'express';
 import { storage } from '../storage';
 import { isAuthenticated, requireRole } from '../replitAuth';
 import { insertConnectionSchema } from '@shared/schema';
+import { createNotification } from './notifications';
+import { db } from '../db';
+import { users } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 export const connectionsRouter = Router();
 
 // POST /api/connections
-connectionsRouter.post('/', isAuthenticated, requireRole('athlete'), async (req: any, res) => {
+connectionsRouter.post('/', isAuthenticated, async (req: any, res) => {
   try {
     const athleteId = req.user.claims.sub;
     const data = insertConnectionSchema.parse(req.body);
@@ -23,6 +27,13 @@ connectionsRouter.post('/', isAuthenticated, requireRole('athlete'), async (req:
     if (existing) return res.status(400).json({ message: 'Connection already exists' });
 
     const connection = await storage.createConnection({ ...data, athleteId });
+
+    // Notify the coach
+    const [athlete] = await db.select().from(users).where(eq(users.id, athleteId)).limit(1);
+    const athleteName = athlete?.firstName ? `${athlete.firstName} ${athlete.lastName ?? ''}`.trim() : 'An athlete';
+    const body = `${athleteName} wants to connect with you.`;
+    createNotification(data.coachId, 'connection_request', 'New connection request', body, { connectionId: connection.id });
+
     res.status(201).json(connection);
   } catch (error: any) {
     res.status(400).json({ message: error.message || 'Failed to create connection' });
@@ -61,7 +72,7 @@ connectionsRouter.patch('/:id', isAuthenticated, requireRole('coach'), async (re
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const userId = req.user.claims.sub;
+    const coachId = req.user.claims.sub;
 
     if (!['ACCEPTED', 'DECLINED', 'BLOCKED'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
@@ -69,9 +80,19 @@ connectionsRouter.patch('/:id', isAuthenticated, requireRole('coach'), async (re
 
     const connection = await storage.getConnectionById(id);
     if (!connection) return res.status(404).json({ message: 'Connection not found' });
-    if (connection.coachId !== userId) return res.status(403).json({ message: 'Only the coach can update connection status' });
+    if (connection.coachId !== coachId) return res.status(403).json({ message: 'Only the coach can update connection status' });
 
     const updated = await storage.updateConnectionStatus(id, status);
+
+    // Notify athlete of decision
+    const [coach] = await db.select().from(users).where(eq(users.id, coachId)).limit(1);
+    const coachName = coach?.firstName ? `${coach.firstName} ${coach.lastName ?? ''}`.trim() : 'The coach';
+    if (status === 'ACCEPTED') {
+      createNotification(connection.athleteId, 'connection_accepted', 'Connection accepted! 🎉', `${coachName} accepted your connection request. You can now book sessions.`, { connectionId: id });
+    } else if (status === 'DECLINED') {
+      createNotification(connection.athleteId, 'connection_declined', 'Connection declined', `${coachName} declined your connection request.`, { connectionId: id });
+    }
+
     res.json(updated);
   } catch (error: any) {
     res.status(400).json({ message: error.message || 'Failed to update connection' });

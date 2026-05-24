@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link, useSearch } from "wouter";
+import { useParams, Link, useSearch, useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, MapPin, DollarSign, Star, ArrowLeft, Calendar, Clock, Users, UserPlus, CheckCircle, XCircle, Clock3 } from "lucide-react";
+import { Loader2, MapPin, DollarSign, Star, ArrowLeft, Calendar, Clock, Users, UserPlus, CheckCircle, XCircle, Clock3, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,7 @@ export default function CoachProfileView() {
   const { isAuthenticated, user } = useAuth();
   const { isAthlete, hasCoachProfile, hasAthleteProfile } = useRole();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
@@ -119,16 +120,15 @@ export default function CoachProfileView() {
       return;
     }
     
-    // TEMPORARY: Connection check bypassed for testing
-    // if (!isConnected) {
-    //   toast({
-    //     title: "Connection Required",
-    //     description: "You must connect with this coach before requesting a session.",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-    
+    if (!isConnected) {
+      toast({
+        title: "Connection Required",
+        description: "You must be connected with this coach before requesting a session.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSelectedSlot(slot);
     setIsRequestDialogOpen(true);
   };
@@ -159,8 +159,8 @@ export default function CoachProfileView() {
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
-      <Link 
-        href={isOwnProfile ? "/dashboard" : "/browse"} 
+      <Link
+        href={isOwnProfile ? "/coach/dashboard" : "/browse"}
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
         data-testid="link-back"
       >
@@ -232,9 +232,29 @@ export default function CoachProfileView() {
                           <CheckCircle className="h-4 w-4" />
                           <span className="text-sm font-medium">Connected</span>
                         </div>
-                        <p className="text-xs text-muted-foreground text-center">
-                          You can now request training sessions
-                        </p>
+                        <Link href={`/book/${coachId}`}>
+                          <Button className="w-full" size="sm">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Book a Session
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              const res = await apiRequest("POST", "/api/conversations", { otherUserId: coachId });
+                              const conv = await res.json();
+                              setLocation(`/messages/${conv.id}`);
+                            } catch {
+                              toast({ title: "Failed to open conversation", variant: "destructive" });
+                            }
+                          }}
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Send Message
+                        </Button>
                       </div>
                     ) : isPendingConnection ? (
                       <div className="space-y-2">

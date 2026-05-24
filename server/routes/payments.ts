@@ -17,13 +17,19 @@ function getStripe(): Stripe {
 const PLATFORM_FEE_PERCENT = 0.15; // 15% platform fee
 const APP_SCHEME = 'coachconnect';  // matches app.json "scheme"
 
+/** Base URL for web redirects — set WEB_APP_URL in production */
+function webBaseUrl(): string {
+  return process.env.WEB_APP_URL || 'http://localhost:3001';
+}
+
 // ─── POST /api/payments/create-checkout ──────────────────────────────────────
 // Athlete calls this to get a Stripe Checkout URL for booking a session
 router.post('/create-checkout', isAuthenticated, async (req: any, res: Response) => {
   try {
     const stripe = getStripe();
     const athleteId = req.user.claims.sub;
-    const { coachId, requestedDate, requestedStartTime, requestedEndTime, durationMins, message } = req.body;
+    const { coachId, requestedDate, requestedStartTime, requestedEndTime, durationMins, message, source } = req.body;
+    const isWeb = source === 'web';
 
     if (!coachId || !requestedDate || !requestedStartTime || !durationMins) {
       return res.status(400).json({ message: 'Missing required booking details' });
@@ -88,9 +94,13 @@ router.post('/create-checkout', isAuthenticated, async (req: any, res: Response)
         },
         quantity: 1,
       }],
-      // Deep link back to app after payment
-      success_url: `${APP_SCHEME}://payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${APP_SCHEME}://payment-cancel`,
+      // Redirect back to web or mobile app after payment
+      success_url: isWeb
+        ? `${webBaseUrl()}/payment/success?session_id={CHECKOUT_SESSION_ID}`
+        : `${APP_SCHEME}://payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: isWeb
+        ? `${webBaseUrl()}/payment/cancel`
+        : `${APP_SCHEME}://payment-cancel`,
       metadata,
     };
 

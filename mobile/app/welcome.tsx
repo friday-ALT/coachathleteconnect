@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Alert, Animated, Dimensions,
+  ActivityIndicator, Alert, Animated, Dimensions, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { authApi } from '../lib/api';
 import { getApiErrorMessage } from '../lib/apiError';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../constants/theme';
@@ -80,8 +81,40 @@ export default function Welcome() {
       Alert.alert('Demo login', getApiErrorMessage(e, 'Demo login failed.')),
   });
 
+  const appleMutation = useMutation({
+    mutationFn: authApi.appleLogin,
+    onSuccess:  (data) => onAuthSuccess(data, !data.existingUser),
+    onError:    (e: any) =>
+      Alert.alert('Sign-in failed', getApiErrorMessage(e, 'Apple sign-in failed. Please try again.')),
+  });
+
+  const handleAppleSignIn = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      appleMutation.mutate({
+        identityToken: credential.identityToken!,
+        user: {
+          name: {
+            firstName: credential.fullName?.givenName || undefined,
+            lastName:  credential.fullName?.familyName || undefined,
+          },
+          email: credential.email || undefined,
+        },
+      });
+    } catch (e: any) {
+      if (e.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Sign-in failed', 'Apple sign-in failed. Please try again.');
+      }
+    }
+  };
+
   const [googleSessionActive, setGoogleSessionActive] = useState(false);
-  const isLoading = googleMutation.isPending || demoMutation.isPending || googleSessionActive;
+  const isLoading = googleMutation.isPending || demoMutation.isPending || appleMutation.isPending || googleSessionActive;
 
   // ── Entrance animation ───────────────────────────────────────────────────────
   const fadeIn  = useRef(new Animated.Value(0)).current;
@@ -142,6 +175,17 @@ export default function Welcome() {
           )}
         </TouchableOpacity>
 
+        {/* Sign in with Apple — required on iOS whenever any third-party login is offered */}
+        {Platform.OS === 'ios' && (
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={BorderRadius.md}
+            style={styles.appleBtn}
+            onPress={handleAppleSignIn}
+          />
+        )}
+
         <Text style={styles.terms}>
           By continuing you agree to our{' '}
           <Text style={styles.termsLink}>Terms of Service</Text>
@@ -149,7 +193,7 @@ export default function Welcome() {
           <Text style={styles.termsLink}>Privacy Policy</Text>
         </Text>
 
-        {/* Demo (dev-only convenience — hidden in production) */}
+        {/* Demo account for App Store review */}
         <TouchableOpacity
           style={[styles.demoBtn, isLoading && styles.disabled]}
           onPress={() => demoMutation.mutate()}
@@ -245,6 +289,11 @@ const styles = StyleSheet.create({
   googleBtnText: {
     fontSize: FontSizes.base, fontWeight: '700',
     color: Colors.white, letterSpacing: 0.2,
+  },
+
+  appleBtn: {
+    height: 56,
+    marginBottom: Spacing.md,
   },
 
   terms: {

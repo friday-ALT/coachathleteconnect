@@ -1,90 +1,77 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Link, useSearch } from "wouter";
+import { Link, useSearch, useLocation } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star, DollarSign, Loader2, Search, User, Calendar } from "lucide-react";
+import { MapPin, Star, Pound, Loader2, Search, User, Calendar, UserPlus } from "lucide-react";
 import type { CoachProfile, AthleteProfile } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import RequestTimeSlotModal from "@/components/RequestTimeSlotModal";
 
 interface CoachWithUser extends CoachProfile {
-  user?: {
-    firstName?: string;
-    lastName?: string;
-    profileImageUrl?: string;
-  };
+  user?: { firstName?: string; lastName?: string; profileImageUrl?: string };
 }
 
 interface AthleteWithUser extends AthleteProfile {
-  user?: {
-    id?: string;
-    firstName?: string;
-    lastName?: string;
-    profileImageUrl?: string;
-  };
+  user?: { id?: string; firstName?: string; lastName?: string; profileImageUrl?: string };
 }
 
 function BrowseCoaches() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [skillLevel, setSkillLevel] = useState<string>("");
-  const [groupSize, setGroupSize] = useState<string>("");
+  const [skillLevel, setSkillLevel] = useState<string>("all");
   const [selectedCoach, setSelectedCoach] = useState<CoachWithUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
-
-  const handleBookSession = (coach: CoachWithUser) => {
-    if (isAuthenticated) {
-      setSelectedCoach(coach);
-      setIsModalOpen(true);
-    } else {
-      window.location.href = "/api/login";
-    }
-  };
+  const [, setLocation] = useLocation();
 
   const { data: coaches, isLoading } = useQuery<CoachWithUser[]>({
-    queryKey: ["/api/coaches", { q: searchTerm, skillLevel, groupSize }],
+    queryKey: ["/api/coaches", { q: searchTerm, skillLevel }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchTerm) params.append("q", searchTerm);
-      if (skillLevel) params.append("skillLevel", skillLevel);
-      if (groupSize) params.append("groupSize", groupSize);
-
-      const response = await fetch(`/api/coaches?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch coaches");
-      return response.json();
+      // Don't send "all" to the API — server treats absence as "all"
+      if (skillLevel && skillLevel !== "all") params.append("skillLevel", skillLevel);
+      const res = await fetch(`/api/coaches?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch coaches");
+      return res.json();
     },
   });
 
+  const handleRequest = (coach: CoachWithUser) => {
+    if (!isAuthenticated) {
+      setLocation("/auth/login");
+      return;
+    }
+    setSelectedCoach(coach);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-      <div className="mb-6 md:mb-8">
-        <h1 className="mb-2 text-2xl sm:text-3xl md:text-4xl font-bold">Search for Coaches</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Find experienced coaches in your area. Sign up to book sessions!
-        </p>
+      <div className="mb-6">
+        <h1 className="mb-1 text-2xl sm:text-3xl font-bold">Find a Coach</h1>
+        <p className="text-sm text-muted-foreground">Browse certified coaches and book a session</p>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 md:mb-8 grid gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3">
-        <div className="relative">
+      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by name or location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
-            data-testid="input-search"
           />
         </div>
-
         <Select value={skillLevel} onValueChange={setSkillLevel}>
-          <SelectTrigger data-testid="select-skill-level">
+          <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Skill Level" />
           </SelectTrigger>
           <SelectContent>
@@ -94,109 +81,64 @@ function BrowseCoaches() {
             <SelectItem value="Advanced">Advanced</SelectItem>
           </SelectContent>
         </Select>
-
-        <Select value={groupSize} onValueChange={setGroupSize}>
-          <SelectTrigger data-testid="select-group-size">
-            <SelectValue placeholder="Group Size" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Any Size</SelectItem>
-            <SelectItem value="1">Individual (1)</SelectItem>
-            <SelectItem value="2-5">Small Group (2-5)</SelectItem>
-            <SelectItem value="6+">Large Group (6+)</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Coach Results */}
       {isLoading ? (
-        <div className="flex min-h-[30vh] md:min-h-[40vh] items-center justify-center">
+        <div className="flex min-h-[40vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : coaches && coaches.length > 0 ? (
-        <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {coaches.map((coach) => (
-            <Card key={coach.id} className="hover-elevate" data-testid={`card-coach-${coach.id}`}>
+            <Card key={coach.id} className="hover-elevate flex flex-col">
               <CardHeader className="pb-3">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-16 w-16">
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-14 w-14 flex-shrink-0">
                     <AvatarImage src={coach.avatarUrl || undefined} alt={coach.name} />
-                    <AvatarFallback className="text-lg">
-                      {coach.name.split(" ").map(n => n[0]).join("")}
-                    </AvatarFallback>
+                    <AvatarFallback>{coach.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg" data-testid={`text-coach-name-${coach.id}`}>
-                      {coach.name}
-                    </h3>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold leading-tight">{coach.name}</h3>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <MapPin className="h-3 w-3" />
-                      <span>{coach.locationCity}, {coach.locationState}</span>
+                      <span className="truncate">{coach.locationCity}, {coach.locationState}</span>
                     </div>
+                    <div className="flex items-center gap-1 mt-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star key={i} className={`h-3 w-3 ${i <= Math.floor(coach.ratingAvg || 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"}`} />
+                      ))}
+                      <span className="text-xs text-muted-foreground ml-0.5">({coach.ratingCount || 0})</span>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span className="font-bold text-primary">£{(coach.pricePerHour / 100).toFixed(0)}</span>
+                    <p className="text-xs text-muted-foreground">/hr</p>
                   </div>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-4 w-4 ${
-                          i < Math.floor(coach.ratingAvg || 0)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {coach.ratingAvg?.toFixed(1) || "0.0"} ({coach.ratingCount || 0} reviews)
-                  </span>
-                </div>
-
-                <p className="text-sm line-clamp-2">{coach.experience}</p>
+              <CardContent className="flex-1 flex flex-col justify-between gap-3">
+                <p className="text-sm text-muted-foreground line-clamp-2">{coach.experience}</p>
 
                 {coach.specialties && coach.specialties.length > 0 && (
                   <div className="flex flex-wrap gap-1">
-                    {coach.specialties.slice(0, 3).map((specialty) => (
-                      <Badge key={specialty} variant="secondary" className="text-xs">
-                        {specialty}
-                      </Badge>
+                    {coach.specialties.slice(0, 3).map((s) => (
+                      <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
                     ))}
-                    {coach.specialties.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{coach.specialties.length - 3}
-                      </Badge>
-                    )}
+                    {coach.specialties.length > 3 && <Badge variant="outline" className="text-xs">+{coach.specialties.length - 3}</Badge>}
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-1 text-lg font-semibold text-primary">
-                    <DollarSign className="h-5 w-5" />
-                    <span>{(coach.pricePerHour / 100).toFixed(0)}/hr</span>
-                  </div>
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <Link href={`/coach/${coach.userId}`}>
-                      <Button
-                        variant="outline"
-                        className="flex-1 sm:flex-none min-h-[44px]"
-                        data-testid={`button-view-profile-${coach.id}`}
-                      >
-                        <Calendar className="h-4 w-4 mr-2" />
-                        View
-                      </Button>
-                    </Link>
-                    <Button
-                      className="flex-1 sm:flex-none min-h-[44px]"
-                      onClick={() => handleBookSession(coach)}
-                      data-testid={`button-book-${coach.id}`}
-                    >
-                      Request
+                <div className="flex gap-2 pt-1">
+                  <Link href={`/coach/${coach.userId}`} className="flex-1">
+                    <Button variant="outline" className="w-full min-h-[40px]">
+                      <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                      View Profile
                     </Button>
-                  </div>
+                  </Link>
+                  <Button className="flex-1 min-h-[40px]" onClick={() => handleRequest(coach)}>
+                    Request
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -204,11 +146,9 @@ function BrowseCoaches() {
         </div>
       ) : (
         <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-          <Search className="mb-4 h-16 w-16 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-medium">No coaches found</h3>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your search filters
-          </p>
+          <Search className="mb-4 h-12 w-12 text-muted-foreground opacity-40" />
+          <h3 className="mb-1 text-lg font-medium">No coaches found</h3>
+          <p className="text-sm text-muted-foreground">Try adjusting your search or check back soon</p>
         </div>
       )}
 
@@ -216,10 +156,7 @@ function BrowseCoaches() {
         <RequestTimeSlotModal
           coach={selectedCoach}
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedCoach(null);
-          }}
+          onClose={() => { setIsModalOpen(false); setSelectedCoach(null); }}
         />
       )}
     </div>
@@ -228,45 +165,59 @@ function BrowseCoaches() {
 
 function BrowseAthletes() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [skillLevel, setSkillLevel] = useState<string>("");
+  const [skillLevel, setSkillLevel] = useState<string>("all");
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const { data: athletes, isLoading } = useQuery<AthleteWithUser[]>({
     queryKey: ["/api/athletes", { q: searchTerm, skillLevel }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchTerm) params.append("q", searchTerm);
-      if (skillLevel) params.append("skillLevel", skillLevel);
-
-      const response = await fetch(`/api/athletes?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch athletes");
-      return response.json();
+      if (skillLevel && skillLevel !== "all") params.append("skillLevel", skillLevel);
+      const res = await fetch(`/api/athletes?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch athletes");
+      return res.json();
     },
   });
 
+  const connectMutation = useMutation({
+    mutationFn: async (athleteId: string) => {
+      const res = await apiRequest("POST", "/api/connections", { athleteId });
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Connection request sent ✓" });
+      queryClient.invalidateQueries({ queryKey: ["/api/connections"] });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const handleConnect = (athleteUserId: string) => {
+    if (!isAuthenticated) { setLocation("/auth/login"); return; }
+    connectMutation.mutate(athleteUserId);
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-      <div className="mb-6 md:mb-8">
-        <h1 className="mb-2 text-2xl sm:text-3xl md:text-4xl font-bold">Search for Athletes</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Find athletes looking for training in your area
-        </p>
+      <div className="mb-6">
+        <h1 className="mb-1 text-2xl sm:text-3xl font-bold">Find Athletes</h1>
+        <p className="text-sm text-muted-foreground">Connect with athletes looking for training in your area</p>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 md:mb-8 grid gap-3 md:gap-4 sm:grid-cols-2">
-        <div className="relative">
+      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
-            data-testid="input-search-athletes"
           />
         </div>
-
         <Select value={skillLevel} onValueChange={setSkillLevel}>
-          <SelectTrigger data-testid="select-skill-level-athletes">
+          <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Skill Level" />
           </SelectTrigger>
           <SelectContent>
@@ -278,61 +229,60 @@ function BrowseAthletes() {
         </Select>
       </div>
 
-      {/* Athlete Results */}
       {isLoading ? (
-        <div className="flex min-h-[30vh] md:min-h-[40vh] items-center justify-center">
+        <div className="flex min-h-[40vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : athletes && athletes.length > 0 ? (
-        <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {athletes.map((athlete) => (
-            <Card key={athlete.id} className="hover-elevate" data-testid={`card-athlete-${athlete.id}`}>
+            <Card key={athlete.id} className="hover-elevate">
               <CardHeader className="pb-3">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={athlete.user?.profileImageUrl || undefined} alt={athlete.user?.firstName || "Athlete"} />
-                    <AvatarFallback className="text-lg">
-                      {athlete.user?.firstName?.[0] || "A"}
-                      {athlete.user?.lastName?.[0] || ""}
-                    </AvatarFallback>
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage src={athlete.user?.profileImageUrl || undefined} />
+                    <AvatarFallback>{athlete.user?.firstName?.[0] || "A"}{athlete.user?.lastName?.[0] || ""}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg" data-testid={`text-athlete-name-${athlete.id}`}>
-                      {athlete.user?.firstName || "Anonymous"} {athlete.user?.lastName?.[0] || ""}.
+                    <h3 className="font-semibold">
+                      {athlete.user?.firstName || "Athlete"} {athlete.user?.lastName?.[0] ? `${athlete.user.lastName[0]}.` : ""}
                     </h3>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="h-3 w-3" />
                       <span>{athlete.locationCity}, {athlete.locationState}</span>
+                    </div>
+                    <div className="flex gap-1 mt-1.5">
+                      <Badge variant="secondary" className="text-xs">Age {athlete.age}</Badge>
+                      <Badge variant="outline" className="text-xs">{athlete.skillLevel}</Badge>
                     </div>
                   </div>
                 </div>
               </CardHeader>
-
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">
-                    <User className="h-3 w-3 mr-1" />
-                    Age: {athlete.age}
-                  </Badge>
-                  <Badge variant="outline">
-                    {athlete.skillLevel}
-                  </Badge>
-                </div>
-                
-                <p className="text-sm text-muted-foreground">
-                  Looking for soccer training sessions
-                </p>
+              <CardContent>
+                {(athlete as any).goals && (
+                  <p className="text-xs text-muted-foreground italic mb-3 line-clamp-2">
+                    &ldquo;{(athlete as any).goals}&rdquo;
+                  </p>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  size="sm"
+                  onClick={() => handleConnect(athlete.userId)}
+                  disabled={connectMutation.isPending}
+                >
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  Connect
+                </Button>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
         <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-          <User className="mb-4 h-16 w-16 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-medium">No athletes found</h3>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your search filters
-          </p>
+          <User className="mb-4 h-12 w-12 text-muted-foreground opacity-40" />
+          <h3 className="mb-1 text-lg font-medium">No athletes found</h3>
+          <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
         </div>
       )}
     </div>
@@ -340,12 +290,12 @@ function BrowseAthletes() {
 }
 
 export default function Browse() {
-  const { isAthlete, isCoach, isLoading, needsRoleSelection } = useRole();
+  const { isCoach, isLoading } = useRole();
   const searchString = useSearch();
 
   const tabOverride = useMemo(() => {
     const params = new URLSearchParams(searchString);
-    return params.get('tab');
+    return params.get("tab");
   }, [searchString]);
 
   if (isLoading) {
@@ -356,21 +306,8 @@ export default function Browse() {
     );
   }
 
-  // Allow query parameter to override the default view
-  if (tabOverride === 'athletes') {
-    return <BrowseAthletes />;
-  }
-  if (tabOverride === 'coaches') {
-    return <BrowseCoaches />;
-  }
+  if (tabOverride === "athletes") return <BrowseAthletes />;
+  if (tabOverride === "coaches") return <BrowseCoaches />;
 
-  if (needsRoleSelection) {
-    return <BrowseCoaches />;
-  }
-
-  if (isCoach) {
-    return <BrowseAthletes />;
-  }
-
-  return <BrowseCoaches />;
+  return isCoach ? <BrowseAthletes /> : <BrowseCoaches />;
 }

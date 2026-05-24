@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fraserpage.coachathleteconnect",
+      "usesAppleSignIn": true,
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to upload profile pictures.",
@@ -68,6 +69,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       "expo-web-browser",
       [
         "expo-notifications",

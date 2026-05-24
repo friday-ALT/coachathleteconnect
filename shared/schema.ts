@@ -9,7 +9,9 @@ import {
   integer,
   real,
   text,
+  boolean,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -515,3 +517,53 @@ export const transactions = pgTable("transactions", {
 ]);
 
 export type Transaction = typeof transactions.$inferSelect;
+
+// ─── Messaging ───────────────────────────────────────────────────────────────
+
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  athleteId: varchar("athlete_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  coachId: varchar("coach_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_conversations_pair").on(table.athleteId, table.coachId),
+  index("idx_conversations_athlete").on(table.athleteId),
+  index("idx_conversations_coach").on(table.coachId),
+]);
+
+export type Conversation = typeof conversations.$inferSelect;
+export const insertConversationSchema = createInsertSchema(conversations).omit({ id: true, createdAt: true });
+
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: 'cascade' }),
+  senderId: varchar("sender_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  content: text("content").notNull(),
+  read: boolean("read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_messages_conversation").on(table.conversationId),
+  index("idx_messages_sender").on(table.senderId),
+]);
+
+export type Message = typeof messages.$inferSelect;
+export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, senderId: true, read: true, createdAt: true });
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: varchar("type").notNull(), // 'session_request' | 'session_accepted' | 'session_declined' | 'connection_request' | 'connection_accepted' | 'new_message'
+  title: varchar("title").notNull(),
+  body: text("body"),
+  data: jsonb("data").$type<Record<string, string>>(),
+  read: boolean("read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_notifications_user").on(table.userId),
+  index("idx_notifications_read").on(table.userId, table.read),
+]);
+
+export type Notification = typeof notifications.$inferSelect;

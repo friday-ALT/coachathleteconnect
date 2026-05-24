@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { Menu, Users, Search, FileText, User, LogOut, Trophy, Home } from "lucide-react";
+import { Menu, Users, Search, FileText, User, LogOut, Trophy, Home, Calendar, Inbox, Star, MessageSquare } from "lucide-react";
 
 export function MobileMenu() {
   const { user, isAuthenticated } = useAuth();
@@ -48,21 +48,39 @@ export function MobileMenu() {
               {isAthlete && (
                 <>
                   <Link href="/athlete/dashboard" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-dashboard-mobile">
+                    <Button variant="ghost" className="w-full justify-start gap-2">
                       <Home className="h-4 w-4" />
                       Dashboard
                     </Button>
                   </Link>
                   <Link href="/athlete/find-coaches" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-browse-mobile">
+                    <Button variant="ghost" className="w-full justify-start gap-2">
                       <Search className="h-4 w-4" />
                       Find Coaches
                     </Button>
                   </Link>
-                  <Link href="/athlete/requests" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-requests-mobile">
-                      <FileText className="h-4 w-4" />
-                      My Requests
+                  <Link href="/athlete/sessions" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Calendar className="h-4 w-4" />
+                      My Sessions
+                    </Button>
+                  </Link>
+                  <Link href="/athlete/connections" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Users className="h-4 w-4" />
+                      My Coaches
+                    </Button>
+                  </Link>
+                  <Link href="/athlete/reviews" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Star className="h-4 w-4" />
+                      My Reviews
+                    </Button>
+                  </Link>
+                  <Link href="/messages" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
                     </Button>
                   </Link>
                 </>
@@ -70,21 +88,39 @@ export function MobileMenu() {
               {isCoach && (
                 <>
                   <Link href="/coach/dashboard" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-dashboard-mobile">
+                    <Button variant="ghost" className="w-full justify-start gap-2">
                       <Home className="h-4 w-4" />
                       Dashboard
                     </Button>
                   </Link>
                   <Link href="/coach/requests" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-requests-mobile">
-                      <FileText className="h-4 w-4" />
-                      Incoming Requests
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Inbox className="h-4 w-4" />
+                      Requests
                     </Button>
                   </Link>
-                  <Link href="/coach/availability" onClick={closeMenu}>
-                    <Button variant="ghost" className="w-full justify-start gap-2" data-testid="link-availability-mobile">
-                      <FileText className="h-4 w-4" />
-                      Availability
+                  <Link href="/coach/schedule" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Calendar className="h-4 w-4" />
+                      My Schedule
+                    </Button>
+                  </Link>
+                  <Link href="/coach/athletes" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Users className="h-4 w-4" />
+                      My Athletes
+                    </Button>
+                  </Link>
+                  <Link href="/reviews" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Star className="h-4 w-4" />
+                      My Reviews
+                    </Button>
+                  </Link>
+                  <Link href="/messages" onClick={closeMenu}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
                     </Button>
                   </Link>
                 </>
@@ -168,7 +204,7 @@ export function MobileMenu() {
           ) : isAuthenticated && user && !hasAnyProfile ? (
             <>
               {/* User is authenticated but has no profile yet */}
-              <Link href="/onboarding" onClick={closeMenu}>
+              <Link href="/auth/role-selection" onClick={closeMenu}>
                 <Button className="w-full justify-start gap-2" data-testid="link-create-profile-mobile">
                   <User className="h-4 w-4" />
                   Create Profile
@@ -208,16 +244,16 @@ export function MobileMenu() {
                 </Button>
               </Link>
               <div className="my-4 border-t" />
-              <Link href="/login" onClick={closeMenu}>
-                <Button variant="ghost" className="w-full justify-start gap-2" data-testid="button-login-mobile">
+              <Link href="/auth/login" onClick={closeMenu}>
+                <Button variant="ghost" className="w-full justify-start gap-2">
                   <User className="h-4 w-4" />
-                  Login
+                  Sign in
                 </Button>
               </Link>
-              <Link href="/signup" onClick={closeMenu}>
-                <Button className="w-full justify-start gap-2" data-testid="button-signup-mobile">
+              <Link href="/auth/signup" onClick={closeMenu}>
+                <Button className="w-full justify-start gap-2">
                   <User className="h-4 w-4" />
-                  Sign Up
+                  Get started
                 </Button>
               </Link>
             </>

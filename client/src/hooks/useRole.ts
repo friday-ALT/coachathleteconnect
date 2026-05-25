@@ -60,8 +60,8 @@ export function useRole() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/session"] });
-      // Navigate to landing page after exit - user can choose their role from there
-      window.location.href = "/";
+      // Go to role selection so user can switch roles
+      window.location.href = "/auth/role-selection";
     },
   });
 

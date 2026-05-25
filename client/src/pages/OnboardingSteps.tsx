@@ -26,6 +26,7 @@ const athleteStep2Schema = z.object({
   skillLevel: z.enum(["Beginner", "Intermediate", "Advanced"]),
   locationCity: z.string().min(2, "City is required"),
   locationState: z.string().min(2, "State/County is required"),
+  locationTown: z.string().optional(),
   goals: z.string().optional(),
 });
 
@@ -37,6 +38,7 @@ const coachStep1Schema = z.object({
 const coachStep2Schema = z.object({
   locationCity: z.string().min(2, "City is required"),
   locationState: z.string().min(2, "State/County is required"),
+  locationTown: z.string().optional(),
   experience: z.string().min(10, "Please describe your experience (min 10 chars)").max(300),
   pricePerHour: z.coerce.number().int().min(0, "Price must be 0 or more"),
 });
@@ -83,6 +85,7 @@ export default function OnboardingSteps() {
       skillLevel: (saved.skillLevel as any) || "Beginner",
       locationCity: saved.locationCity || "",
       locationState: saved.locationState || "",
+      locationTown: saved.locationTown || "",
       goals: saved.goals || "",
     },
   });
@@ -100,6 +103,7 @@ export default function OnboardingSteps() {
     defaultValues: {
       locationCity: saved.locationCity || "",
       locationState: saved.locationState || "",
+      locationTown: saved.locationTown || "",
       experience: saved.experience || "",
       pricePerHour: saved.pricePerHour ?? (undefined as any),
     },
@@ -258,6 +262,13 @@ export default function OnboardingSteps() {
                     </FormItem>
                   )} />
                 </div>
+                <FormField control={athleteStep2Form.control} name="locationTown" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Town / Village <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                    <FormControl><Input placeholder="e.g. Wimbledon, Hackney, Didsbury..." className="h-12" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 <FormField control={athleteStep2Form.control} name="goals" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Your Goals <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
@@ -353,6 +364,13 @@ export default function OnboardingSteps() {
                     </FormItem>
                   )} />
                 </div>
+                <FormField control={coachStep2Form.control} name="locationTown" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Town / Village <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                    <FormControl><Input placeholder="e.g. Wimbledon, Hackney, Didsbury..." className="h-12" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 <FormField control={coachStep2Form.control} name="experience" render={({ field }) => (
                   <FormItem>
                     <FormLabel>About You / Experience</FormLabel>

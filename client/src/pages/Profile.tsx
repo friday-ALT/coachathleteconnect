@@ -26,6 +26,7 @@ const athleteSchema = z.object({
   skillLevel: z.enum(["Beginner", "Intermediate", "Advanced"]),
   locationCity: z.string().min(2, "City is required"),
   locationState: z.string().min(2, "State/County is required"),
+  locationTown: z.string().optional(),
   goals: z.string().optional(),
 });
 
@@ -34,6 +35,7 @@ const coachSchema = z.object({
   name: z.string().min(2, "Name is required"),
   locationCity: z.string().min(2, "City is required"),
   locationState: z.string().min(2, "State/County is required"),
+  locationTown: z.string().optional(),
   experience: z.string().min(10).max(300, "Experience must be between 10 and 300 characters"),
   pricePerHour: z.coerce.number().int().min(0, "Price must be 0 or more"),
 });
@@ -64,12 +66,12 @@ export default function Profile() {
 
   const athleteForm = useForm({
     resolver: zodResolver(athleteSchema),
-    defaultValues: { phone: "", age: 18 as any, skillLevel: "Beginner" as const, locationCity: "", locationState: "", goals: "" },
+    defaultValues: { phone: "", age: 18 as any, skillLevel: "Beginner" as const, locationCity: "", locationState: "", locationTown: "", goals: "" },
   });
 
   const coachForm = useForm({
     resolver: zodResolver(coachSchema),
-    defaultValues: { phone: "", name: "", locationCity: "", locationState: "", experience: "", pricePerHour: 0 as any },
+    defaultValues: { phone: "", name: "", locationCity: "", locationState: "", locationTown: "", experience: "", pricePerHour: 0 as any },
   });
 
   useEffect(() => {
@@ -80,6 +82,7 @@ export default function Profile() {
         skillLevel: athleteProfile.skillLevel as any,
         locationCity: athleteProfile.locationCity,
         locationState: athleteProfile.locationState,
+        locationTown: (athleteProfile as any).locationTown || "",
         goals: (athleteProfile as any).goals || "",
       });
     }
@@ -92,6 +95,7 @@ export default function Profile() {
         name: coachProfile.name,
         locationCity: coachProfile.locationCity,
         locationState: coachProfile.locationState,
+        locationTown: (coachProfile as any).locationTown || "",
         experience: coachProfile.experience,
         pricePerHour: coachProfile.pricePerHour / 100,
       });
@@ -280,6 +284,13 @@ export default function Profile() {
                           </FormItem>
                         )} />
                       </div>
+                      <FormField control={athleteForm.control} name="locationTown" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Town / Village <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                          <FormControl><Input placeholder="e.g. Wimbledon, Hackney, Didsbury..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                       <FormField control={athleteForm.control} name="goals" render={({ field }) => (
                         <FormItem>
                           <FormLabel>Goals <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
@@ -371,6 +382,13 @@ export default function Profile() {
                           </FormItem>
                         )} />
                       </div>
+                      <FormField control={coachForm.control} name="locationTown" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Town / Village <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                          <FormControl><Input placeholder="e.g. Wimbledon, Hackney, Didsbury..." {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                       <FormField control={coachForm.control} name="experience" render={({ field }) => (
                         <FormItem>
                           <FormLabel>About You / Experience</FormLabel>

@@ -66,6 +66,7 @@ export const athleteProfiles = pgTable("athlete_profiles", {
   skillLevel: skillLevelEnum("skill_level").notNull(),
   locationCity: varchar("location_city").notNull(),
   locationState: varchar("location_state").notNull(),
+  locationTown: varchar("location_town"),
   lat: real("lat"),
   lng: real("lng"),
   isComplete: integer("is_complete").default(0), // 0=incomplete, 1=complete
@@ -102,6 +103,7 @@ export const coachProfiles = pgTable("coach_profiles", {
   name: varchar("name").notNull(),
   locationCity: varchar("location_city").notNull(),
   locationState: varchar("location_state").notNull(),
+  locationTown: varchar("location_town"),
   lat: real("lat"),
   lng: real("lng"),
   bio: text("bio"),

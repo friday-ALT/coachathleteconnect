@@ -75,6 +75,14 @@ export async function registerRoutes(app: Express) {
   app.use('/api/conversations', messagesRouter);
   app.use('/api/notifications', notificationsRouter);
 
+  // Universal session logout — works for email-auth users (Replit OIDC registers its own version when enabled)
+  app.get('/api/logout', (req: any, res) => {
+    req.session?.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.redirect('/welcome');
+    });
+  });
+
   // Dev-only admin routes (not auto-seeded on startup — run manually)
   if (process.env.NODE_ENV === 'development') {
     app.post('/api/admin/seed-demo', async (_req, res) => {

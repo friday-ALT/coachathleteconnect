@@ -105,7 +105,7 @@ export default function OnboardingSteps() {
       locationState: saved.locationState || "",
       locationTown: saved.locationTown || "",
       experience: saved.experience || "",
-      pricePerHour: saved.pricePerHour ?? (undefined as any),
+      pricePerHour: saved.pricePerHour ?? 0,
     },
   });
 
@@ -116,14 +116,12 @@ export default function OnboardingSteps() {
     },
     onSuccess: async () => {
       sessionStorage.removeItem(`${STORAGE_KEY}_athlete`);
-      // Auto-enter athlete role
       try {
         await apiRequest("POST", "/api/auth/enter-role", { role: "athlete" });
       } catch {}
-      await qc.invalidateQueries({ queryKey: ["/api/auth/session"] });
-      await qc.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({ title: "🎉 Profile created!", description: "Welcome to CoachConnect." });
-      setLocation("/athlete/dashboard");
+      // Full reload so session is fresh before route guard runs
+      window.location.href = "/athlete/dashboard";
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -141,10 +139,9 @@ export default function OnboardingSteps() {
       try {
         await apiRequest("POST", "/api/auth/enter-role", { role: "coach" });
       } catch {}
-      await qc.invalidateQueries({ queryKey: ["/api/auth/session"] });
-      await qc.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({ title: "🎉 Profile created!", description: "Your coach profile is live." });
-      setLocation("/coach/dashboard");
+      // Full reload so session is fresh before route guard runs
+      window.location.href = "/coach/dashboard";
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });

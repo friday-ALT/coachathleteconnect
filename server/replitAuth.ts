@@ -33,6 +33,11 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+
+  // Prevent unhandled error events from crashing the process
+  (sessionStore as any).on?.('error', (err: Error) => {
+    console.error('[SessionStore] error (non-fatal):', err.message);
+  });
   
   // In production/Replit, we're behind a proxy so secure cookies work
   // The 'trust proxy' setting handles this

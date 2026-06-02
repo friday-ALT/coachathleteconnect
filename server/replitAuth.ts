@@ -6,6 +6,7 @@ import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
+import MemoryStore from "memorystore";
 import { storage } from "./storage";
 
 // Replit Auth is optional - only set up if REPLIT_DOMAINS is provided
@@ -26,26 +27,31 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
-
-  // Prevent unhandled error events from crashing the process
-  (sessionStore as any).on?.('error', (err: Error) => {
-    console.error('[SessionStore] error (non-fatal):', err.message);
-  });
-  
-  // In production/Replit, we're behind a proxy so secure cookies work
-  // The 'trust proxy' setting handles this
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.REPLIT_DOMAINS;
-  
+
+  let store: session.Store;
+
+  if (process.env.DATABASE_URL && !isProduction) {
+    // Use pg-backed session store in development only (avoids connection issues in prod)
+    const pgStore = connectPg(session);
+    store = new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+    (store as any).on?.('error', (err: Error) => {
+      console.error('[SessionStore] pg error (non-fatal):', err.message);
+    });
+  } else {
+    // Use in-memory store in production — robust, no DB dependency for sessions
+    const MStore = MemoryStore(session);
+    store = new MStore({ checkPeriod: sessionTtl });
+  }
+
   return session({
     secret: process.env.SESSION_SECRET!,
-    store: sessionStore,
+    store,
     resave: false,
     saveUninitialized: false,
     name: 'connect.sid',

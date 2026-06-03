@@ -16,7 +16,7 @@ import { coachApi, requestApi, paymentApi } from '../../lib/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
 import { formatPrice } from '../../utils/format';
-import { sessionBaseCents, athleteChargeCents } from '../../../shared/payments';
+import { sessionBaseCents, athleteChargeCents } from '../../lib/payments';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 // Generate next 14 days starting from tomorrow

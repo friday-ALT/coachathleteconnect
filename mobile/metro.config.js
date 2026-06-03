@@ -7,7 +7,13 @@ const workspaceRoot = path.resolve(projectRoot, '..');
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(projectRoot);
 
-// Allow imports from DesignSyncMobile-2/shared (e.g. ../../../shared/payments).
 config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+config.resolver.extraNodeModules = {
+  '@shared': path.resolve(workspaceRoot, 'shared'),
+};
 
 module.exports = config;

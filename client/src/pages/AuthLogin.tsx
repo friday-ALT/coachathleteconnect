@@ -67,7 +67,7 @@ export default function AuthLogin() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => setLocation("/welcome")}>
+        <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold">Log In</h1>

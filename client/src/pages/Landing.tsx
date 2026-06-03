@@ -65,13 +65,6 @@ export default function Landing() {
   const [, setLocation] = useLocation();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Redirect unauthenticated users to Welcome screen
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      setLocation("/welcome");
-    }
-  }, [authLoading, isAuthenticated, setLocation]);
-
   useEffect(() => {
     if (!authLoading && !roleLoading && isAuthenticated && activeRole) {
       if (activeRole === "athlete") {
@@ -128,6 +121,41 @@ export default function Landing() {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-chart-2/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
+      {/* Top nav — public home (main app header hidden on /) */}
+      <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+        <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-8">
+          <Link href="/" className="flex items-center gap-2 font-bold text-foreground">
+            <Users className="h-5 w-5 text-primary" />
+            CoachConnect
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/browse">
+              <Button variant="ghost" size="sm">Browse</Button>
+            </Link>
+            {!isAuthenticated && (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm">Log In</Button>
+                </Link>
+                <Link href="/auth/signup">
+                  <Button size="sm">Sign Up</Button>
+                </Link>
+              </>
+            )}
+            {isAuthenticated && activeRole && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  setLocation(activeRole === "coach" ? "/coach/dashboard" : "/athlete/dashboard")
+                }
+              >
+                Dashboard
+              </Button>
+            )}
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="relative pt-8 pb-16 md:pt-16 md:pb-24 lg:pt-24 lg:pb-32">
         <div className="container mx-auto px-4 md:px-8">
@@ -163,10 +191,16 @@ export default function Landing() {
             {/* Subtitle */}
             <motion.p 
               variants={fadeInUp}
-              className="mb-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
+              className="mb-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
             >
               The modern marketplace connecting ambitious athletes with expert coaches. 
               Book personalized training sessions and unlock your full potential.
+            </motion.p>
+            <motion.p
+              variants={fadeInUp}
+              className="mb-8 text-sm text-primary/90 max-w-xl mx-auto font-medium"
+            >
+              One account for web and mobile — sign up here, then use the same email and password in the app.
             </motion.p>
             
             {/* CTA Buttons */}

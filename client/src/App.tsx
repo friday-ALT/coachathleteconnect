@@ -24,7 +24,7 @@ import CoachDashboard from "@/pages/CoachDashboard";
 import { AthleteRouteGuard, CoachRouteGuard } from "@/components/RouteGuards";
 
 // Mobile-first auth pages
-import Welcome from "@/pages/Welcome";
+import WelcomeRedirect from "@/pages/WelcomeRedirect";
 import AuthLogin from "@/pages/AuthLogin";
 import AuthSignup from "@/pages/AuthSignup";
 import AuthForgotPassword from "@/pages/AuthForgotPassword";
@@ -47,7 +47,7 @@ function Router() {
   return (
     <Switch>
       {/* Auth pages (no header) */}
-      <Route path="/welcome" component={Welcome} />
+      <Route path="/welcome" component={WelcomeRedirect} />
       <Route path="/auth/login" component={AuthLogin} />
       <Route path="/auth/signup" component={AuthSignup} />
       <Route path="/auth/forgot-password" component={AuthForgotPassword} />
@@ -150,12 +150,14 @@ function Router() {
 function AppContent() {
   const [location] = useLocation();
 
-  const isAuthPage =
-    location.startsWith("/welcome") || location.startsWith("/auth/");
+  const hideAppHeader =
+    location === "/" ||
+    location.startsWith("/welcome") ||
+    location.startsWith("/auth/");
 
   return (
     <div className="min-h-screen bg-background">
-      {!isAuthPage && <Header />}
+      {!hideAppHeader && <Header />}
       <Router />
     </div>
   );

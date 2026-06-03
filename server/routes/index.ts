@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express) {
   app.get('/api/logout', (req: any, res) => {
     req.session?.destroy(() => {
       res.clearCookie('connect.sid');
-      res.redirect('/welcome');
+      res.redirect('/');
     });
   });
 

@@ -72,7 +72,7 @@ export default function AuthSignup() {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <div className="flex items-center justify-between p-4 border-b">
-          <Button variant="ghost" size="icon" onClick={() => setLocation("/welcome")}>
+          <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-semibold">Verify Email</h1>
@@ -133,7 +133,7 @@ export default function AuthSignup() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => setLocation("/welcome")}>
+        <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-semibold">Create Account</h1>

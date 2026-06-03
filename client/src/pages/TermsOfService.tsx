@@ -4,7 +4,7 @@ import { Link } from "wouter";
 export default function TermsOfService() {
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8 md:py-12">
-      <Link href="/welcome" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
+      <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
         <ArrowLeft className="h-4 w-4" />
         Back
       </Link>

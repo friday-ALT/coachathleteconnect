@@ -49,7 +49,7 @@ export function Header() {
               ? "/coach/dashboard"
               : isAuthenticated
               ? "/auth/role-selection"
-              : "/welcome"
+              : "/"
           }
           className="flex items-center gap-2 hover:opacity-80 transition-opacity rounded-md px-1 py-1"
           data-testid="link-home"

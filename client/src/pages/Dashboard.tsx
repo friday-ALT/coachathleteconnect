@@ -24,7 +24,7 @@ export default function Dashboard() {
     if (authLoading || roleLoading) return;
 
     if (!isAuthenticated) {
-      setLocation("/welcome");
+      setLocation("/");
       return;
     }
 

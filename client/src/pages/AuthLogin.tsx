@@ -76,6 +76,9 @@ export default function AuthLogin() {
 
       {/* Content */}
       <div className="flex-1 px-6 py-8">
+        <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
+          Use the same email and password on the Coach Athlete Connect mobile app. Your profile, sessions, and messages stay in sync.
+        </p>
         {verified && (
           <Alert className="mb-6 bg-green-50 dark:bg-green-900/20 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />

@@ -7,6 +7,7 @@ import { eq, and, gt } from 'drizzle-orm';
 import { sendVerificationEmail, sendPasswordResetEmail, getBaseUrl } from './email';
 import { z } from 'zod';
 import { isDemoLogin, DEMO_USER_DATA, DEMO_CREDENTIALS } from './demoAuth';
+import { ensureDemoUserProfiles } from './demoSeed';
 import { signToken } from './jwt';
 
 const router = Router();
@@ -199,6 +200,8 @@ router.post('/login', async (req: Request, res: Response) => {
         console.log('Created demo user');
       }
 
+      await ensureDemoUserProfiles();
+
       // Create session for demo user
       (req.session as any).userId = DEMO_CREDENTIALS.userId;
       (req.session as any).user = {
@@ -239,8 +242,14 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Check if this is an email auth user
     if (user.authProvider !== 'email' || !user.passwordHash) {
-      return res.status(401).json({ 
-        error: 'This account uses a different login method. Please use the original sign-in method.' 
+      const provider = user.authProvider || 'oauth';
+      const hint =
+        provider === 'google' ? 'Continue with Google' :
+        provider === 'apple' ? 'Sign in with Apple' :
+        'the same sign-in method you used on the website';
+      return res.status(401).json({
+        error: `This account uses ${provider === 'email' ? 'a different' : provider} sign-in. On the app, use ${hint}.`,
+        authProvider: provider,
       });
     }
 
@@ -415,6 +424,9 @@ router.post('/demo-login', async (req: Request, res: Response) => {
           updatedAt: new Date(),
         },
       });
+
+    // Athlete + coach profiles so role-select shows both modes
+    await ensureDemoUserProfiles();
 
     const token = signToken({
       sub: DEMO_CREDENTIALS.userId,

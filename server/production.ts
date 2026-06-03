@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes/index";
+import { isStripeConfigured } from "./stripeConfig";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +26,9 @@ app.use((req, res, next) => {
 });
 
 // Health check (before routes so it's always fast)
-app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
+app.get("/api/health", (_req, res) =>
+  res.json({ status: "ok", stripe: isStripeConfigured() }),
+);
 
 (async () => {
   try {

@@ -52,7 +52,7 @@ export default function TermsOfService() {
         <section>
           <h2 className="text-lg font-semibold mb-2">6. Payments and Fees</h2>
           <p>
-            CoachConnect charges a platform fee of 15% on each transaction. Payment processing is handled securely by Stripe. Refund policies are determined between the athlete and coach, though CoachConnect may mediate disputes at its discretion.
+            CoachConnect charges a platform fee of 2.5% on each paid booking, deducted from the session payment (the athlete pays the coach&apos;s listed price). Payment processing is handled securely by Stripe. Refund policies are determined between the athlete and coach, though CoachConnect may mediate disputes at its discretion.
           </p>
         </section>
 

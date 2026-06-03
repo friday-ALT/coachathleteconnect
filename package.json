@@ -12,6 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "seed:demo": "NODE_ENV=development tsx -e \"import('./server/demoSeed.js').then(m => m.seedDemoCoaches()).then(r => console.log(r.message)).catch(console.error)\"",
     "verify": "node scripts/verify-setup.js",
+    "stripe:check": "node scripts/check-stripe.js",
     "setup": "node scripts/setup.js",
     "mobile": "cd mobile && npx expo start",
     "mobile:setup": "node scripts/configure-mobile.js"

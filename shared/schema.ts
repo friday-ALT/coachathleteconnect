@@ -45,6 +45,8 @@ export const users = pgTable("users", {
   authProvider: varchar("auth_provider").default("email"), // "email", "replit", or "google"
   googleId: varchar("google_id").unique(),
   expoPushToken: varchar("expo_push_token"),
+  /** Last role used (athlete/coach) — synced for web sessions and mobile JWT auth */
+  lastActiveRole: varchar("last_active_role"),
   stripeCustomerId: varchar("stripe_customer_id").unique(), // Stripe customer for payments
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -497,7 +499,7 @@ export const transactions = pgTable("transactions", {
   coachId: varchar("coach_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   // Amounts in pence/cents
   amount: integer("amount").notNull(),           // total charged to athlete
-  platformFee: integer("platform_fee").notNull(),// our 15% cut
+  platformFee: integer("platform_fee").notNull(), // platform cut (see PLATFORM_FEE_PERCENT)
   coachPayout: integer("coach_payout").notNull(),// amount sent to coach
   currency: varchar("currency", { length: 3 }).default('gbp'),
   status: transactionStatusEnum("status").notNull().default('PENDING'),

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Star, MapPin, DollarSign, Clock, Calendar, ArrowLeft, CreditCard, CheckCircle } from "lucide-react";
+import { sessionBaseCents, athleteChargeCents } from "@shared/payments";
 
 const DURATION_OPTIONS = [
   { value: 30, label: "30 minutes" },
@@ -84,9 +85,9 @@ export default function BookSession() {
 
   const watchDuration = form.watch("duration");
   const isPaid = coach && coach.pricePerHour > 0;
-  const sessionCost = isPaid
-    ? ((coach.pricePerHour / 100) * (watchDuration / 60)).toFixed(2)
-    : null;
+  const sessionBase = isPaid ? sessionBaseCents(coach.pricePerHour, watchDuration) : null;
+  const sessionTotal = sessionBase != null ? athleteChargeCents(sessionBase) : null;
+  const fmtGbp = (cents: number) => (cents / 100).toFixed(2);
 
   // Free request mutation
   const freeRequestMutation = useMutation({
@@ -318,14 +319,14 @@ export default function BookSession() {
                   />
 
                   {/* Cost preview */}
-                  {isPaid && sessionCost && (
+                  {isPaid && sessionTotal != null && (
                     <div className="rounded-xl bg-primary/8 border border-primary/20 p-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Session total</span>
-                        <span className="font-bold text-primary text-lg">£{sessionCost}</span>
+                        <span className="font-bold text-primary text-lg">£{fmtGbp(sessionTotal)}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {watchDuration} min · £{(coach.pricePerHour / 100).toFixed(0)}/hr · 15% platform fee included
+                        {watchDuration} min · £{(coach.pricePerHour / 100).toFixed(0)}/hr · 2.5% platform fee included
                       </p>
                     </div>
                   )}
@@ -343,7 +344,7 @@ export default function BookSession() {
                     ) : (
                       <Calendar className="h-4 w-4 mr-2" />
                     )}
-                    {isPaid ? `Pay £${sessionCost} & Book` : "Send Session Request"}
+                    {isPaid && sessionTotal != null ? `Pay £${fmtGbp(sessionTotal)} & Book` : "Send Session Request"}
                   </Button>
 
                   {!connection?.connection && (

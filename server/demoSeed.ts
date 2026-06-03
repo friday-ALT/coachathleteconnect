@@ -47,7 +47,7 @@ export async function seedDemoCoaches(): Promise<{ success: boolean; message: st
   const createdCoaches: string[] = [];
   
   // First, seed the main demo user with both athlete and coach profiles
-  await seedMainDemoUser();
+  await ensureDemoUserProfiles();
   
   for (const demoCoach of DEMO_COACHES) {
     try {
@@ -103,10 +103,10 @@ export async function seedDemoCoaches(): Promise<{ success: boolean; message: st
 }
 
 /**
- * Seeds the main demo user account with both athlete and coach profiles
- * This allows the demo user to switch between roles and test all features
+ * Seeds the main demo user account with both athlete and coach profiles.
+ * Called on server startup and on every demo-login so the mobile app always has roles to pick.
  */
-async function seedMainDemoUser(): Promise<void> {
+export async function ensureDemoUserProfiles(): Promise<void> {
   try {
     // Check if demo user exists
     const [existingUser] = await db.select().from(users)

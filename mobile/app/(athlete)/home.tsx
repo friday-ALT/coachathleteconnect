@@ -8,6 +8,7 @@ import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constant
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { useSafeTop } from '../../hooks/useSafeTop';
+import { useUnreadMessages } from '../../hooks/useUnreadMessages';
 import { connectionApi, requestApi, reviewApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import StatTile from '../../components/ui/StatTile';
@@ -75,6 +76,8 @@ export default function AthleteHome() {
     router.replace('/role-select');
   };
 
+  const unreadMessages = useUnreadMessages();
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
@@ -89,9 +92,19 @@ export default function AthleteHome() {
             <Text style={styles.greeting}>{greeting}, {user?.firstName} 👋</Text>
             <Text style={styles.subGreeting}>Athlete Mode</Text>
           </View>
-          <TouchableOpacity onPress={handleSwitchMode} style={styles.switchBtn}>
-            <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.switchBtn}>
+              <Ionicons name="chatbubbles-outline" size={20} color={Colors.white} />
+              {unreadMessages > 0 && (
+                <View style={styles.msgBadge}>
+                  <Text style={styles.msgBadgeText}>{unreadMessages > 9 ? '9+' : unreadMessages}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSwitchMode} style={styles.switchBtn}>
+              <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Stat tiles */}
@@ -337,6 +350,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 2,
   },
+  headerActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
   switchBtn: {
     width: 38,
     height: 38,
@@ -344,6 +361,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  msgBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.statusRed,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+  },
+  msgBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Colors.white,
   },
   statsRow: {
     flexDirection: 'row',

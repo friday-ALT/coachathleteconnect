@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Loader2, Upload, User, Trophy, Star, LogOut } from "lucide-react";
+import { CoachStripeConnect } from "@/components/CoachStripeConnect";
 import { Link, useLocation } from "wouter";
 import type { AthleteProfile, CoachProfile } from "@shared/schema";
 
@@ -330,6 +331,10 @@ export default function Profile() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  <div className="mb-6">
+                    <CoachStripeConnect />
+                  </div>
+
                   {/* Avatar upload */}
                   <div className="flex flex-col items-center gap-3 mb-6">
                     <Avatar className="h-24 w-24">

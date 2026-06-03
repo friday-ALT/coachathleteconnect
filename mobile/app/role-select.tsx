@@ -1,10 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { useQueryClient } from '@tanstack/react-query';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../constants/theme';
 import { useRole } from '../hooks/useRole';
 import { useAuth } from '../hooks/useAuth';
+import { getApiErrorMessage } from '../lib/apiError';
 
 const ROLE_OPTIONS = [
   {
@@ -25,6 +27,7 @@ const ROLE_OPTIONS = [
 
 export default function RoleSelect() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { hasAthleteProfile, hasCoachProfile, enterRole, isLoading } = useRole();
   const { logout } = useAuth();
 
@@ -32,9 +35,13 @@ export default function RoleSelect() {
     try {
       await enterRole(role);
       router.replace(role === 'athlete' ? '/(athlete)/home' : '/(coach)/home');
-    } catch {
-      // silent
+    } catch (e) {
+      Alert.alert('Could not enter mode', getApiErrorMessage(e, 'Please try again or complete your profile setup.'));
     }
+  };
+
+  const handleRetry = () => {
+    queryClient.invalidateQueries({ queryKey: ['session'] });
   };
 
   if (isLoading) {
@@ -66,28 +73,44 @@ export default function RoleSelect() {
         <Text style={styles.subtitle}>How do you want to use the app today?</Text>
 
         <View style={styles.cards}>
-          {available.map((opt) => (
-            <TouchableOpacity
-              key={opt.role}
-              style={styles.card}
-              onPress={() => handleSelect(opt.role)}
-              activeOpacity={0.85}
-            >
-              <View style={[styles.iconWrap, { backgroundColor: `${opt.color}18` }]}>
-                <Ionicons name={opt.icon} size={28} color={opt.color} />
-              </View>
-              <View style={styles.cardText}>
-                <Text style={styles.cardTitle}>{opt.title}</Text>
-                <Text style={styles.cardDesc}>{opt.description}</Text>
-              </View>
-              <View style={[styles.arrow, { backgroundColor: `${opt.color}18` }]}>
-                <Ionicons name="arrow-forward" size={18} color={opt.color} />
-              </View>
-            </TouchableOpacity>
-          ))}
+          {available.length === 0 ? (
+            <View style={styles.emptyBox}>
+              <Ionicons name="alert-circle-outline" size={32} color={Colors.statusOrange} />
+              <Text style={styles.emptyTitle}>No profiles found</Text>
+              <Text style={styles.emptySub}>
+                Set up an athlete or coach profile to continue, or tap Retry if you just logged in with the demo account.
+              </Text>
+              <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push('/auth/role-selection')}>
+                <Text style={styles.primaryBtnText}>Set Up Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.secondaryBtn} onPress={handleRetry}>
+                <Text style={styles.secondaryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            available.map((opt) => (
+              <TouchableOpacity
+                key={opt.role}
+                style={styles.card}
+                onPress={() => handleSelect(opt.role)}
+                activeOpacity={0.85}
+              >
+                <View style={[styles.iconWrap, { backgroundColor: `${opt.color}18` }]}>
+                  <Ionicons name={opt.icon} size={28} color={opt.color} />
+                </View>
+                <View style={styles.cardText}>
+                  <Text style={styles.cardTitle}>{opt.title}</Text>
+                  <Text style={styles.cardDesc}>{opt.description}</Text>
+                </View>
+                <View style={[styles.arrow, { backgroundColor: `${opt.color}18` }]}>
+                  <Ionicons name="arrow-forward" size={18} color={opt.color} />
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
-        {(hasAthleteProfile || hasCoachProfile) && (
+        {(hasAthleteProfile || hasCoachProfile) && available.length > 0 && (
           <TouchableOpacity style={styles.addRole} onPress={() => router.push('/auth/role-selection')}>
             <Ionicons name="add-circle-outline" size={16} color={Colors.primary} />
             <Text style={styles.addRoleText}>Add another role</Text>
@@ -192,6 +215,51 @@ const styles = StyleSheet.create({
   addRoleText: {
     fontSize: FontSizes.sm,
     fontWeight: '700',
+    color: Colors.primary,
+  },
+  emptyBox: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: Spacing.xl,
+    alignItems: 'center',
+    gap: Spacing.sm,
+    ...Shadow.sm,
+  },
+  emptyTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+    color: Colors.ink,
+    marginTop: Spacing.sm,
+  },
+  emptySub: {
+    fontSize: FontSizes.sm,
+    color: Colors.muted,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: Spacing.sm,
+  },
+  primaryBtn: {
+    width: '100%',
+    height: 48,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.sm,
+  },
+  primaryBtnText: {
+    fontSize: FontSizes.base,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  secondaryBtn: {
+    paddingVertical: Spacing.sm,
+  },
+  secondaryBtnText: {
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
     color: Colors.primary,
   },
 });

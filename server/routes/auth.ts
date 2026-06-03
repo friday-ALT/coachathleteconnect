@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { storage } from '../storage';
 import { isAuthenticated, type ActiveRole } from '../replitAuth';
+import { getLastActiveRole, setLastActiveRole } from '../activeRole';
 import { db } from '../db';
 import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -23,7 +24,7 @@ authRouter.get('/user', isAuthenticated, async (req: any, res) => {
 authRouter.get('/session', isAuthenticated, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
-    const activeRole = req.session?.activeRole || null;
+    const activeRole = req.session?.activeRole || await getLastActiveRole(userId);
 
     const athleteProfile = await storage.getAthleteProfile(userId);
     const coachProfile = await storage.getCoachProfile(userId);
@@ -78,6 +79,7 @@ authRouter.post('/enter-role', isAuthenticated, async (req: any, res) => {
     }
 
     req.session.activeRole = role as ActiveRole;
+    await setLastActiveRole(userId, role as ActiveRole);
     await new Promise<void>((resolve, reject) => {
       req.session.save((err: any) => (err ? reject(err) : resolve()));
     });
@@ -108,7 +110,9 @@ authRouter.post('/push-token', isAuthenticated, async (req: any, res) => {
 // POST /api/auth/exit-role
 authRouter.post('/exit-role', isAuthenticated, async (req: any, res) => {
   try {
+    const userId = req.user.claims.sub;
     req.session.activeRole = null;
+    await setLastActiveRole(userId, null);
     await new Promise<void>((resolve, reject) => {
       req.session.save((err: any) => (err ? reject(err) : resolve()));
     });

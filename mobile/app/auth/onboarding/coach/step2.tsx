@@ -159,7 +159,7 @@ export default function CoachStep2() {
             </View>
           )} />
           {errors.pricePerHour && <Text style={styles.error}>{errors.pricePerHour.message}</Text>}
-          <Text style={styles.hint}>Platform takes 15% — you keep 85%</Text>
+          <Text style={styles.hint}>Platform takes 2.5% from each booking — you keep 97.5% of your listed price</Text>
         </View>
 
         {/* Earnings preview */}

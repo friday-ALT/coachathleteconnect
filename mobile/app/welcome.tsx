@@ -7,12 +7,13 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import * as SecureStore from 'expo-secure-store';
+import { saveAuthToken } from '../lib/authStorage';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { authApi } from '../lib/api';
 import { getApiErrorMessage } from '../lib/apiError';
+import { navigateAfterAuth } from '../lib/navigateAfterAuth';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../constants/theme';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID } from '../constants/config';
 
@@ -60,30 +61,29 @@ export default function Welcome() {
   };
 
   // ── Auth success ─────────────────────────────────────────────────────────────
-  const onAuthSuccess = async (data: any, isNewUser = false) => {
-    if (data.token) await SecureStore.setItemAsync('authToken', data.token);
-    queryClient.invalidateQueries({ queryKey: ['user'] });
-    router.replace('/auth/role-selection');
+  const onAuthSuccess = async (data: any) => {
+    if (data.token) await saveAuthToken(data.token);
+    await navigateAfterAuth(queryClient, router);
   };
 
   // ── Mutations ────────────────────────────────────────────────────────────────
   const googleMutation = useMutation({
     mutationFn: authApi.googleLogin,
-    onSuccess:  (data) => onAuthSuccess(data, !data.existingUser),
+    onSuccess:  (data) => onAuthSuccess(data),
     onError:    (e: any) =>
       Alert.alert('Sign-in failed', getApiErrorMessage(e, 'Google sign-in failed. Please try again.')),
   });
 
   const demoMutation = useMutation({
     mutationFn: authApi.demoLogin,
-    onSuccess:  (data) => onAuthSuccess(data, false),
+    onSuccess:  (data) => onAuthSuccess(data),
     onError:    (e: any) =>
       Alert.alert('Demo login', getApiErrorMessage(e, 'Demo login failed.')),
   });
 
   const appleMutation = useMutation({
     mutationFn: authApi.appleLogin,
-    onSuccess:  (data) => onAuthSuccess(data, !data.existingUser),
+    onSuccess:  (data) => onAuthSuccess(data),
     onError:    (e: any) =>
       Alert.alert('Sign-in failed', getApiErrorMessage(e, 'Apple sign-in failed. Please try again.')),
   });
@@ -144,7 +144,9 @@ export default function Welcome() {
       <Animated.View style={[styles.card, { opacity: fadeIn, transform: [{ translateY: slideUp }] }]}>
 
         <Text style={styles.cardTitle}>Get started</Text>
-        <Text style={styles.cardSubtitle}>Sign in with your Google account to continue</Text>
+        <Text style={styles.cardSubtitle}>
+          One account for the website and app — use the same email and password you created online.
+        </Text>
 
         {/* Google CTA */}
         <TouchableOpacity
@@ -192,6 +194,28 @@ export default function Welcome() {
           {' '}and{' '}
           <Text style={styles.termsLink}>Privacy Policy</Text>
         </Text>
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={styles.emailBtn}
+          onPress={() => router.push('/auth/login')}
+          disabled={isLoading}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="mail-outline" size={18} color={Colors.primary} />
+          <Text style={styles.emailBtnText}>Continue with Email</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push('/auth/signup')} disabled={isLoading}>
+          <Text style={styles.signupLink}>
+            New here? <Text style={styles.signupLinkBold}>Create an account</Text>
+          </Text>
+        </TouchableOpacity>
 
         {/* Demo account for App Store review */}
         <TouchableOpacity
@@ -316,4 +340,48 @@ const styles = StyleSheet.create({
   },
 
   disabled: { opacity: 0.5 },
+
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginVertical: Spacing.lg,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  dividerText: {
+    fontSize: FontSizes.sm,
+    color: Colors.muted,
+    fontWeight: '500',
+  },
+  emailBtn: {
+    height: 52,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.surface,
+  },
+  emailBtnText: {
+    fontSize: FontSizes.base,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  signupLink: {
+    fontSize: FontSizes.sm,
+    color: Colors.muted,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
+  },
+  signupLinkBold: {
+    color: Colors.primary,
+    fontWeight: '700',
+  },
 });

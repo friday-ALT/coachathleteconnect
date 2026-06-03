@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { getAuthToken } from './authStorage';
 import { API_URL } from '../constants/config';
 
 const api = axios.create({
@@ -12,7 +12,7 @@ const api = axios.create({
 
 // Add auth token to requests if it exists
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync('authToken');
+  const token = await getAuthToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -225,7 +225,39 @@ export const reviewApi = {
   },
 };
 
+export const messagesApi = {
+  listConversations: async () => {
+    const response = await api.get('/api/conversations');
+    return response.data;
+  },
+
+  getUnreadCount: async () => {
+    const response = await api.get('/api/conversations/unread-count');
+    return response.data as { unread: number };
+  },
+
+  startConversation: async (otherUserId: string) => {
+    const response = await api.post('/api/conversations', { otherUserId });
+    return response.data;
+  },
+
+  getMessages: async (conversationId: string) => {
+    const response = await api.get(`/api/conversations/${conversationId}/messages`);
+    return response.data;
+  },
+
+  sendMessage: async (conversationId: string, content: string) => {
+    const response = await api.post(`/api/conversations/${conversationId}/messages`, { content });
+    return response.data;
+  },
+};
+
 export const paymentApi = {
+  getConfig: async () => {
+    const response = await api.get('/api/payments/config');
+    return response.data as { configured: boolean; currency: string };
+  },
+
   createCheckout: async (data: {
     coachId: string;
     requestedDate: string;

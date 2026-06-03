@@ -1,5 +1,6 @@
 export function formatPrice(cents: number): string {
-  return `$${(cents / 100).toFixed(0)}`;
+  const dollars = cents / 100;
+  return dollars % 1 === 0 ? `$${dollars.toFixed(0)}` : `$${dollars.toFixed(2)}`;
 }
 
 export function formatDate(dateStr: string): string {

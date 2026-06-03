@@ -3,11 +3,11 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as WebBrowser from 'expo-web-browser';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
-import { profileApi, paymentApi, requestApi } from '../../lib/api';
+import { profileApi, requestApi } from '../../lib/api';
+import { usePaymentsConfig, useCoachStripeStatus, useStripeConnect } from '../../hooks/useStripeConnect';
 import Avatar from '../../components/ui/Avatar';
 import { formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -24,21 +24,11 @@ export default function CoachProfile() {
     queryFn: profileApi.getCoachProfile,
   });
 
-  const { data: stripeStatus, isLoading: stripeLoading } = useQuery({
-    queryKey: ['stripe-status'],
-    queryFn: paymentApi.getCoachStripeStatus,
-    staleTime: 30_000,
-  });
+  const { data: payConfig, isError: payConfigUnavailable } = usePaymentsConfig();
+  const showServerStripeWarning = payConfig?.configured === false;
 
-  const onboardMutation = useMutation({
-    mutationFn: paymentApi.startCoachOnboarding,
-    onSuccess: async (data) => {
-      await WebBrowser.openAuthSessionAsync(data.url, 'coachconnect://stripe-return');
-      // Refresh stripe status after returning
-      queryClient.invalidateQueries({ queryKey: ['stripe-status'] });
-    },
-    onError: () => Alert.alert('Error', 'Failed to start Stripe setup. Make sure STRIPE_SECRET_KEY is configured.'),
-  });
+  const { data: stripeStatus, isLoading: stripeLoading } = useCoachStripeStatus(true);
+  const onboardMutation = useStripeConnect();
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -206,6 +196,21 @@ export default function CoachProfile() {
         {/* Stripe Payments Section */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Payments & Earnings</Text>
+          {showServerStripeWarning ? (
+            <View style={[styles.card, styles.stripeDisabled]}>
+              <Ionicons name="alert-circle-outline" size={22} color={Colors.statusOrange} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stripeDisabledTitle}>Payments not configured on server</Text>
+                <Text style={styles.stripeDisabledSub}>
+                  Add STRIPE_SECRET_KEY in Railway Variables and redeploy. Same keys as your website.
+                </Text>
+              </View>
+            </View>
+          ) : payConfigUnavailable ? (
+            <Text style={styles.stripeHint}>
+              Using production API — tap Connect Stripe below (same as website).
+            </Text>
+          ) : null}
           {stripeLoading ? (
             <View style={styles.card}>
               <ActivityIndicator color={Colors.primary} style={{ padding: Spacing.md }} />
@@ -257,6 +262,11 @@ export default function CoachProfile() {
               icon="create-outline"
               label="Edit Coach Profile"
               onPress={() => router.push('/edit-profile/coach')}
+            />
+            <ActionRow
+              icon="chatbubbles-outline"
+              label="Messages"
+              onPress={() => router.push('/messages')}
             />
             {hasAthleteProfile && (
               <ActionRow
@@ -562,4 +572,29 @@ const styles = StyleSheet.create({
   stripeCTALeft:  { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
   stripeCTATitle: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.white },
   stripeCTASub:   { fontSize: FontSizes.xs, color: 'rgba(255,255,255,0.75)', marginTop: 1 },
+  stripeDisabled: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    backgroundColor: `${Colors.statusOrange}12`,
+    borderColor: `${Colors.statusOrange}40`,
+  },
+  stripeDisabledTitle: {
+    fontSize: FontSizes.sm,
+    fontWeight: '700',
+    color: Colors.ink,
+  },
+  stripeDisabledSub: {
+    fontSize: FontSizes.xs,
+    color: Colors.muted,
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  stripeHint: {
+    fontSize: FontSizes.xs,
+    color: Colors.muted,
+    marginBottom: Spacing.sm,
+    marginLeft: 4,
+  },
 });

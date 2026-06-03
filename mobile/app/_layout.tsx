@@ -38,9 +38,13 @@ function AppInner() {
       <Stack.Screen name="role-select" />
       <Stack.Screen name="auth" options={{ headerShown: false }} />
       <Stack.Screen name="coach/[id]" />
+      <Stack.Screen name="messages" options={{ headerShown: false }} />
       <Stack.Screen name="request-session/[id]" />
       <Stack.Screen name="edit-profile/athlete" />
       <Stack.Screen name="edit-profile/coach" />
+      <Stack.Screen name="stripe-return" />
+      <Stack.Screen name="payment-success" />
+      <Stack.Screen name="payment-cancel" />
       <Stack.Screen name="(athlete)" />
       <Stack.Screen name="(coach)" />
     </Stack>

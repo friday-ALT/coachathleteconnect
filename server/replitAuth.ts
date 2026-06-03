@@ -282,37 +282,39 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
 // Middleware to require a specific active role
 export const requireRole = (role: 'athlete' | 'coach'): RequestHandler => {
-  return (req, res, next) => {
-    const activeRole = req.session?.activeRole;
-    
+  return async (req, res, next) => {
+    const { resolveActiveRole } = await import('./activeRole');
+    const activeRole = await resolveActiveRole(req);
+
     if (!activeRole) {
-      return res.status(403).json({ 
-        message: "No active role selected. Please select a role first.",
-        code: "NO_ACTIVE_ROLE"
+      return res.status(403).json({
+        message: 'No active role selected. Please select a role first.',
+        code: 'NO_ACTIVE_ROLE',
       });
     }
-    
+
     if (activeRole !== role) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         message: `This action requires ${role} mode. You are currently in ${activeRole} mode.`,
-        code: "WRONG_ROLE"
+        code: 'WRONG_ROLE',
       });
     }
-    
+
     next();
   };
 };
 
 // Middleware that checks if user has an active role (any role)
-export const hasActiveRole: RequestHandler = (req, res, next) => {
-  const activeRole = req.session?.activeRole;
-  
+export const hasActiveRole: RequestHandler = async (req, res, next) => {
+  const { resolveActiveRole } = await import('./activeRole');
+  const activeRole = await resolveActiveRole(req);
+
   if (!activeRole) {
-    return res.status(403).json({ 
-      message: "No active role selected. Please select a role first.",
-      code: "NO_ACTIVE_ROLE"
+    return res.status(403).json({
+      message: 'No active role selected. Please select a role first.',
+      code: 'NO_ACTIVE_ROLE',
     });
   }
-  
+
   next();
 };

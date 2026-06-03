@@ -33,7 +33,10 @@ const optionalVars = [
   'RESEND_API_KEY',
   'PORT',
   'NODE_ENV',
+  'WEB_APP_URL',
 ];
+
+const stripeVars = ['STRIPE_SECRET_KEY', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_WEBHOOK_SECRET'];
 
 requiredVars.forEach(varName => {
   if (!process.env[varName]) {
@@ -47,6 +50,20 @@ requiredVars.forEach(varName => {
       ? `${process.env[varName].substring(0, 20)}...`
       : process.env[varName];
     console.log(`   ✅ ${varName} - ${preview}`);
+  }
+});
+
+console.log('\n📋 Checking Stripe (payments — web + mobile)...');
+stripeVars.forEach(varName => {
+  const val = process.env[varName]?.trim();
+  if (!val) {
+    console.log(`   ⚠️  ${varName} - Not set (paid bookings disabled)`);
+    hasWarnings = true;
+  } else if (varName === 'STRIPE_SECRET_KEY' && !val.startsWith('sk_')) {
+    console.log(`   ❌ ${varName} - Must start with sk_test_ or sk_live_`);
+    hasWarnings = true;
+  } else {
+    console.log(`   ✅ ${varName} - configured`);
   }
 });
 

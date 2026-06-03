@@ -13,8 +13,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { coachApi, requestApi, paymentApi } from '../../lib/api';
+import { getApiErrorMessage } from '../../lib/apiError';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
 import { formatPrice } from '../../utils/format';
+import { sessionBaseCents, athleteChargeCents } from '../../../shared/payments';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 // Generate next 14 days starting from tomorrow
@@ -70,6 +72,13 @@ export default function RequestSession() {
   const { data: coach } = useQuery({
     queryKey: ['coach', id],
     queryFn: () => coachApi.getCoach(id),
+  });
+
+  const { data: payConfig, isError: payConfigUnavailable } = useQuery({
+    queryKey: ['payments-config'],
+    queryFn: paymentApi.getConfig,
+    staleTime: 60_000,
+    retry: false,
   });
 
   // Fetch real coach availability for the next 30 days
@@ -130,17 +139,21 @@ export default function RequestSession() {
     onSuccess: async (result) => {
       setPendingCheckoutId(result.checkoutSessionId);
       // Open Stripe Checkout in an in-app browser
-      const browserResult = await WebBrowser.openAuthSessionAsync(
-        result.url,
-        'coachconnect://'  // deep link scheme that closes the browser
-      );
+      const redirectUrl = Linking.createURL('payment-success');
+      const browserResult = await WebBrowser.openAuthSessionAsync(result.url, redirectUrl);
       // Browser was dismissed — poll for payment status
       if (browserResult.type === 'success' || browserResult.type === 'dismiss') {
         pollPaymentStatus(result.checkoutSessionId);
       }
     },
     onError: (error: any) => {
-      Alert.alert('Error', error?.response?.data?.message || 'Failed to start payment');
+      const is503 = error?.response?.status === 503;
+      Alert.alert(
+        is503 ? 'Payments not configured' : 'Payment failed',
+        is503
+          ? 'Add STRIPE_SECRET_KEY to the API server (.env locally or Railway in production), then restart.'
+          : getApiErrorMessage(error, 'Failed to start payment'),
+      );
     },
   });
 
@@ -170,7 +183,18 @@ export default function RequestSession() {
       Alert.alert('Select a time', 'Please choose a start time for your session.');
       return;
     }
-    if (sessionCost) {
+    if (sessionTotal) {
+      if (payConfig?.configured === false && !payConfigUnavailable) {
+        Alert.alert(
+          'Payments not configured',
+          'This server does not have Stripe keys yet. Use a free request, or add STRIPE_SECRET_KEY and restart the API.',
+          [
+            { text: 'Send free request', onPress: () => freeMutation.mutate(data) },
+            { text: 'Cancel', style: 'cancel' },
+          ],
+        );
+        return;
+      }
       payMutation.mutate(data);
     } else {
       freeMutation.mutate(data);
@@ -179,7 +203,10 @@ export default function RequestSession() {
 
   const isSubmitting = freeMutation.isPending || payMutation.isPending || !!pendingCheckoutId;
   const endTime = selectedTime ? addMins(selectedTime, selectedDuration) : null;
-  const sessionCost = coach?.pricePerHour ? Math.round(coach.pricePerHour * selectedDuration / 60) : null;
+  const sessionBase = coach?.pricePerHour
+    ? sessionBaseCents(coach.pricePerHour, selectedDuration)
+    : null;
+  const sessionTotal = sessionBase != null ? athleteChargeCents(sessionBase) : null;
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -298,11 +325,11 @@ export default function RequestSession() {
               <Ionicons name="time-outline" size={16} color={Colors.primary} />
               <Text style={styles.summaryText}>{formatHour(selectedTime)} – {endTime ? formatHour(endTime) : ''}</Text>
             </View>
-            {sessionCost !== null && (
+            {sessionTotal !== null && (
               <View style={styles.summaryRow}>
                 <Ionicons name="cash-outline" size={16} color={Colors.primary} />
                 <Text style={[styles.summaryText, { fontWeight: '800' }]}>
-                  Estimated: {formatPrice(sessionCost)}
+                  Estimated: {formatPrice(sessionTotal)}
                 </Text>
               </View>
             )}
@@ -335,29 +362,29 @@ export default function RequestSession() {
 
       <View style={styles.footer}>
         {/* Price summary strip */}
-        {sessionCost && selectedTime && (
+        {sessionTotal && selectedTime && (
           <View style={styles.priceSummary}>
             <View>
               <Text style={styles.priceSummaryLabel}>Total due today</Text>
               <Text style={styles.priceSummaryNote}>Secure payment via Stripe</Text>
             </View>
-            <Text style={styles.priceSummaryAmount}>{formatPrice(sessionCost)}</Text>
+            <Text style={styles.priceSummaryAmount}>{formatPrice(sessionTotal)}</Text>
           </View>
         )}
 
         <TouchableOpacity
           style={[styles.submitBtn, (!selectedTime || isSubmitting) && styles.btnDisabled,
-            sessionCost ? styles.submitBtnPay : null]}
+            sessionTotal ? styles.submitBtnPay : null]}
           onPress={handleSubmit(onSubmit)}
           disabled={!selectedTime || isSubmitting}
           activeOpacity={0.85}
         >
           {isSubmitting ? (
             <ActivityIndicator color={Colors.white} />
-          ) : sessionCost && selectedTime ? (
+          ) : sessionTotal && selectedTime ? (
             <>
               <Ionicons name="card-outline" size={18} color={Colors.white} />
-              <Text style={styles.submitBtnText}>Book & Pay {formatPrice(sessionCost)}</Text>
+              <Text style={styles.submitBtnText}>Book & Pay {formatPrice(sessionTotal)}</Text>
             </>
           ) : (
             <>
@@ -369,9 +396,9 @@ export default function RequestSession() {
           )}
         </TouchableOpacity>
 
-        {sessionCost && (
+        {sessionTotal && (
           <Text style={styles.stripeNote}>
-            <Ionicons name="lock-closed-outline" size={11} color={Colors.muted} /> Payments secured by Stripe. 15% platform fee included.
+            <Ionicons name="lock-closed-outline" size={11} color={Colors.muted} /> Payments secured by Stripe. 2.5% platform fee included.
           </Text>
         )}
       </View>

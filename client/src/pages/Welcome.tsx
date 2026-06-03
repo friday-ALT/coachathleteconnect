@@ -12,8 +12,11 @@ export default function Welcome() {
         </div>
 
         <h1 className="mb-2 text-4xl font-bold tracking-tight text-center">CoachConnect</h1>
-        <p className="mb-10 text-center text-muted-foreground max-w-xs text-sm leading-relaxed">
+        <p className="mb-4 text-center text-muted-foreground max-w-xs text-sm leading-relaxed">
           Find elite coaches, book personalised training, and take your game to the next level.
+        </p>
+        <p className="mb-10 text-center text-primary/90 max-w-sm text-sm leading-relaxed font-medium">
+          One account for web and mobile — sign up here, then log in on the app with the same email and password.
         </p>
 
         {/* Feature highlights */}

@@ -55,9 +55,14 @@ export default function CoachHome() {
             <Text style={styles.greeting}>Coach Dashboard</Text>
             <Text style={styles.name}>{profile?.name || user?.firstName}</Text>
           </View>
-          <TouchableOpacity onPress={async () => { await exitRole(); router.replace('/role-select'); }} style={styles.switchBtn}>
-            <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.switchBtn}>
+              <Ionicons name="chatbubbles-outline" size={20} color={Colors.white} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={async () => { await exitRole(); router.replace('/role-select'); }} style={styles.switchBtn}>
+              <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Stats */}
@@ -186,6 +191,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Colors.white,
     marginTop: 2,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
   },
   switchBtn: {
     width: 38,

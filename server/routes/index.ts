@@ -21,8 +21,11 @@ import { trainingRouter } from './training';
 import { paymentsRouter } from './payments';
 import { messagesRouter } from './messages';
 import { notificationsRouter } from './notifications';
+import { isStripeConfigured, logStripeStatusOnBoot } from '../stripeConfig';
 
 export async function registerRoutes(app: Express) {
+  logStripeStatusOnBoot();
+
   // Auto-seed demo data on startup
   seedDemoCoaches().catch((e) => console.warn('Demo seed failed (non-fatal):', e.message));
 

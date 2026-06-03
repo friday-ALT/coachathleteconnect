@@ -182,6 +182,11 @@ export default function AthleteProfile() {
               label="Edit Profile"
               onPress={() => router.push('/edit-profile/athlete')}
             />
+            <ActionRow
+              icon="chatbubbles-outline"
+              label="Messages"
+              onPress={() => router.push('/messages')}
+            />
             {hasCoachProfile && (
               <ActionRow
                 icon="swap-horizontal-outline"

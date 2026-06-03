@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
-import { coachApi, connectionApi, reviewApi } from '../../lib/api';
+import { coachApi, connectionApi, reviewApi, messagesApi } from '../../lib/api';
+import { useAuth } from '../../hooks/useAuth';
+import { getApiErrorMessage } from '../../lib/apiError';
 import Avatar from '../../components/ui/Avatar';
 import StatusPill from '../../components/ui/StatusPill';
 import { formatPrice } from '../../utils/format';
@@ -13,6 +15,8 @@ import { useSafeTop } from '../../hooks/useSafeTop';
 export default function CoachDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
   const safeTop = useSafeTop();
 
   const { data: coach, isLoading } = useQuery({
@@ -31,6 +35,32 @@ export default function CoachDetail() {
   });
 
   const connection = connectionCheck?.connection;
+
+  const connectMutation = useMutation({
+    mutationFn: () => connectionApi.createConnection(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connection-check', id] });
+      Alert.alert('Request sent', 'The coach will review your connection request.');
+    },
+    onError: (e) => Alert.alert('Error', getApiErrorMessage(e, 'Could not send connection request')),
+  });
+
+  const messageMutation = useMutation({
+    mutationFn: () => messagesApi.startConversation(id),
+    onSuccess: (conv) => router.push(`/messages/${conv.id}`),
+    onError: (e) => Alert.alert('Error', getApiErrorMessage(e, 'Could not start conversation')),
+  });
+
+  const requireAuth = (action: () => void) => {
+    if (!isAuthenticated) {
+      Alert.alert('Sign in required', 'Please log in to use this feature.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log In', onPress: () => router.push('/auth/login') },
+      ]);
+      return;
+    }
+    action();
+  };
 
   if (isLoading || !coach) {
     return (
@@ -151,10 +181,52 @@ export default function CoachDetail() {
 
       {/* Sticky footer */}
       <View style={styles.footer}>
-        {/* Direct booking — no connection required */}
+        <View style={styles.footerRow}>
+          {!connection && (
+            <TouchableOpacity
+              style={[styles.footerBtn, styles.connectBtn, connectMutation.isPending && styles.btnDisabled]}
+              onPress={() => requireAuth(() => connectMutation.mutate())}
+              disabled={connectMutation.isPending}
+              activeOpacity={0.85}
+            >
+              {connectMutation.isPending ? (
+                <ActivityIndicator color={Colors.white} size="small" />
+              ) : (
+                <>
+                  <Ionicons name="person-add-outline" size={18} color={Colors.white} />
+                  <Text style={styles.connectBtnText}>Connect</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+          {connection?.status === 'PENDING' && (
+            <View style={[styles.footerBtn, styles.pendingBtn]}>
+              <Ionicons name="time-outline" size={18} color={Colors.statusOrange} />
+              <Text style={styles.pendingBtnText}>Connection Pending</Text>
+            </View>
+          )}
+          {(connection?.status === 'ACCEPTED' || !connection) && (
+            <TouchableOpacity
+              style={[styles.footerBtn, styles.messageBtn, messageMutation.isPending && styles.btnDisabled]}
+              onPress={() => requireAuth(() => messageMutation.mutate())}
+              disabled={messageMutation.isPending}
+              activeOpacity={0.85}
+            >
+              {messageMutation.isPending ? (
+                <ActivityIndicator color={Colors.primary} size="small" />
+              ) : (
+                <>
+                  <Ionicons name="chatbubble-outline" size={18} color={Colors.primary} />
+                  <Text style={styles.messageBtnText}>Message</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
         <TouchableOpacity
           style={[styles.footerBtn, styles.sessionBtn]}
-          onPress={() => router.push(`/request-session/${id}`)}
+          onPress={() => requireAuth(() => router.push(`/request-session/${id}`))}
           activeOpacity={0.85}
         >
           <Ionicons name="calendar-outline" size={18} color={Colors.white} />
@@ -328,13 +400,40 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     ...Shadow.md,
   },
+  footerRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
   footerBtn: {
-    height: 52,
+    flex: 1,
+    height: 48,
     borderRadius: BorderRadius.lg,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
+  },
+  connectBtn: {
+    backgroundColor: Colors.primary,
+  },
+  connectBtnText: {
+    fontSize: FontSizes.base,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  messageBtn: {
+    backgroundColor: Colors.primaryLight,
+    borderWidth: 1,
+    borderColor: `${Colors.primary}40`,
+  },
+  messageBtnText: {
+    fontSize: FontSizes.base,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  btnDisabled: {
+    opacity: 0.5,
   },
   connectedNote: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -342,11 +441,6 @@ const styles = StyleSheet.create({
   },
   connectedNoteText: {
     fontSize: FontSizes.xs, color: Colors.statusGreen, fontWeight: '600',
-  },
-  connectBtnText: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.white,
   },
   sessionBtn: {
     backgroundColor: Colors.ink,
@@ -373,9 +467,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.base,
     fontWeight: '600',
     color: Colors.muted,
-  },
-  btnDisabled: {
-    opacity: 0.5,
   },
   chipRow: {
     flexDirection: 'row',

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Header } from "@/components/Header";
+import { TealGlowShell } from "@/components/TealGlowShell";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Browse from "@/pages/Browse";
@@ -156,10 +157,10 @@ function AppContent() {
     location.startsWith("/auth/");
 
   return (
-    <div className="min-h-screen bg-background">
+    <TealGlowShell>
       {!hideAppHeader && <Header />}
       <Router />
-    </div>
+    </TealGlowShell>
   );
 }
 

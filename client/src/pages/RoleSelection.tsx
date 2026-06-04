@@ -27,7 +27,7 @@ export default function RoleSelection() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <h1 className="mb-1 text-2xl md:text-3xl font-bold text-center">
           {hasAthleteProfile || hasCoachProfile ? "Add Another Role" : "Choose Your Role"}

@@ -177,7 +177,7 @@ export default function OnboardingSteps() {
   if (role === "athlete") {
     if (currentStep === 1) {
       return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen flex-col">
           <ProgressHeader step={1} total={2} onBack={() => setLocation("/auth/role-selection")} />
           <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
             <div className="mb-6">
@@ -214,7 +214,7 @@ export default function OnboardingSteps() {
 
     if (currentStep === 2) {
       return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen flex-col">
           <ProgressHeader step={2} total={2} onBack={() => setLocation("/auth/onboarding/athlete/step1")} />
           <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
             <div className="mb-6">
@@ -295,7 +295,7 @@ export default function OnboardingSteps() {
   if (role === "coach") {
     if (currentStep === 1) {
       return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen flex-col">
           <ProgressHeader step={1} total={2} onBack={() => setLocation("/auth/role-selection")} />
           <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
             <div className="mb-6">
@@ -332,7 +332,7 @@ export default function OnboardingSteps() {
 
     if (currentStep === 2) {
       return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex min-h-screen flex-col">
           <ProgressHeader step={2} total={2} onBack={() => setLocation("/auth/onboarding/coach/step1")} />
           <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
             <div className="mb-6">

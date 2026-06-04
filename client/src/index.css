@@ -25,18 +25,18 @@
   --sidebar: 0 0% 96%;
   --sidebar-foreground: 222 47% 11%;
   --sidebar-border: 214 20% 86%;
-  --sidebar-primary: 142 76% 36%;
-  --sidebar-primary-foreground: 142 76% 98%;
+  --sidebar-primary: 174 72% 40%;
+  --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 217 20% 92%;
   --sidebar-accent-foreground: 222 47% 11%;
-  --sidebar-ring: 142 76% 36%;
+  --sidebar-ring: 174 72% 40%;
 
   --popover: 0 0% 94%;
   --popover-foreground: 222 47% 11%;
   --popover-border: 214 20% 84%;
 
-  --primary: 142 76% 36%;
-  --primary-foreground: 142 76% 98%;
+  --primary: 174 72% 40%;
+  --primary-foreground: 0 0% 100%;
 
   --secondary: 217 15% 90%;
   --secondary-foreground: 222 47% 11%;
@@ -51,9 +51,9 @@
   --destructive-foreground: 0 0% 100%;
 
   --input: 214 32% 78%;
-  --ring: 142 76% 36%;
+  --ring: 174 72% 40%;
 
-  --chart-1: 142 76% 36%;
+  --chart-1: 174 72% 40%;
   --chart-2: 217 91% 60%;
   --chart-3: 38 92% 50%;
   --chart-4: 280 65% 60%;
@@ -315,5 +315,23 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  .teal-glow-layer {
+    background-image: radial-gradient(125% 125% at 50% 10%, #ffffff 40%, #14b8a6 100%);
+    background-size: 100% 100%;
+  }
+
+  .dark .teal-glow-layer {
+    background-image: radial-gradient(125% 125% at 50% 10%, hsl(222 47% 11%) 40%, #0f766e 100%);
+  }
+
+  /* Frosted surfaces readable on teal glow */
+  .surface-frosted {
+    @apply bg-white/75 backdrop-blur-md border border-white/60 shadow-sm;
+  }
+
+  .dark .surface-frosted {
+    @apply bg-background/75 border-border/60;
   }
 }

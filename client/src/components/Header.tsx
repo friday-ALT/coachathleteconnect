@@ -38,7 +38,7 @@ export function Header() {
   const hasAnyProfile = hasAthleteProfile || hasCoachProfile;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-teal-500/10 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70">
       <div className="container flex h-16 items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <Link

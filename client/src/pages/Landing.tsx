@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Search, Star, Trophy, User, Loader2, ArrowRight, CheckCircle, Sparkles, Target, Calendar, Shield } from "lucide-react";
@@ -63,7 +63,6 @@ export default function Landing() {
     isLoading: roleLoading
   } = useRole();
   const [, setLocation] = useLocation();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!authLoading && !roleLoading && isAuthenticated && activeRole) {
@@ -74,14 +73,6 @@ export default function Landing() {
       }
     }
   }, [authLoading, roleLoading, isAuthenticated, activeRole, setLocation]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   const handleAthleteClick = async () => {
     if (isAuthenticated && hasAthleteProfile) {
@@ -108,21 +99,9 @@ export default function Landing() {
   const isLoading = authLoading || roleLoading;
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      {/* Animated Background Gradient */}
-      <div className="fixed inset-0 -z-10">
-        <div 
-          className="absolute inset-0 opacity-30 dark:opacity-20 transition-opacity duration-500"
-          style={{
-            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, hsl(var(--primary) / 0.15), transparent 40%)`
-          }}
-        />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-chart-2/10 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
-
+    <div className="min-h-screen overflow-hidden">
       {/* Top nav — public home (main app header hidden on /) */}
-      <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-teal-500/10 bg-white/80 backdrop-blur-md">
         <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-8">
           <Link href="/" className="flex items-center gap-2 font-bold text-foreground">
             <Users className="h-5 w-5 text-primary" />
@@ -183,7 +162,7 @@ export default function Landing() {
                 Connect with
               </span>
               <br />
-              <span className="bg-gradient-to-r from-primary via-chart-2 to-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400 bg-clip-text text-transparent">
                 Elite Soccer Coaches
               </span>
             </motion.h1>
@@ -258,7 +237,7 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 md:py-16 border-y border-border/50 bg-muted/30" data-testid="section-stats">
+      <section className="py-12 md:py-16 border-y border-white/40 bg-white/40 backdrop-blur-sm" data-testid="section-stats">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div 
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
@@ -313,7 +292,7 @@ export default function Landing() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <Card className="relative overflow-hidden h-full bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-200/50 dark:border-blue-800/50" data-testid="card-for-athletes">
+                <Card className="relative overflow-hidden h-full surface-frosted bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-200/50 dark:border-blue-800/50" data-testid="card-for-athletes">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
                 <CardContent className="p-8 relative">
                   <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-blue-500/10">
@@ -352,7 +331,7 @@ export default function Landing() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <Card className="relative overflow-hidden h-full bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20" data-testid="card-for-coaches">
+              <Card className="relative overflow-hidden h-full surface-frosted bg-gradient-to-br from-teal-500/5 to-teal-500/10 border-teal-500/20" data-testid="card-for-coaches">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
                 <CardContent className="p-8 relative">
                   <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-primary/10">
@@ -388,7 +367,7 @@ export default function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-16 md:py-24 bg-muted/30" data-testid="section-features">
+      <section className="py-16 md:py-24 bg-white/30 backdrop-blur-sm" data-testid="section-features">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div 
             className="text-center mb-12"
@@ -413,7 +392,7 @@ export default function Landing() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full hover-elevate transition-all duration-300" data-testid={`card-feature-${index}`}>
+                <Card className="h-full surface-frosted hover-elevate transition-all duration-300" data-testid={`card-feature-${index}`}>
                   <CardContent className="p-6">
                     <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-xl bg-primary/10">
                       <feature.icon className="h-6 w-6 text-primary" />
@@ -451,7 +430,7 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="overflow-hidden" data-testid="card-founder">
+            <Card className="overflow-hidden surface-frosted" data-testid="card-founder">
               <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/3 bg-muted/50">
@@ -483,7 +462,7 @@ export default function Landing() {
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 relative overflow-hidden" data-testid="section-cta">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-chart-2/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-teal-400/5" />
         <div className="container mx-auto px-4 md:px-8 relative">
           <motion.div 
             className="max-w-3xl mx-auto text-center"
@@ -519,7 +498,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-border/50">
+      <footer className="py-8 border-t border-white/40 bg-white/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">

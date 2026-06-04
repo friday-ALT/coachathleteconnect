@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import RequestManagement from "@/components/RequestManagement";
 import { Loader2 } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function Requests() {
   const { isLoading: authLoading } = useAuth();
@@ -10,7 +11,7 @@ export default function Requests() {
   if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

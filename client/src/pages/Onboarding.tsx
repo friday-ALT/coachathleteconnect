@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2, User, Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 type Role = "athlete" | "coach";
 
@@ -154,7 +155,7 @@ export default function Onboarding() {
   if (authLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }
@@ -163,7 +164,7 @@ export default function Onboarding() {
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

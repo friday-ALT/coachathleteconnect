@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useLocation } from "wouter";
-import { Loader2 } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 interface RouteGuardProps {
   children: React.ReactNode;
@@ -36,7 +36,7 @@ export function AthleteRouteGuard({ children }: RouteGuardProps) {
   if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function CoachRouteGuard({ children }: RouteGuardProps) {
   if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }
@@ -98,7 +98,7 @@ export function AuthGuard({ children }: RouteGuardProps) {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+import { SquareGridLoader } from "@/components/SquareGridLoader";
   Loader2, Search, Calendar, Star, Users, ChevronRight,
   ArrowRight, Trophy, AlertCircle, CheckCircle2, Clock,
 } from "lucide-react";
@@ -86,7 +87,7 @@ export default function AthleteDashboard() {
   if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

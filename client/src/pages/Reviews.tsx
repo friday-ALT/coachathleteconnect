@@ -18,6 +18,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Star, MessageSquare, Trophy, Send, Lock } from "lucide-react";
 import { Link } from "wouter";
 import type { CoachProfile, Review } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 const reviewSchema = z.object({
   coachId: z.string().min(1, "Please select a coach"),
@@ -102,7 +103,7 @@ export default function Reviews() {
   if (authLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

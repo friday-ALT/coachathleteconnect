@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Check, X, Loader2, Inbox } from "lucide-react";
 import type { TimeSlotRequest, AthleteProfile, User } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 interface RequestWithDetails extends TimeSlotRequest {
   athleteProfile?: AthleteProfile;
@@ -92,7 +93,7 @@ export default function RequestManagement({ isAthleteView = false }: RequestMana
 
       {isLoading ? (
         <div className="flex min-h-[30vh] md:min-h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <SquareGridLoader size="lg" />
         </div>
       ) : requests && requests.length > 0 ? (
         <div className="space-y-4">

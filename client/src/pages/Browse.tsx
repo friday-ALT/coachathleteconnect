@@ -14,6 +14,7 @@ import { useRole } from "@/hooks/useRole";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import RequestTimeSlotModal from "@/components/RequestTimeSlotModal";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 interface CoachWithUser extends CoachProfile {
   user?: { firstName?: string; lastName?: string; profileImageUrl?: string };
@@ -85,7 +86,7 @@ function BrowseCoaches() {
 
       {isLoading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <SquareGridLoader size="lg" />
         </div>
       ) : coaches && coaches.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -231,7 +232,7 @@ function BrowseAthletes() {
 
       {isLoading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <SquareGridLoader size="lg" />
         </div>
       ) : athletes && athletes.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -301,7 +302,7 @@ export default function Browse() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

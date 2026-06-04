@@ -3,6 +3,7 @@ import { CoachAvailabilityCalendar } from "@/components/CoachAvailabilityCalenda
 import { Loader2, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function CoachSchedule() {
   const { coachProfile, isLoading, isCoach } = useRole();
@@ -10,7 +11,7 @@ export default function CoachSchedule() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

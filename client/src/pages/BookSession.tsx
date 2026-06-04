@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Star, MapPin, DollarSign, Clock, Calendar, ArrowLeft, CreditCard, CheckCircle } from "lucide-react";
 import { sessionBaseCents, athleteChargeCents } from "@shared/payments";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 const DURATION_OPTIONS = [
   { value: 30, label: "30 minutes" },
@@ -149,7 +150,7 @@ export default function BookSession() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

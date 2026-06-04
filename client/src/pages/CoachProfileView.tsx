@@ -19,6 +19,7 @@ import SessionRequestForm from "@/components/SessionRequestForm";
 import type { CoachProfile, Review, Connection } from "@shared/schema";
 import type { TimeSlot } from "@/lib/availability";
 import { formatTime } from "@/lib/availability";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function CoachProfileView() {
   const { coachId } = useParams<{ coachId: string }>();
@@ -137,7 +138,7 @@ export default function CoachProfileView() {
   if (coachLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

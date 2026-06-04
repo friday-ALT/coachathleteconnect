@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Users, Trophy, ArrowRight, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
-import { Loader2 } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function RoleSelection() {
   const [, setLocation] = useLocation();
@@ -19,7 +20,7 @@ export default function RoleSelection() {
   if (authLoading || roleLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { Card, CardContent } from "./ui/card";
 import { Search, Filter, Loader2, Users } from "lucide-react";
 import CoachCard from "./CoachCard";
 import type { CoachProfile } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function CoachSearch() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,7 +119,7 @@ export default function CoachSearch() {
       {/* Results */}
       {isLoading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <SquareGridLoader size="lg" />
         </div>
       ) : coaches && coaches.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

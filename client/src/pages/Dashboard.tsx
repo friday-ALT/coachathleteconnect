@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { Loader2 } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 /**
  * Legacy /dashboard route - thin redirect hub.
@@ -53,7 +54,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <SquareGridLoader size="lg" />
     </div>
   );
 }

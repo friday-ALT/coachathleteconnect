@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 interface ScheduleSession {
   id: string;
@@ -171,7 +172,7 @@ export default function Schedule30DayView({ coachId, coachName, onClose }: Sched
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <SquareGridLoader size="lg" />
         </CardContent>
       </Card>
     );

@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Schedule30DayView from "@/components/Schedule30DayView";
 import type { CoachProfile } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function CoachSchedule30Days() {
   const { coachId } = useParams<{ coachId: string }>();
@@ -16,7 +17,7 @@ export default function CoachSchedule30Days() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

@@ -19,6 +19,7 @@ import {
   type TimeSlot
 } from "@/lib/availability";
 import type { CoachAvailabilityRule, CoachAvailabilityException, BookedSession, CoachProfile, CoachScheduleTemplateItem } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 interface WeeklyRule {
   dayOfWeek: number;
@@ -179,7 +180,7 @@ export function CoachAvailabilityCalendar({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

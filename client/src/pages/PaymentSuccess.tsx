@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearch, Link } from "wouter";
-import { CheckCircle2, Loader2, XCircle, Calendar, ArrowRight } from "lucide-react";
+import { CheckCircle2, XCircle, Calendar, ArrowRight } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function PaymentSuccess() {
   const searchString = useSearch();
@@ -49,7 +51,7 @@ export default function PaymentSuccess() {
   if (status === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center px-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
         <h2 className="text-xl font-semibold">Confirming your payment…</h2>
         <p className="text-sm text-muted-foreground">This usually takes just a moment.</p>
       </div>

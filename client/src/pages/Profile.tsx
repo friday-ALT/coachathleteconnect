@@ -20,6 +20,7 @@ import { ArrowLeft, Loader2, Upload, User, Trophy, Star, LogOut } from "lucide-r
 import { CoachStripeConnect } from "@/components/CoachStripeConnect";
 import { Link, useLocation } from "wouter";
 import type { AthleteProfile, CoachProfile } from "@shared/schema";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 const athleteSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -147,7 +148,7 @@ export default function Profile() {
   if (authLoading || athleteLoading || coachLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <SquareGridLoader size="lg" />
       </div>
     );
   }

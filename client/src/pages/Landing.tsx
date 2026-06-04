@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Search, Star, Trophy, User, Loader2, ArrowRight, CheckCircle, Sparkles, Target, Calendar, Shield } from "lucide-react";
+import { Users, Search, Star, Trophy, User, ArrowRight, CheckCircle, Sparkles, Target, Calendar, Shield } from "lucide-react";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import yassineImage from "@assets/IMG_8811_1766408856173.jpeg";
+import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 const stats = [
   { value: "500+", label: "Athletes Trained", icon: Users },
@@ -185,7 +187,7 @@ export default function Landing() {
             {/* CTA Buttons */}
             {isLoading ? (
               <div className="flex justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <SquareGridLoader size="lg" />
               </div>
             ) : (
               <motion.div 

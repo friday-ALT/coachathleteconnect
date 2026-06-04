@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { usePendingCounts } from "@/hooks/usePendingCounts";
 import { ThemeToggle } from "./ThemeToggle";
+import { AnimatedIoButton } from "./AnimatedIoButton";
 import { MobileMenu } from "./MobileMenu";
 import { NotificationBell } from "./NotificationBell";
 import { Button } from "./ui/button";
@@ -296,9 +297,9 @@ export function Header() {
               <Link href="/auth/login">
                 <Button variant="ghost" size="sm">Sign in</Button>
               </Link>
-              <Link href="/auth/signup">
-                <Button size="sm">Get started</Button>
-              </Link>
+              <AnimatedIoButton href="/auth/signup" size="sm" data-testid="link-get-started">
+                Get started
+              </AnimatedIoButton>
             </>
           )}
           <ThemeToggle />

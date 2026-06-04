@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { Button } from "./ui/button";
+import { AnimatedIoButton } from "./AnimatedIoButton";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -250,12 +251,11 @@ export function MobileMenu() {
                   Sign in
                 </Button>
               </Link>
-              <Link href="/auth/signup" onClick={closeMenu}>
-                <Button className="w-full justify-start gap-2">
-                  <User className="h-4 w-4" />
+              <div onClick={closeMenu} className="w-full">
+                <AnimatedIoButton href="/auth/signup" className="w-full max-w-full">
                   Get started
-                </Button>
-              </Link>
+                </AnimatedIoButton>
+              </div>
             </>
           )}
         </div>

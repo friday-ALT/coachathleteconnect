@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Search, Star, Trophy, User, ArrowRight, CheckCircle, Sparkles, Target, Calendar, Shield } from "lucide-react";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AnimatedIoButton } from "@/components/AnimatedIoButton";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useLocation, Link } from "wouter";
@@ -119,9 +120,9 @@ export default function Landing() {
                 <Link href="/auth/login">
                   <Button variant="ghost" size="sm">Log In</Button>
                 </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm">Sign Up</Button>
-                </Link>
+                <AnimatedIoButton href="/auth/signup" size="sm">
+                  Sign Up
+                </AnimatedIoButton>
               </>
             )}
             {isAuthenticated && activeRole && (
@@ -486,15 +487,12 @@ export default function Landing() {
                   Browse Coaches
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                className="min-h-12 px-8"
+              <AnimatedIoButton
                 onClick={() => setLocation("/auth/signup")}
                 data-testid="button-get-started"
               >
                 Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              </AnimatedIoButton>
             </div>
           </motion.div>
         </div>

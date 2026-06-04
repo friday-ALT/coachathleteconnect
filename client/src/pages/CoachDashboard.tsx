@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import {
 import { SquareGridLoader } from "@/components/SquareGridLoader";
+import {
   Loader2, Users, DollarSign, Star, Calendar, ChevronRight,
   Check, X, User, MapPin, ArrowRight, Trophy, Clock, Inbox,
 } from "lucide-react";

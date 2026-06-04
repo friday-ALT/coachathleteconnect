@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
 import { SquareGridLoader } from "@/components/SquareGridLoader";
+import {
   Loader2, Search, Calendar, Star, Users, ChevronRight,
   ArrowRight, Trophy, AlertCircle, CheckCircle2, Clock,
 } from "lucide-react";

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Search, Star, Trophy, User, ArrowRight, CheckCircle, Sparkles, Target, Calendar, Shield } from "lucide-react";
+import { Users, Search, Star, Trophy, User, ArrowRight, CheckCircle, Sparkles, Shield } from "lucide-react";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AnimatedIoButton } from "@/components/AnimatedIoButton";
+import { FeatureShowcaseBento } from "@/components/FeatureShowcaseBento";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useLocation, Link } from "wouter";
@@ -17,29 +18,6 @@ const stats = [
   { value: "50+", label: "Expert Coaches", icon: Trophy },
   { value: "4.9", label: "Average Rating", icon: Star },
   { value: "24/7", label: "Support Available", icon: Shield },
-];
-
-const features = [
-  {
-    icon: Search,
-    title: "Smart Coach Discovery",
-    description: "Find coaches by location, skill level, specialties, and availability. AI-powered matching for perfect fits."
-  },
-  {
-    icon: Calendar,
-    title: "Seamless Scheduling",
-    description: "Book sessions in seconds. Real-time availability, instant confirmations, and smart reminders."
-  },
-  {
-    icon: Target,
-    title: "Personalized Training",
-    description: "Tailored sessions for your goals. Track progress and get actionable feedback from experts."
-  },
-  {
-    icon: Star,
-    title: "Verified Reviews",
-    description: "Trust transparent ratings from real athletes. Every review is from a completed session."
-  },
 ];
 
 const fadeInUp = {
@@ -271,6 +249,8 @@ export default function Landing() {
         </div>
       </section>
 
+      <FeatureShowcaseBento />
+
       {/* How It Works - Two Sides */}
       <section className="py-16 md:py-24" data-testid="section-how-it-works">
         <div className="container mx-auto px-4 md:px-8">
@@ -366,47 +346,6 @@ export default function Landing() {
                 </CardContent>
               </Card>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="py-16 md:py-24 bg-white/30 backdrop-blur-sm" data-testid="section-features">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div 
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="heading-features">
-              Everything You Need
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Powerful features designed to make training sessions seamless.
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full surface-frosted hover-elevate transition-all duration-300" data-testid={`card-feature-${index}`}>
-                  <CardContent className="p-6">
-                    <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-xl bg-primary/10">
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2" data-testid={`text-feature-title-${index}`}>{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>

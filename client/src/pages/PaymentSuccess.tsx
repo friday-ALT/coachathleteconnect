@@ -4,7 +4,6 @@ import { CheckCircle2, XCircle, Calendar, ArrowRight } from "lucide-react";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function PaymentSuccess() {
   const searchString = useSearch();

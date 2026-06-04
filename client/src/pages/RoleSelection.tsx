@@ -6,7 +6,6 @@ import { Users, Trophy, ArrowRight, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
-import { SquareGridLoader } from "@/components/SquareGridLoader";
 
 export default function RoleSelection() {
   const [, setLocation] = useLocation();

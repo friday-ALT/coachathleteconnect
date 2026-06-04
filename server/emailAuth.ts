@@ -42,10 +42,79 @@ router.post('/signup', async (req: Request, res: Response) => {
 
     const { email, password, firstName, lastName } = result.data;
 
+    const passwordHash = await bcrypt.hash(password, 12);
+
     // Check if user already exists
     const existingUser = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
     if (existingUser.length > 0) {
       const user = existingUser[0];
+
+      // Website/Google/Apple account — add password so web + mobile email login works
+      if (user.authProvider !== 'email' || !user.passwordHash) {
+        const hasEmailProvider = !!process.env.RESEND_API_KEY;
+        const [linked] = await db.update(users)
+          .set({
+            passwordHash,
+            authProvider: 'email',
+            firstName,
+            lastName,
+            emailVerified: hasEmailProvider ? user.emailVerified : 1,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, user.id))
+          .returning({
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            emailVerified: users.emailVerified,
+          });
+
+        if (!linked) {
+          return res.status(500).json({ error: 'Failed to link password to existing account.' });
+        }
+
+        if (hasEmailProvider && linked.emailVerified !== 1) {
+          const token = generateToken();
+          const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          await db.update(users)
+            .set({ verificationToken: token, verificationTokenExpires: expires })
+            .where(eq(users.id, linked.id));
+          const baseUrl = getBaseUrl(req);
+          await sendVerificationEmail(email.toLowerCase(), token, baseUrl);
+          return res.json({
+            message: 'Password set. Please check your email to verify your account.',
+            requiresVerification: true,
+          });
+        }
+
+        const token = signToken({
+          sub: linked.id,
+          email: linked.email!,
+          firstName: linked.firstName!,
+          lastName: linked.lastName!,
+        });
+        (req.session as any).userId = linked.id;
+        (req.session as any).user = {
+          id: linked.id,
+          email: linked.email,
+          firstName: linked.firstName,
+          lastName: linked.lastName,
+        };
+        return res.status(200).json({
+          message: 'Account linked — you can now log in with email and password.',
+          token,
+          user: {
+            id: linked.id,
+            email: linked.email,
+            firstName: linked.firstName,
+            lastName: linked.lastName,
+            emailVerified: true,
+          },
+          requiresVerification: false,
+        });
+      }
+
       // If user exists but email not verified, allow re-sending verification
       if (user.authProvider === 'email' && user.emailVerified === 0) {
         const token = generateToken();
@@ -55,7 +124,7 @@ router.post('/signup', async (req: Request, res: Response) => {
           .set({
             verificationToken: token,
             verificationTokenExpires: expires,
-            passwordHash: await bcrypt.hash(password, 12),
+            passwordHash,
             firstName,
             lastName,
             updatedAt: new Date(),
@@ -73,9 +142,6 @@ router.post('/signup', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'An account with this email already exists' });
     }
 
-    // Hash password
-    const passwordHash = await bcrypt.hash(password, 12);
-
     // Generate verification token
     const verificationToken = generateToken();
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
@@ -92,7 +158,12 @@ router.post('/signup', async (req: Request, res: Response) => {
       verificationToken: hasEmailProvider ? verificationToken : null,
       verificationTokenExpires: hasEmailProvider ? verificationExpires : null,
       authProvider: 'email',
-    }).returning();
+    }).returning({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+    });
 
     if (hasEmailProvider) {
       const baseUrl = getBaseUrl(req);
@@ -107,7 +178,15 @@ router.post('/signup', async (req: Request, res: Response) => {
       });
     }
 
-    // No email provider — auto-login with JWT
+    // No email provider — auto-login (session + JWT for mobile)
+    (req.session as any).userId = newUser.id;
+    (req.session as any).user = {
+      id: newUser.id,
+      email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+    };
+
     const token = signToken({
       sub: newUser.id,
       email: newUser.email!,
@@ -129,7 +208,14 @@ router.post('/signup', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Signup error:', error);
-    res.status(500).json({ error: 'Failed to create account. Please try again.' });
+    const pgCode = error?.code as string | undefined;
+    if (pgCode === '23505') {
+      return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+    res.status(500).json({
+      error: 'Failed to create account. Please try again.',
+      ...(process.env.NODE_ENV === 'development' && { detail: error?.message }),
+    });
   }
 });
 

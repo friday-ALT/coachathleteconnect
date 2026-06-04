@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,8 +24,23 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+function parseApiError(err: unknown): string {
+  const msg = (err as Error)?.message ?? "";
+  const jsonMatch = msg.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const body = JSON.parse(jsonMatch[0]) as { error?: string };
+      if (body.error) return body.error;
+    } catch {
+      /* ignore */
+    }
+  }
+  return msg || "Failed to create account";
+}
+
 export default function AuthSignup() {
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [emailSent, setEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
 
@@ -50,11 +65,17 @@ export default function AuthSignup() {
       });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.requiresVerification) {
         setEmailSent(true);
         setSubmittedEmail(form.getValues("email"));
+        return;
       }
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
+        queryClient.refetchQueries({ queryKey: ["/api/auth/session"] }),
+      ]);
+      setLocation("/auth/role-selection");
     },
   });
 
@@ -234,7 +255,7 @@ export default function AuthSignup() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  {(signupMutation.error as any)?.message || "Failed to create account"}
+                  {parseApiError(signupMutation.error)}
                 </AlertDescription>
               </Alert>
             )}

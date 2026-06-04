@@ -22,8 +22,16 @@ import { paymentsRouter } from './payments';
 import { messagesRouter } from './messages';
 import { notificationsRouter } from './notifications';
 import { isStripeConfigured, logStripeStatusOnBoot } from '../stripeConfig';
+import { ensureDbSchema } from '../ensureDbSchema';
 
 export async function registerRoutes(app: Express) {
+  try {
+    await ensureDbSchema();
+    console.log('[DB] Schema patches applied');
+  } catch (e: any) {
+    console.error('[DB] ensureDbSchema failed (signup may break):', e?.message || e);
+  }
+
   logStripeStatusOnBoot();
 
   // Auto-seed demo data on startup

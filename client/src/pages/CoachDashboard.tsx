@@ -155,8 +155,8 @@ export default function CoachDashboard() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm text-muted-foreground">Welcome back</p>
-            <h1 className="text-2xl md:text-3xl font-bold">{coachProfile.name}</h1>
+            <p className="oryzo-mono text-[#6f6a63] mb-2">Coach mode</p>
+            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-[#0f0f0f]">{coachProfile.name}</h1>
             <div className="flex items-center gap-1 text-sm text-muted-foreground mt-0.5">
               <MapPin className="h-3.5 w-3.5" />
               {coachProfile.locationCity}, {coachProfile.locationState}

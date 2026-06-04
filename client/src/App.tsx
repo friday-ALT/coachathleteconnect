@@ -156,10 +156,14 @@ function AppContent() {
     location.startsWith("/welcome") ||
     location.startsWith("/auth/");
 
+  const isLanding = location === "/";
+
   return (
     <TealGlowShell>
       {!hideAppHeader && <Header />}
-      <Router />
+      <div className={isLanding ? "" : "oryzo-app-page"}>
+        <Router />
+      </div>
     </TealGlowShell>
   );
 }

@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
-import { AppleNav } from "@/components/AppleNav";
-import { AppleFeatureSections } from "@/components/AppleFeatureSections";
+import { OryzoNav } from "@/components/oryzo/OryzoNav";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { useLocation, Link } from "wouter";
@@ -14,6 +13,57 @@ const stats = [
   { value: "50+", label: "Expert coaches" },
   { value: "4.9", label: "Average rating" },
   { value: "24/7", label: "Support" },
+];
+
+const features = [
+  {
+    label: "Book & pay",
+    stat: "1",
+    statSuffix: "flow",
+    desc: "Pick a slot, checkout with Stripe, coach gets notified instantly.",
+  },
+  {
+    label: "Sync",
+    stat: "2",
+    statSuffix: "surfaces",
+    desc: "Same account on web and mobile — sessions and messages stay aligned.",
+  },
+  {
+    label: "Payouts",
+    stat: "97.5%",
+    statSuffix: "to coach",
+    desc: "Stripe Connect with platform fee built in. No surprise charges.",
+  },
+];
+
+const reviews = [
+  {
+    score: "[ 5/5 ]",
+    quote: "Found my technical coach in a week. Booking and payment just worked.",
+    author: "Jordan M.",
+    role: "Academy midfielder",
+  },
+  {
+    score: "[ 5/5 ]",
+    quote: "Schedule and requests in one place — I spend less time on admin, more on the pitch.",
+    author: "Sam T.",
+    role: "Private coach, DC",
+  },
+  {
+    score: "[ 4.9/5 ]",
+    quote: "Reviews after real sessions helped me pick someone I actually trust.",
+    author: "Priya K.",
+    role: "College recruit",
+  },
+];
+
+const compareRows = [
+  { label: "Best for", athlete: "Training & finding coaches", coach: "Growing your coaching business" },
+  { label: "Browse", athlete: "Coaches by skill & location", coach: "Athletes in your area" },
+  { label: "Bookings", athlete: "Request & pay sessions", coach: "Accept & manage requests" },
+  { label: "Payments", athlete: "Secure Stripe checkout", coach: "Stripe Connect payouts" },
+  { label: "Messaging", athlete: "Chat with coaches", coach: "Chat with athletes" },
+  { label: "Reviews", athlete: "Rate after sessions", coach: "Build reputation" },
 ];
 
 export default function Landing() {
@@ -29,11 +79,8 @@ export default function Landing() {
 
   useEffect(() => {
     if (!authLoading && !roleLoading && isAuthenticated && activeRole) {
-      if (activeRole === "athlete") {
-        setLocation("/athlete/dashboard");
-      } else if (activeRole === "coach") {
-        setLocation("/coach/dashboard");
-      }
+      if (activeRole === "athlete") setLocation("/athlete/dashboard");
+      else if (activeRole === "coach") setLocation("/coach/dashboard");
     }
   }, [authLoading, roleLoading, isAuthenticated, activeRole, setLocation]);
 
@@ -62,8 +109,8 @@ export default function Landing() {
   const isLoading = authLoading || roleLoading;
 
   return (
-    <div className="apple-page">
-      <AppleNav
+    <div className="oryzo-landing">
+      <OryzoNav
         isAuthenticated={isAuthenticated}
         activeRole={activeRole}
         onDashboard={() =>
@@ -71,212 +118,210 @@ export default function Landing() {
         }
       />
 
-      {/* Hero */}
-      <section className="apple-hero" data-testid="section-hero">
+      <section id="intro" className="oryzo-hero" data-testid="section-hero">
         <motion.div
-          className="apple-hero__content"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.7 }}
         >
-          <p className="apple-eyebrow apple-eyebrow--hero">Coach Athlete Connect</p>
-          <h1 className="apple-hero__title">
-            Connect with
+          <p className="oryzo-mono oryzo-hero__tag">Made for athletes. Built for coaches.</p>
+          <h1 className="oryzo-hero__title">
+            Training,
             <br />
-            elite coaches.
+            <em>elevated.</em>
           </h1>
-          <p className="apple-hero__subtitle">
-            The modern marketplace for personalized soccer training. Book sessions,
-            pay securely, and elevate your game — on web and mobile.
-          </p>
-          <p className="apple-hero__note">
-            One account everywhere. Same email on the website and in the app.
+          <p className="oryzo-hero__lead">
+            Coach Athlete Connect makes finding coaches, booking sessions, and getting paid feel
+            considered — on web and in the app.
           </p>
 
           {isLoading ? (
-            <div className="apple-hero__loader">
-              <SquareGridLoader size="lg" />
-            </div>
+            <SquareGridLoader size="lg" />
           ) : (
-            <div className="apple-hero__ctas">
-              <button
-                type="button"
-                className="apple-link apple-link--lg"
-                onClick={handleAthleteClick}
-                data-testid="button-athlete-mode"
-              >
-                {isAuthenticated && hasAthleteProfile ? "Enter as athlete" : "I'm an athlete"}
-                <ChevronRight className="h-5 w-5" aria-hidden />
+            <div className="oryzo-hero__ctas">
+              <button type="button" className="oryzo-btn oryzo-btn--accent" onClick={handleAthleteClick} data-testid="button-athlete-mode">
+                {isAuthenticated && hasAthleteProfile ? "Athlete dashboard" : "I'm an athlete"}
+                <ChevronRight className="h-4 w-4" />
               </button>
-              <button
-                type="button"
-                className="apple-link apple-link--lg"
-                onClick={handleCoachClick}
-                data-testid="button-coach-mode"
-              >
-                {isAuthenticated && hasCoachProfile ? "Enter as coach" : "I'm a coach"}
-                <ChevronRight className="h-5 w-5" aria-hidden />
+              <button type="button" className="oryzo-btn" onClick={handleCoachClick} data-testid="button-coach-mode">
+                {isAuthenticated && hasCoachProfile ? "Coach dashboard" : "I'm a coach"}
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           )}
         </motion.div>
+        <span className="oryzo-scroll-hint">Scroll to continue</span>
       </section>
 
-      {/* Stats */}
-      <section className="apple-stats" data-testid="section-stats">
-        <div className="apple-stats__grid">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              className="apple-stats__item"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08, duration: 0.5 }}
-              data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, "-")}`}
-            >
-              <div className="apple-stats__value" data-testid={`text-stat-value-${index}`}>
-                {stat.value}
+      <section className="oryzo-stats" data-testid="section-stats">
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.06 }}
+            data-testid={`stat-${s.label.toLowerCase().replace(/\s+/g, "-")}`}
+          >
+            <div className="oryzo-stat__value" data-testid={`text-stat-value-${i}`}>
+              {s.value}
+            </div>
+            <div className="oryzo-stat__label">{s.label}</div>
+          </motion.div>
+        ))}
+      </section>
+
+      <section id="features" className="oryzo-section--dark">
+        <div className="oryzo-section__inner">
+          <p className="oryzo-mono mb-4 text-[rgba(245,242,236,0.5)]">Powered by the platform</p>
+          <h2 className="oryzo-headline oryzo-headline--split">
+            <span>isn't just</span>
+            <span>a listing.</span>
+          </h2>
+          <p className="oryzo-body">
+            Bookings, payments, messaging, and reviews — engineered for both sides of the game.
+          </p>
+          <div className="oryzo-feature-grid">
+            {features.map((f) => (
+              <div key={f.label} className="oryzo-feature-card">
+                <span className="oryzo-mono text-[rgba(245,242,236,0.45)]">{f.label}</span>
+                <div className="oryzo-feature-card__stat">
+                  {f.stat}
+                  <span className="text-lg font-medium opacity-60"> {f.statSuffix}</span>
+                </div>
+                <p className="text-sm opacity-70 leading-relaxed">{f.desc}</p>
               </div>
-              <div className="apple-stats__label">{stat.label}</div>
-            </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="modes" className="oryzo-section--light">
+        <div className="oryzo-section__inner">
+          <p className="oryzo-mono mb-4">Choose your mode</p>
+          <h2 className="oryzo-headline mb-2">Athlete or coach.</h2>
+          <p className="oryzo-body mb-0">One account. Two profiles. Pick how you use the platform.</p>
+
+          <table className="oryzo-compare">
+            <thead>
+              <tr>
+                <th />
+                <th>
+                  <span className="oryzo-compare__col-head">Athlete</span>
+                </th>
+                <th>
+                  <span className="oryzo-compare__col-head">Coach</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {compareRows.map((row) => (
+                <tr key={row.label}>
+                  <td>{row.label}</td>
+                  <td>{row.athlete}</td>
+                  <td>{row.coach}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="flex flex-wrap gap-3 mt-10">
+            <button type="button" className="oryzo-btn oryzo-btn--accent" onClick={handleAthleteClick} data-testid="button-for-athletes">
+              {isAuthenticated && hasAthleteProfile ? "Athlete dashboard" : "Start as athlete"}
+            </button>
+            <button type="button" className="oryzo-btn" onClick={handleCoachClick} data-testid="button-for-coaches">
+              {isAuthenticated && hasCoachProfile ? "Coach dashboard" : "Start as coach"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="reviews" className="oryzo-section">
+        <p className="oryzo-mono mb-4">Rating & reviews</p>
+        <h2 className="oryzo-headline">
+          People actually
+          <br />
+          use this.
+        </h2>
+        <p className="oryzo-body">Don't take our word for it — feedback from real sessions.</p>
+        <div className="oryzo-reviews-grid">
+          {reviews.map((r) => (
+            <article key={r.author} className="oryzo-review-card">
+              <p className="oryzo-review-card__score">{r.score}</p>
+              <p className="oryzo-review-card__quote">&ldquo;{r.quote}&rdquo;</p>
+              <p className="oryzo-review-card__author">{r.author}</p>
+              <p className="oryzo-review-card__role">{r.role}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      <AppleFeatureSections />
-
-      {/* Athlete / Coach */}
-      <section className="apple-section apple-section--gray" data-testid="section-how-it-works">
-        <div className="apple-dual">
-          <motion.article
-            className="apple-dual__card"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            data-testid="card-for-athletes"
-          >
-            <p className="apple-eyebrow">Athletes</p>
-            <h3 className="apple-dual__title">Find your coach.</h3>
-            <p className="apple-dual__text">
-              Browse by location and skill. Book with real-time availability and track your progress.
-            </p>
-            <button type="button" className="apple-link" onClick={handleAthleteClick} data-testid="button-for-athletes">
-              {isAuthenticated && hasAthleteProfile ? "Go to dashboard" : "Find a coach"}
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
-          </motion.article>
-
-          <motion.article
-            className="apple-dual__card"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            data-testid="card-for-coaches"
-          >
-            <p className="apple-eyebrow">Coaches</p>
-            <h3 className="apple-dual__title">Grow your business.</h3>
-            <p className="apple-dual__text">
-              Build your profile, manage bookings, and earn with Stripe Connect payouts.
-            </p>
-            <button type="button" className="apple-link" onClick={handleCoachClick} data-testid="button-for-coaches">
-              {isAuthenticated && hasCoachProfile ? "Go to dashboard" : "Start coaching"}
-              <ChevronRight className="h-4 w-4" aria-hidden />
-            </button>
-          </motion.article>
-        </div>
-      </section>
-
-      {/* Founder */}
-      <section className="apple-section" data-testid="section-founder">
-        <div className="apple-founder">
-          <motion.div
-            className="apple-founder__media"
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-          >
-            <img
-              src={yassineImage}
-              alt="Yassine Rhoumar"
-              className="apple-founder__img"
-              data-testid="img-founder"
-            />
+      <section className="oryzo-section--light" data-testid="section-founder">
+        <div className="oryzo-section__inner oryzo-founder">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            <img src={yassineImage} alt="Yassine Rhoumar" className="oryzo-founder__img" data-testid="img-founder" />
           </motion.div>
-          <motion.div
-            className="apple-founder__copy"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="apple-eyebrow">Founder</p>
-            <h2 className="apple-section__title apple-section__title--left" data-testid="heading-founder">
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <p className="oryzo-mono mb-3">Founder</p>
+            <h2 className="oryzo-headline" data-testid="heading-founder">
               Built by athletes,
               <br />
               for athletes.
             </h2>
-            <p className="apple-founder__name" data-testid="text-founder-name">
+            <p className="font-semibold mt-4" data-testid="text-founder-name">
               Yassine Rhoumar
             </p>
-            <p className="apple-founder__role" data-testid="text-founder-role">
+            <p className="oryzo-mono text-[#6f6a63] mt-1" data-testid="text-founder-role">
               Founder & CEO
             </p>
-            <p className="apple-section__subtitle apple-section__subtitle--left">
-              Created from the perspective of a Division I athlete with experience in the DC United
-              system — connecting players with trusted coaches nationwide through technical excellence
-              and mentorship.
+            <p className="oryzo-body mt-4 max-w-lg">
+              Created from a Division I and DC United perspective — connecting players with trusted
+              coaches through technical excellence and mentorship nationwide.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="apple-cta-band" data-testid="section-cta">
-        <motion.div
-          className="apple-cta-band__inner"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="apple-cta-band__title" data-testid="heading-cta">
-            Ready to level up?
+      <section id="cta" className="oryzo-section--dark" data-testid="section-cta">
+        <div className="oryzo-section__inner text-center">
+          <h2 className="oryzo-headline mx-auto" data-testid="heading-cta">
+            Ready to play
+            <br />
+            at the next level?
           </h2>
-          <p className="apple-cta-band__subtitle">
-            Join athletes and coaches already training on CoachConnect.
+          <p className="oryzo-body mx-auto mt-4 mb-8">
+            Join athletes and coaches already on CoachConnect.
           </p>
-          <div className="apple-cta-band__actions">
-            <Link href="/browse" className="apple-link apple-link--on-dark" data-testid="button-browse-coaches">
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/browse" className="oryzo-btn oryzo-btn--ghost border-[rgba(245,242,236,0.3)] text-[#f5f2ec]" data-testid="button-browse-coaches">
               Browse coaches
-              <ChevronRight className="h-4 w-4" aria-hidden />
             </Link>
-            <Link href="/auth/signup" className="apple-btn apple-btn--on-dark" data-testid="button-get-started">
+            <Link href="/auth/signup" className="oryzo-btn oryzo-btn--accent" data-testid="button-get-started">
               Get started
             </Link>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="apple-footer">
-        <div className="apple-footer__inner">
-          <div className="apple-footer__brand">
-            <span className="font-semibold">CoachConnect</span>
-            <p className="apple-footer__copy">
-              © {new Date().getFullYear()} Coach Athlete Connect. All rights reserved.
+      <footer className="oryzo-footer">
+        <div className="oryzo-footer__inner">
+          <div>
+            <p className="oryzo-footer__brand">CoachConnect</p>
+            <p className="text-sm mt-2 opacity-60">
+              © {new Date().getFullYear()} Coach Athlete Connect
             </p>
           </div>
-          <div className="apple-footer__links">
-            <Link href="/browse" className="apple-footer__link">
+          <div className="oryzo-footer__links">
+            <Link href="/browse" className="oryzo-footer__link">
               Browse
             </Link>
-            <Link href="/terms" className="apple-footer__link">
+            <Link href="/terms" className="oryzo-footer__link">
               Terms
             </Link>
-            <Link href="/privacy" className="apple-footer__link">
+            <Link href="/privacy" className="oryzo-footer__link">
               Privacy
             </Link>
-            <Link href="/auth/login" className="apple-footer__link">
+            <Link href="/auth/login" className="oryzo-footer__link">
               Sign in
             </Link>
           </div>

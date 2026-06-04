@@ -38,8 +38,8 @@ export function Header() {
   const hasAnyProfile = hasAthleteProfile || hasCoachProfile;
 
   return (
-    <header className="apple-app-header">
-      <div className="apple-app-header__inner">
+    <header className="oryzo-app-header">
+      <div className="oryzo-app-header__inner">
         <Link
           href={
             effectiveRole === "athlete"
@@ -50,7 +50,7 @@ export function Header() {
               ? "/auth/role-selection"
               : "/"
           }
-          className="apple-app-header__logo hover:opacity-80 transition-opacity"
+          className="oryzo-app-header__logo hover:opacity-80 transition-opacity"
           data-testid="link-home"
         >
           CoachConnect
@@ -80,7 +80,7 @@ export function Header() {
                     <Button
                       variant={location === "/athlete/dashboard" ? "secondary" : "ghost"}
                       size="sm"
-                      className="apple-app-nav-link"
+                      className="oryzo-app-nav-link"
                       data-testid="link-athlete-dashboard"
                     >
                       <Home className="h-4 w-4 mr-1.5" />
@@ -289,19 +289,19 @@ export function Header() {
           ) : (
             <>
               <Link href="/browse">
-                <Button variant="ghost" size="sm" className="apple-app-nav-link">
+                <Button variant="ghost" size="sm" className="oryzo-app-nav-link">
                   Browse
                 </Button>
               </Link>
               <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="apple-app-nav-link">
+                <Button variant="ghost" size="sm" className="oryzo-app-nav-link">
                   Sign in
                 </Button>
               </Link>
               <Link href="/auth/signup" data-testid="link-get-started">
-                <Button className="apple-btn apple-btn--sm" size="sm">
+                <button type="button" className="oryzo-btn oryzo-btn--accent text-xs py-1.5 px-3 h-8">
                   Get started
-                </Button>
+                </button>
               </Link>
             </>
           )}

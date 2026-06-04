@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, ArrowLeft, Mail, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2, Mail, AlertCircle, CheckCircle } from "lucide-react";
+import { OryzoAuthFrame } from "@/components/oryzo/OryzoAuthFrame";
 import { apiRequest } from "@/lib/queryClient";
 
 const loginSchema = z.object({
@@ -64,21 +65,10 @@ export default function AuthLogin() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-teal-500/10 bg-white/80 backdrop-blur-md">
-        <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-lg font-semibold">Log In</h1>
-        <div className="w-10" />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 px-6 py-8">
-        <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
-          Use the same email and password on the Coach Athlete Connect mobile app. Your profile, sessions, and messages stay in sync.
-        </p>
+    <OryzoAuthFrame
+      title="Log in"
+      lead="Use the same email and password on the mobile app. Your profile, sessions, and messages stay in sync."
+    >
         {verified && (
           <Alert className="mb-6 bg-green-50 dark:bg-green-900/20 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />
@@ -167,7 +157,7 @@ export default function AuthLogin() {
 
             <Button
               type="submit"
-              className="w-full h-12 text-base mt-6"
+              className="w-full h-12 text-base mt-6 rounded-full bg-[#0f0f0f] hover:bg-[#2a2826]"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
@@ -185,12 +175,11 @@ export default function AuthLogin() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-primary font-medium hover:underline">
+            <Link href="/auth/signup" className="text-[#b85c38] font-medium hover:underline">
               Sign up
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </OryzoAuthFrame>
   );
 }

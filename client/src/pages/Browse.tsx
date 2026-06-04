@@ -4,6 +4,7 @@ import { Link, useSearch, useLocation } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { OryzoCoachCard } from "@/components/oryzo/OryzoCoachCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -56,9 +57,14 @@ function BrowseCoaches() {
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-      <div className="mb-6">
-        <h1 className="mb-1 text-2xl sm:text-3xl font-bold">Find a Coach</h1>
-        <p className="text-sm text-muted-foreground">Browse certified coaches and book a session</p>
+      <div className="mb-8">
+        <p className="oryzo-mono mb-3">Browse · coaches</p>
+        <h1 className="mb-3 text-3xl sm:text-5xl font-semibold tracking-tight text-[#0f0f0f] leading-[1.05]">
+          Find a coach.
+        </h1>
+        <p className="text-base text-[#6f6a63] max-w-xl leading-relaxed">
+          Profiles, ratings, and booking — editorial cards inspired by premium product sites.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row gap-3">
@@ -89,60 +95,13 @@ function BrowseCoaches() {
           <SquareGridLoader size="lg" />
         </div>
       ) : coaches && coaches.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {coaches.map((coach) => (
-            <Card key={coach.id} className="hover-elevate flex flex-col">
-              <CardHeader className="pb-3">
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-14 w-14 flex-shrink-0">
-                    <AvatarImage src={coach.avatarUrl || undefined} alt={coach.name} />
-                    <AvatarFallback>{coach.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold leading-tight">{coach.name}</h3>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                      <MapPin className="h-3 w-3" />
-                      <span className="truncate">{coach.locationCity}, {coach.locationState}</span>
-                    </div>
-                    <div className="flex items-center gap-1 mt-1">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className={`h-3 w-3 ${i <= Math.floor(coach.ratingAvg || 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/30"}`} />
-                      ))}
-                      <span className="text-xs text-muted-foreground ml-0.5">({coach.ratingCount || 0})</span>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <span className="font-bold text-primary">£{(coach.pricePerHour / 100).toFixed(0)}</span>
-                    <p className="text-xs text-muted-foreground">/hr</p>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="flex-1 flex flex-col justify-between gap-3">
-                <p className="text-sm text-muted-foreground line-clamp-2">{coach.experience}</p>
-
-                {coach.specialties && coach.specialties.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {coach.specialties.slice(0, 3).map((s) => (
-                      <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
-                    ))}
-                    {coach.specialties.length > 3 && <Badge variant="outline" className="text-xs">+{coach.specialties.length - 3}</Badge>}
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-1">
-                  <Link href={`/coach/${coach.userId}`} className="flex-1">
-                    <Button variant="outline" className="w-full min-h-[40px]">
-                      <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                      View Profile
-                    </Button>
-                  </Link>
-                  <Button className="flex-1 min-h-[40px]" onClick={() => handleRequest(coach)}>
-                    Request
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <OryzoCoachCard
+              key={coach.id}
+              coach={coach}
+              onRequest={() => handleRequest(coach)}
+            />
           ))}
         </div>
       ) : (

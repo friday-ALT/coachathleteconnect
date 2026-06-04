@@ -142,11 +142,11 @@ export default function AthleteDashboard() {
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-muted-foreground mb-1">Welcome back</p>
-          <h1 className="text-3xl md:text-4xl font-bold">
-            {firstName} 👋
+          <p className="oryzo-mono text-[#6f6a63] mb-2">Athlete mode</p>
+          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-[#0f0f0f]">
+            Welcome back, {firstName}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-[#6f6a63] mt-2">
             {athleteProfile.skillLevel} · {athleteProfile.locationCity}, {athleteProfile.locationState}
           </p>
         </div>

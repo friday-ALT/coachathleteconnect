@@ -3,7 +3,6 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { Button } from "./ui/button";
-import { AnimatedIoButton } from "./AnimatedIoButton";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
@@ -251,11 +250,9 @@ export function MobileMenu() {
                   Sign in
                 </Button>
               </Link>
-              <div onClick={closeMenu} className="w-full">
-                <AnimatedIoButton href="/auth/signup" className="w-full max-w-full">
-                  Get started
-                </AnimatedIoButton>
-              </div>
+              <Link href="/auth/signup" onClick={closeMenu} className="block w-full">
+                <Button className="apple-btn w-full">Get started</Button>
+              </Link>
             </>
           )}
         </div>

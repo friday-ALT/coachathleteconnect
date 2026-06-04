@@ -3,10 +3,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { usePendingCounts } from "@/hooks/usePendingCounts";
 import { ThemeToggle } from "./ThemeToggle";
-import { AnimatedIoButton } from "./AnimatedIoButton";
+import { Button } from "./ui/button";
 import { MobileMenu } from "./MobileMenu";
 import { NotificationBell } from "./NotificationBell";
-import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Users, LogOut, User, Trophy, Home, Search, Calendar, Inbox, Star, MessageSquare } from "lucide-react";
@@ -39,9 +38,8 @@ export function Header() {
   const hasAnyProfile = hasAthleteProfile || hasCoachProfile;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-teal-500/10 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-8">
-        {/* Logo */}
+    <header className="apple-app-header">
+      <div className="apple-app-header__inner">
         <Link
           href={
             effectiveRole === "athlete"
@@ -52,15 +50,13 @@ export function Header() {
               ? "/auth/role-selection"
               : "/"
           }
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity rounded-md px-1 py-1"
+          className="apple-app-header__logo hover:opacity-80 transition-opacity"
           data-testid="link-home"
         >
-          <Users className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-          <span className="text-base md:text-lg font-bold">CoachConnect</span>
+          CoachConnect
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-0.5">
           {isAuthenticated && user && effectiveRole ? (
             <>
               {/* Role badge */}
@@ -84,6 +80,7 @@ export function Header() {
                     <Button
                       variant={location === "/athlete/dashboard" ? "secondary" : "ghost"}
                       size="sm"
+                      className="apple-app-nav-link"
                       data-testid="link-athlete-dashboard"
                     >
                       <Home className="h-4 w-4 mr-1.5" />
@@ -292,14 +289,20 @@ export function Header() {
           ) : (
             <>
               <Link href="/browse">
-                <Button variant="ghost" size="sm">Browse Coaches</Button>
+                <Button variant="ghost" size="sm" className="apple-app-nav-link">
+                  Browse
+                </Button>
               </Link>
               <Link href="/auth/login">
-                <Button variant="ghost" size="sm">Sign in</Button>
+                <Button variant="ghost" size="sm" className="apple-app-nav-link">
+                  Sign in
+                </Button>
               </Link>
-              <AnimatedIoButton href="/auth/signup" size="sm" data-testid="link-get-started">
-                Get started
-              </AnimatedIoButton>
+              <Link href="/auth/signup" data-testid="link-get-started">
+                <Button className="apple-btn apple-btn--sm" size="sm">
+                  Get started
+                </Button>
+              </Link>
             </>
           )}
           <ThemeToggle />

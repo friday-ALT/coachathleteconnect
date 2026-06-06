@@ -1,11 +1,13 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { Router } from 'expo-router';
 import { sessionApi } from './api';
+import { resolveMobileAuthRoute } from './resolveAuthRoute';
 
-/** Route user after login/signup/OAuth — same logic as app index splash. */
+/** Route user after login/signup/OAuth — aligned with web post-auth logic. */
 export async function navigateAfterAuth(
   queryClient: QueryClient,
   router: Router,
+  preferredRole?: 'athlete' | 'coach' | null,
 ) {
   await Promise.all([
     queryClient.refetchQueries({ queryKey: ['user'] }),
@@ -20,13 +22,6 @@ export async function navigateAfterAuth(
     return;
   }
 
-  if (!session?.hasAthleteProfile && !session?.hasCoachProfile) {
-    router.replace('/auth/role-selection');
-  } else if (!session.activeRole) {
-    router.replace('/role-select');
-  } else if (session.activeRole === 'athlete') {
-    router.replace('/(athlete)/home');
-  } else {
-    router.replace('/(coach)/home');
-  }
+  const path = await resolveMobileAuthRoute(session, preferredRole);
+  router.replace(path as any);
 }

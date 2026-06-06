@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as SecureStore from 'expo-secure-store';
 import { profileApi, sessionApi } from '../../../../lib/api';
+import { useRequireAuth } from '../../../../hooks/useRequireAuth';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../../../constants/theme';
 
 const schema = z.object({
@@ -24,8 +25,11 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 export default function CoachStep2() {
+  const { isLoading: authLoading, isAuthenticated } = useRequireAuth();
   const router      = useRouter();
   const queryClient = useQueryClient();
+
+  if (authLoading || !isAuthenticated) return null;
   const [charCount, setCharCount] = useState(0);
 
   const { control, handleSubmit, formState: { errors } } = useForm<Form>({

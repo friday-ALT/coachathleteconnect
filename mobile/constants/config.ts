@@ -9,12 +9,12 @@ export const SCREENSHOT_ROLE: 'athlete' | 'coach' = 'athlete'; // only used when
 /**
  * Resolves API URL for local dev.
  * - If app.json `extra.webUrl` is a real LAN/production URL (not localhost), it wins.
- * - Otherwise, in __DEV__, use the same host Metro uses (hostUri / debuggerHost) on port 3000.
+ * - Otherwise, in __DEV__, use the same host Metro uses (hostUri / debuggerHost) on port 5000.
  *   That fixes Expo Go on a **physical phone**: 127.0.0.1 would point at the phone, not your Mac.
  */
 function resolveApiUrl(): string {
   const configured =
-    (Constants.expoConfig?.extra?.webUrl as string | undefined) || 'http://127.0.0.1:3000';
+    (Constants.expoConfig?.extra?.webUrl as string | undefined) || 'http://127.0.0.1:5000';
 
   const isLocalhost = (url: string) =>
     url.includes('127.0.0.1') || url.includes('localhost');
@@ -31,7 +31,7 @@ function resolveApiUrl(): string {
     if (raw) {
       const host = raw.split(':')[0];
       if (host && host !== 'localhost' && host !== '127.0.0.1') {
-        return `http://${host}:3000`;
+        return `http://${host}:5000`;
       }
     }
   }

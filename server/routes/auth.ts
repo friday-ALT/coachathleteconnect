@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { storage } from '../storage';
+import { toPublicUser } from '../safeUser';
 import { isAuthenticated, type ActiveRole } from '../replitAuth';
 import { getLastActiveRole, setLastActiveRole } from '../activeRole';
 import { db } from '../db';
@@ -13,7 +14,7 @@ authRouter.get('/user', isAuthenticated, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const user = await storage.getUser(userId);
-    res.json(user);
+    res.json(toPublicUser(user));
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ message: 'Failed to fetch user' });

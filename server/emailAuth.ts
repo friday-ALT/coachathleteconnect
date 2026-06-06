@@ -7,6 +7,7 @@ import { eq, and, gt } from 'drizzle-orm';
 import { sendVerificationEmail, sendPasswordResetEmail, getBaseUrl } from './email';
 import { z } from 'zod';
 import { isDemoLogin, DEMO_USER_DATA, DEMO_CREDENTIALS } from './demoAuth';
+import { isDemoAuthEnabled } from './demoAuthGate';
 import { ensureDemoUserProfiles } from './demoSeed';
 import { signToken } from './jwt';
 
@@ -28,6 +29,37 @@ const loginSchema = z.object({
 // Generate a secure random token
 function generateToken(): string {
   return crypto.randomBytes(32).toString('hex');
+}
+
+async function verifyGoogleIdToken(idToken: string): Promise<{
+  sub: string;
+  email: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+} | null> {
+  const res = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+  );
+  if (!res.ok) return null;
+  const data = await res.json() as {
+    sub?: string;
+    email?: string;
+    given_name?: string;
+    family_name?: string;
+    picture?: string;
+    aud?: string;
+  };
+  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_WEB_CLIENT_ID;
+  if (clientId && data.aud && data.aud !== clientId) return null;
+  if (!data.sub || !data.email) return null;
+  return {
+    sub: data.sub,
+    email: data.email,
+    given_name: data.given_name,
+    family_name: data.family_name,
+    picture: data.picture,
+  };
 }
 
 // POST /api/auth/signup - Create new account with email/password
@@ -225,7 +257,7 @@ router.get('/verify-email', async (req: Request, res: Response) => {
     const { token } = req.query;
 
     if (!token || typeof token !== 'string') {
-      return res.redirect('/login?error=invalid-token');
+      return res.redirect('/auth/login?error=invalid-token');
     }
 
     // Find user with valid token
@@ -239,7 +271,7 @@ router.get('/verify-email', async (req: Request, res: Response) => {
       .limit(1);
 
     if (!user) {
-      return res.redirect('/login?error=expired-token');
+      return res.redirect('/auth/login?error=expired-token');
     }
 
     // Mark email as verified
@@ -253,10 +285,10 @@ router.get('/verify-email', async (req: Request, res: Response) => {
       .where(eq(users.id, user.id));
 
     // Redirect to login with success message
-    res.redirect('/login?verified=true');
+    res.redirect('/auth/login?verified=true');
   } catch (error: any) {
     console.error('Email verification error:', error);
-    res.redirect('/login?error=verification-failed');
+    res.redirect('/auth/login?error=verification-failed');
   }
 });
 
@@ -274,6 +306,9 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // Check if this is a demo login
     if (isDemoLogin(email, password)) {
+      if (!isDemoAuthEnabled()) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
       console.log('Demo login detected');
       
       // Check if demo user exists, create if not
@@ -412,9 +447,11 @@ router.post('/apple', async (req: Request, res: Response) => {
     const jwt = await import('jsonwebtoken');
     let payload: any;
     try {
+      const appleClientId = process.env.APPLE_CLIENT_ID;
       payload = jwt.default.verify(identityToken, publicKey, {
         algorithms: ['RS256'],
         issuer: 'https://appleid.apple.com',
+        ...(appleClientId ? { audience: appleClientId } : {}),
       });
     } catch {
       return res.status(401).json({ error: 'Invalid Apple identity token' });
@@ -488,6 +525,9 @@ router.post('/apple', async (req: Request, res: Response) => {
 
 // POST /api/auth/demo-login - Quick demo login (no credentials required)
 router.post('/demo-login', async (req: Request, res: Response) => {
+  if (!isDemoAuthEnabled()) {
+    return res.status(403).json({ error: 'Demo login is disabled' });
+  }
   try {
     console.log('Demo login endpoint called');
 
@@ -728,13 +768,34 @@ router.post('/google', async (req: Request, res: Response) => {
   try {
     const { idToken, email, firstName, lastName, googleId, photoUrl } = req.body;
 
-    if (!email || !googleId) {
+    let verifiedEmail: string;
+    let verifiedGoogleId: string;
+    let verifiedFirstName = firstName;
+    let verifiedLastName = lastName;
+    let verifiedPhoto = photoUrl;
+
+    if (idToken) {
+      const verified = await verifyGoogleIdToken(idToken);
+      if (!verified) {
+        return res.status(401).json({ error: 'Invalid Google ID token' });
+      }
+      verifiedEmail = verified.email;
+      verifiedGoogleId = verified.sub;
+      verifiedFirstName = verified.given_name ?? firstName;
+      verifiedLastName = verified.family_name ?? lastName;
+      verifiedPhoto = verified.picture ?? photoUrl;
+    } else if (process.env.NODE_ENV === 'production') {
+      return res.status(400).json({ error: 'Google ID token required' });
+    } else if (!email || !googleId) {
       return res.status(400).json({ error: 'Missing required Google credentials' });
+    } else {
+      verifiedEmail = email;
+      verifiedGoogleId = googleId;
     }
 
     // Find or create user by Google ID or email
     let user = await db.select().from(users)
-      .where(eq(users.email, email.toLowerCase()))
+      .where(eq(users.email, verifiedEmail.toLowerCase()))
       .limit(1)
       .then(r => r[0]);
 
@@ -743,13 +804,13 @@ router.post('/google', async (req: Request, res: Response) => {
       const newId = crypto.randomUUID();
       const [created] = await db.insert(users).values({
         id: newId,
-        email: email.toLowerCase(),
-        firstName: firstName || email.split('@')[0],
-        lastName: lastName || '',
-        profileImageUrl: photoUrl || null,
+        email: verifiedEmail.toLowerCase(),
+        firstName: verifiedFirstName || verifiedEmail.split('@')[0],
+        lastName: verifiedLastName || '',
+        profileImageUrl: verifiedPhoto || null,
         emailVerified: 1,
         authProvider: 'google',
-        googleId,
+        googleId: verifiedGoogleId,
         createdAt: new Date(),
         updatedAt: new Date(),
       }).returning();
@@ -757,7 +818,12 @@ router.post('/google', async (req: Request, res: Response) => {
     } else if (!user.googleId) {
       // Link Google to existing email account
       await db.update(users)
-        .set({ googleId, emailVerified: 1, profileImageUrl: user.profileImageUrl || photoUrl || null, updatedAt: new Date() })
+        .set({
+          googleId: verifiedGoogleId,
+          emailVerified: 1,
+          profileImageUrl: user.profileImageUrl || verifiedPhoto || null,
+          updatedAt: new Date(),
+        })
         .where(eq(users.id, user.id));
     }
 

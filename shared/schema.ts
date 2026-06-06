@@ -148,6 +148,9 @@ export const insertCoachProfileSchema = createInsertSchema(coachProfiles).omit({
   ratingAvg: true,
   ratingCount: true,
   avatarUrl: true,
+  stripeAccountId: true,
+  stripeOnboardingComplete: true,
+  isComplete: true,
   createdAt: true,
   updatedAt: true,
 }).extend({

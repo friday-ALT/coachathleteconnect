@@ -16,6 +16,9 @@ requestsRouter.post('/', isAuthenticated, requireRole('athlete'), async (req: an
     const data = insertTimeSlotRequestSchema.parse(req.body);
 
     const connection = await storage.getConnection(athleteId, data.coachId);
+    if (!connection || connection.status !== 'ACCEPTED') {
+      return res.status(403).json({ message: 'You must have an accepted connection with this coach before requesting a session' });
+    }
     const request = await storage.createTimeSlotRequest({
       ...data,
       athleteId,

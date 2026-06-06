@@ -502,14 +502,29 @@ export class DatabaseStorage implements IStorage {
         rating: reviews.rating,
         comment: reviews.comment,
         createdAt: reviews.createdAt,
-        athleteUser: users,
+        athleteFirstName: users.firstName,
+        athleteLastName: users.lastName,
+        athleteProfileImageUrl: users.profileImageUrl,
       })
       .from(reviews)
       .leftJoin(users, eq(reviews.athleteId, users.id))
       .where(eq(reviews.coachId, coachId))
       .orderBy(sql`${reviews.createdAt} DESC`);
 
-    return reviewList;
+    return reviewList.map((r) => ({
+      id: r.id,
+      athleteId: r.athleteId,
+      coachId: r.coachId,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      athleteUser: {
+        id: r.athleteId,
+        firstName: r.athleteFirstName,
+        lastName: r.athleteLastName,
+        profileImageUrl: r.athleteProfileImageUrl,
+      },
+    }));
   }
 
   async getReviewsByAthlete(athleteId: string): Promise<any[]> {
@@ -837,6 +852,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(trainingSessionRequests.athleteId, athleteId))
       .orderBy(trainingSessionRequests.createdAt);
     return requests;
+  }
+
+  async getTrainingSessionRequest(id: string): Promise<TrainingSessionRequest | undefined> {
+    const [request] = await db
+      .select()
+      .from(trainingSessionRequests)
+      .where(eq(trainingSessionRequests.id, id))
+      .limit(1);
+    return request;
   }
 
   async updateTrainingSessionRequestStatus(

@@ -2,10 +2,12 @@ import { Tabs } from 'expo-router';
 import AnimatedTabBar, { FLOATING_TAB_BAR_HEIGHT } from '../../components/navigation/AnimatedTabBar';
 import { Colors } from '../../constants/theme';
 import { useCoachPendingCount } from '../../hooks/usePendingCounts';
+import { useCoachRoleGuard } from '../../hooks/useRoleGuard';
 
 const TAB_BAR_PAD = FLOATING_TAB_BAR_HEIGHT + 24;
 
 export default function CoachLayout() {
+  useCoachRoleGuard();
   const pendingCount = useCoachPendingCount();
 
   return (

@@ -34,8 +34,9 @@ export async function registerRoutes(app: Express) {
 
   logStripeStatusOnBoot();
 
-  // Auto-seed demo data on startup
-  seedDemoCoaches().catch((e) => console.warn('Demo seed failed (non-fatal):', e.message));
+  if (process.env.NODE_ENV === 'development') {
+    seedDemoCoaches().catch((e) => console.warn('Demo seed failed (non-fatal):', e.message));
+  }
 
   // General rate limiting on all API routes
   app.use('/api', apiRateLimit);
@@ -44,6 +45,11 @@ export async function registerRoutes(app: Express) {
   app.use('/api/auth/login', authRateLimit);
   app.use('/api/auth/signup', authRateLimit);
   app.use('/api/auth/forgot-password', authRateLimit);
+  app.use('/api/auth/demo-login', authRateLimit);
+  app.use('/api/auth/google', authRateLimit);
+  app.use('/api/auth/apple', authRateLimit);
+  app.use('/api/auth/reset-password', authRateLimit);
+  app.use('/api/auth/resend-verification', authRateLimit);
 
   // Public Supabase config
   app.get('/api/config/supabase', (_req, res) => {
@@ -77,11 +83,6 @@ export async function registerRoutes(app: Express) {
   app.use('/api/sessions', sessionsRouter);
   app.use('/api/schedule-templates', scheduleRouter);
   app.use('/api/training-requests', trainingRouter);
-  // Stripe webhook needs raw body — register BEFORE express.json() parses it
-  app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), (req, res, next) => {
-    // Re-export to paymentsRouter
-    next();
-  });
   app.use('/api/payments', paymentsRouter);
   app.use('/api/conversations', messagesRouter);
   app.use('/api/notifications', notificationsRouter);

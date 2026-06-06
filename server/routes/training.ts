@@ -55,6 +55,11 @@ trainingRouter.patch('/:requestId', isAuthenticated, requireRole('coach'), async
     const coachProfile = await storage.getCoachProfile(userId);
     if (!coachProfile) return res.status(403).json({ message: 'Only coaches can update training requests' });
 
+    const existing = await storage.getTrainingSessionRequest(req.params.requestId);
+    if (!existing || existing.coachId !== userId) {
+      return res.status(403).json({ message: 'Not authorized to update this training request' });
+    }
+
     const updated = await storage.updateTrainingSessionRequestStatus(req.params.requestId, status);
     res.json(updated);
   } catch (error: any) {

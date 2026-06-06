@@ -1,8 +1,15 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes/index";
+import { handleStripeWebhook } from "./routes/payments";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+// Stripe webhook must receive the raw body (before express.json)
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook,
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret-change-me';
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required');
+}
 const JWT_EXPIRES = '30d';
 
 export interface JwtPayload {

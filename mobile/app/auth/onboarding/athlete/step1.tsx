@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../../../constants/theme';
 import * as SecureStore from 'expo-secure-store';
+import { useRequireAuth } from '../../../../hooks/useRequireAuth';
 
 const schema = z.object({
   phone: z.string().min(7, 'Enter a valid phone number'),
@@ -18,7 +19,10 @@ const schema = z.object({
 type Form = z.infer<typeof schema>;
 
 export default function AthleteStep1() {
+  const { isLoading: authLoading, isAuthenticated } = useRequireAuth();
   const router = useRouter();
+
+  if (authLoading || !isAuthenticated) return null;
 
   const { control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),

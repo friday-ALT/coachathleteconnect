@@ -22,7 +22,7 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
     return (
       `Cannot reach the server at:\n${API_URL}\n\n` +
       `• Start the API: npm run dev (in DesignSyncMobile-2)\n` +
-      `• iOS Simulator: use http://127.0.0.1:3000 in app.json → extra.webUrl\n` +
+      `• iOS Simulator: use http://127.0.0.1:5000 in app.json → extra.webUrl\n` +
       `• Real iPhone (Expo Go): use your Mac’s Wi‑Fi IP, not localhost`
     );
   }

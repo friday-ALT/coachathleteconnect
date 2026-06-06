@@ -5,6 +5,7 @@ import {
 import { useRouter, useRootNavigationState } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
 import { useRole } from '../hooks/useRole';
+import { resolveMobileAuthRoute } from '../lib/resolveAuthRoute';
 import { Colors, FontSizes } from '../constants/theme';
 
 export default function Index() {
@@ -12,7 +13,14 @@ export default function Index() {
   const rootNavState = useRootNavigationState();
 
   const { isAuthenticated, isLoading: authLoading, error: authError } = useAuth();
-  const { activeRole, hasAthleteProfile, hasCoachProfile, isLoading: roleLoading } = useRole();
+  const {
+    activeRole,
+    hasAthleteProfile,
+    hasCoachProfile,
+    athleteProfileComplete,
+    coachProfileComplete,
+    isLoading: roleLoading,
+  } = useRole();
 
   const splashDone = useRef(false);
   const navReady   = useRef(false);
@@ -57,20 +65,34 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (authLoading || roleLoading) navigate('/welcome');
-    }, 6000);
+    if (authLoading || roleLoading) return;
 
-    if (!authLoading && !roleLoading) {
-      clearTimeout(timeout);
-      if (!isAuthenticated || authError)               navigate('/welcome');
-      else if (!hasAthleteProfile && !hasCoachProfile) navigate('/auth/role-selection');
-      else if (!activeRole)                            navigate('/role-select');
-      else if (activeRole === 'athlete')               navigate('/(athlete)/home');
-      else                                             navigate('/(coach)/home');
+    if (!isAuthenticated || authError) {
+      navigate('/welcome');
+      return;
     }
-    return () => clearTimeout(timeout);
-  }, [isAuthenticated, activeRole, authLoading, roleLoading, hasAthleteProfile, hasCoachProfile, authError]);
+
+    void (async () => {
+      const path = await resolveMobileAuthRoute({
+        activeRole,
+        hasAthleteProfile,
+        hasCoachProfile,
+        athleteProfileComplete,
+        coachProfileComplete,
+      });
+      navigate(path);
+    })();
+  }, [
+    isAuthenticated,
+    activeRole,
+    authLoading,
+    roleLoading,
+    hasAthleteProfile,
+    hasCoachProfile,
+    athleteProfileComplete,
+    coachProfileComplete,
+    authError,
+  ]);
 
   return (
     <Animated.View style={[styles.root, { opacity: fadeOut }]}>

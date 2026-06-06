@@ -1,11 +1,30 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function RoleSelection() {
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/welcome');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.root, { justifyContent: 'center' }]}>
+        <ActivityIndicator color={Colors.accent} />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return (
     <View style={styles.root}>

@@ -30,6 +30,7 @@ export default function AuthLogin() {
   const urlParams = new URLSearchParams(location.split("?")[1] || "");
   const verified = urlParams.get("verified") === "true";
   const roleParam = urlParams.get("role") as ActiveRole;
+  const redirectParam = urlParams.get("redirect");
   const signupHref =
     roleParam === "athlete" || roleParam === "coach"
       ? `/auth/signup?role=${roleParam}`
@@ -76,7 +77,15 @@ export default function AuthLogin() {
         session = queryClient.getQueryData(["/api/auth/session"]);
       }
 
-      setLocation(getPostAuthPath(session, preferredRole));
+      const postAuthPath = getPostAuthPath(session, preferredRole);
+      const safeRedirect =
+        redirectParam &&
+        redirectParam.startsWith('/') &&
+        !redirectParam.startsWith('//') &&
+        !redirectParam.startsWith('/auth/login')
+          ? redirectParam
+          : null;
+      setLocation(safeRedirect || postAuthPath);
     },
     onError: (error: any) => {
       if (error.requiresVerification) {

@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as SecureStore from 'expo-secure-store';
 import { profileApi, sessionApi } from '../../../../lib/api';
+import { useRequireAuth } from '../../../../hooks/useRequireAuth';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../../../constants/theme';
 
 const schema = z.object({
@@ -29,8 +30,11 @@ const SKILL_LEVELS = [
 ] as const;
 
 export default function AthleteStep2() {
+  const { isLoading: authLoading, isAuthenticated } = useRequireAuth();
   const router      = useRouter();
   const queryClient = useQueryClient();
+
+  if (authLoading || !isAuthenticated) return null;
   const [skillLevel, setSkillLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
 
   const { control, handleSubmit, formState: { errors }, setValue } = useForm<Form>({

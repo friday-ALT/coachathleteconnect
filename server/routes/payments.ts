@@ -3,7 +3,8 @@ import type Stripe from 'stripe';
 import { db } from '../db';
 import { users, coachProfiles, transactions } from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import { isAuthenticated } from '../replitAuth';
+import { isAuthenticated, requireRole } from '../replitAuth';
+import { storage } from '../storage';
 import {
   getStripe,
   isStripeConfigured,
@@ -35,7 +36,7 @@ router.get('/config', (_req, res) => {
 });
 
 // ─── POST /api/payments/create-checkout ──────────────────────────────────────
-router.post('/create-checkout', isAuthenticated, async (req: any, res: Response) => {
+router.post('/create-checkout', isAuthenticated, requireRole('athlete'), async (req: any, res: Response) => {
   if (!isStripeConfigured()) return stripeNotConfigured(res);
 
   try {
@@ -46,6 +47,11 @@ router.post('/create-checkout', isAuthenticated, async (req: any, res: Response)
 
     if (!coachId || !requestedDate || !requestedStartTime || !durationMins) {
       return res.status(400).json({ message: 'Missing required booking details' });
+    }
+
+    const connection = await storage.getConnection(athleteId, coachId);
+    if (!connection || connection.status !== 'ACCEPTED') {
+      return res.status(403).json({ message: 'You must have an accepted connection with this coach before booking' });
     }
 
     const [coach] = await db.select().from(coachProfiles)
@@ -148,9 +154,14 @@ router.get('/checkout-status/:sessionId', isAuthenticated, async (req: any, res:
 
   try {
     const stripe = getStripe();
+    const athleteId = req.user.claims.sub;
     const { sessionId } = req.params;
 
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.metadata?.athleteId && session.metadata.athleteId !== athleteId) {
+      return res.status(403).json({ message: 'Not authorized to view this checkout session' });
+    }
 
     if (session.payment_status === 'paid') {
       const { requestId } = await fulfillPaidCheckout(session);
@@ -164,8 +175,8 @@ router.get('/checkout-status/:sessionId', isAuthenticated, async (req: any, res:
   }
 });
 
-// ─── POST /api/payments/webhook ──────────────────────────────────────────────
-router.post('/webhook', async (req: Request, res: Response) => {
+/** Stripe webhook — must be mounted with express.raw() before express.json(). */
+export async function handleStripeWebhook(req: Request, res: Response) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!webhookSecret || !isStripeConfigured()) {
     return res.json({ received: true, skipped: true });
@@ -205,7 +216,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
   }
 
   res.json({ received: true });
-});
+}
 
 // ─── POST /api/payments/coach/onboard ────────────────────────────────────────
 router.post('/coach/onboard', isAuthenticated, async (req: any, res: Response) => {

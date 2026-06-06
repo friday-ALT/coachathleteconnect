@@ -48,6 +48,8 @@ export const users = pgTable("users", {
   /** Last role used (athlete/coach) — synced for web sessions and mobile JWT auth */
   lastActiveRole: varchar("last_active_role"),
   stripeCustomerId: varchar("stripe_customer_id").unique(), // Stripe customer for payments
+  /** Incremented on logout/password reset to invalidate outstanding JWTs */
+  tokenVersion: integer("token_version").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

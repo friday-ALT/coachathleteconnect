@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthToken } from './authStorage';
+import { getAuthToken, clearAuthToken } from './authStorage';
 import { API_URL } from '../constants/config';
 
 const api = axios.create({
@@ -18,6 +18,20 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+/** Clear stored JWT when the server rejects a bearer token (e.g. after logout on web). */
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (
+      error.response?.status === 401 &&
+      error.config?.headers?.Authorization
+    ) {
+      await clearAuthToken();
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default api;
 

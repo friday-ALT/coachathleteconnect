@@ -9,7 +9,8 @@ import { z } from 'zod';
 import { isDemoLogin, DEMO_USER_DATA, DEMO_CREDENTIALS } from './demoAuth';
 import { isDemoAuthEnabled } from './demoAuthGate';
 import { ensureDemoUserProfiles } from './demoSeed';
-import { signToken } from './jwt';
+import { bindAuthSession, signUserToken } from './authSession';
+import { performLogout } from './tokenVersion';
 
 const router = Router();
 
@@ -120,19 +121,15 @@ router.post('/signup', async (req: Request, res: Response) => {
           });
         }
 
-        const token = signToken({
-          sub: linked.id,
-          email: linked.email!,
-          firstName: linked.firstName!,
-          lastName: linked.lastName!,
-        });
-        (req.session as any).userId = linked.id;
-        (req.session as any).user = {
+        const linkedUser = {
           id: linked.id,
           email: linked.email,
           firstName: linked.firstName,
           lastName: linked.lastName,
+          tokenVersion: user.tokenVersion ?? 0,
         };
+        await bindAuthSession(req, linkedUser);
+        const token = signUserToken(linkedUser);
         return res.status(200).json({
           message: 'Account linked — you can now log in with email and password.',
           token,
@@ -211,20 +208,15 @@ router.post('/signup', async (req: Request, res: Response) => {
     }
 
     // No email provider — auto-login (session + JWT for mobile)
-    (req.session as any).userId = newUser.id;
-    (req.session as any).user = {
+    const createdUser = {
       id: newUser.id,
       email: newUser.email,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
+      tokenVersion: 0,
     };
-
-    const token = signToken({
-      sub: newUser.id,
-      email: newUser.email!,
-      firstName: newUser.firstName!,
-      lastName: newUser.lastName!,
-    });
+    await bindAuthSession(req, createdUser);
+    const token = signUserToken(createdUser);
 
     res.status(201).json({
       message: 'Account created!',
@@ -323,21 +315,15 @@ router.post('/login', async (req: Request, res: Response) => {
 
       await ensureDemoUserProfiles();
 
-      // Create session for demo user
-      (req.session as any).userId = DEMO_CREDENTIALS.userId;
-      (req.session as any).user = {
+      const demoUser = {
         id: DEMO_CREDENTIALS.userId,
-        email: DEMO_CREDENTIALS.email,
-        firstName: DEMO_USER_DATA.firstName,
-        lastName: DEMO_USER_DATA.lastName,
-      };
-
-      const token = signToken({
-        sub: DEMO_CREDENTIALS.userId,
         email: DEMO_CREDENTIALS.email,
         firstName: DEMO_USER_DATA.firstName as string,
         lastName: DEMO_USER_DATA.lastName as string,
-      });
+        tokenVersion: existingDemoUser?.tokenVersion ?? 0,
+      };
+      await bindAuthSession(req, demoUser);
+      const token = signUserToken(demoUser);
 
       return res.json({
         message: 'Demo login successful',
@@ -388,21 +374,15 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Create session
-    (req.session as any).userId = user.id;
-    (req.session as any).user = {
+    const authUser = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      tokenVersion: user.tokenVersion ?? 0,
     };
-
-    const token = signToken({
-      sub: user.id,
-      email: user.email!,
-      firstName: user.firstName!,
-      lastName: user.lastName!,
-    });
+    await bindAuthSession(req, authUser);
+    const token = signUserToken(authUser);
 
     res.json({
       message: 'Login successful',
@@ -496,15 +476,17 @@ router.post('/apple', async (req: Request, res: Response) => {
         emailVerified: 1,
         googleId: `apple:${appleId}`,
       });
-      dbUser = { id: newId, email, firstName, lastName };
+      dbUser = { id: newId, email, firstName, lastName, tokenVersion: 0 };
     }
 
-    const token = signToken({
-      sub: dbUser.id,
-      email: dbUser.email || '',
-      firstName: dbUser.firstName || firstName,
-      lastName: dbUser.lastName || lastName,
-    });
+    const appleUser = {
+      id: dbUser.id,
+      email: dbUser.email ?? email ?? null,
+      firstName: dbUser.firstName ?? firstName,
+      lastName: dbUser.lastName ?? lastName,
+      tokenVersion: (dbUser as { tokenVersion?: number }).tokenVersion ?? 0,
+    };
+    const token = signUserToken(appleUser);
 
     res.json({
       message: 'Apple sign-in successful',
@@ -554,12 +536,18 @@ router.post('/demo-login', async (req: Request, res: Response) => {
     // Athlete + coach profiles so role-select shows both modes
     await ensureDemoUserProfiles();
 
-    const token = signToken({
-      sub: DEMO_CREDENTIALS.userId,
+    const [demoRow] = await db.select().from(users)
+      .where(eq(users.id, DEMO_CREDENTIALS.userId))
+      .limit(1);
+
+    const demoUser = {
+      id: DEMO_CREDENTIALS.userId,
       email: DEMO_CREDENTIALS.email,
       firstName: DEMO_USER_DATA.firstName as string,
       lastName: DEMO_USER_DATA.lastName as string,
-    });
+      tokenVersion: demoRow?.tokenVersion ?? 0,
+    };
+    const token = signUserToken(demoUser);
 
     res.json({
       message: 'Demo login successful',
@@ -578,8 +566,14 @@ router.post('/demo-login', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/auth/logout - Logout
-router.post('/logout', (req: Request, res: Response) => {
+// POST /api/auth/logout - Logout (invalidates JWTs + destroys session)
+router.post('/logout', async (req: Request, res: Response) => {
+  try {
+    await performLogout(req);
+  } catch (error) {
+    console.error('Logout token invalidation error:', error);
+  }
+
   req.session.destroy((err) => {
     if (err) {
       console.error('Logout error:', err);
@@ -670,6 +664,9 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       })
       .where(eq(users.id, user.id));
 
+    const { invalidateUserTokens } = await import('./tokenVersion');
+    await invalidateUserTokens(user.id);
+
     res.json({ message: 'Password reset successfully. You can now login with your new password.' });
   } catch (error: any) {
     console.error('Reset password error:', error);
@@ -730,14 +727,22 @@ router.get('/me', async (req: Request, res: Response) => {
   let userId: string | null = null;
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
-    const { verifyToken } = await import('./jwt');
-    const payload = verifyToken(authHeader.slice(7));
+    const { verifyActiveToken } = await import('./jwt');
+    const payload = await verifyActiveToken(authHeader.slice(7));
     if (payload) userId = payload.sub;
   }
   if (!userId) userId = session.userId ?? null;
 
   if (!userId) {
     return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  if (session.userId && session.userId === userId) {
+    const { getTokenVersion } = await import('./tokenVersion');
+    const currentVersion = await getTokenVersion(userId);
+    if ((session.tokenVersion ?? 0) !== currentVersion) {
+      return res.status(401).json({ error: 'Session expired' });
+    }
   }
 
   try {
@@ -827,21 +832,15 @@ router.post('/google', async (req: Request, res: Response) => {
         .where(eq(users.id, user.id));
     }
 
-    // Create session
-    (req.session as any).userId = user.id;
-    (req.session as any).user = {
+    const googleUser = {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      tokenVersion: user.tokenVersion ?? 0,
     };
-
-    const token = signToken({
-      sub: user!.id,
-      email: user!.email!,
-      firstName: user!.firstName!,
-      lastName: user!.lastName!,
-    });
+    await bindAuthSession(req, googleUser);
+    const token = signUserToken(googleUser);
 
     res.json({
       message: 'Google login successful',

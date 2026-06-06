@@ -198,6 +198,7 @@ declare module 'express-session' {
   interface SessionData {
     activeRole?: ActiveRole;
     userId?: string;
+    tokenVersion?: number;
     user?: {
       id: string;
       email: string;
@@ -214,9 +215,9 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   // 1. Check for Bearer JWT token (mobile app)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
-    const { verifyToken } = await import('./jwt');
+    const { verifyActiveToken } = await import('./jwt');
     const token = authHeader.slice(7);
-    const payload = verifyToken(token);
+    const payload = await verifyActiveToken(token);
     if (payload) {
       (req as any).user = {
         claims: {
@@ -233,6 +234,11 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   // 2. Check for email auth session (web)
   if (session.userId && session.user) {
+    const { getTokenVersion } = await import('./tokenVersion');
+    const currentVersion = await getTokenVersion(session.userId);
+    if ((session.tokenVersion ?? 0) !== currentVersion) {
+      return res.status(401).json({ message: 'Session expired' });
+    }
     if (!req.user) {
       (req as any).user = {
         claims: {

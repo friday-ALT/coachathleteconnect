@@ -87,8 +87,14 @@ export async function registerRoutes(app: Express) {
   app.use('/api/conversations', messagesRouter);
   app.use('/api/notifications', notificationsRouter);
 
-  // Universal session logout — works for email-auth users (Replit OIDC registers its own version when enabled)
-  app.get('/api/logout', (req: any, res) => {
+  // Universal session logout — invalidates JWTs and destroys cookie session
+  app.get('/api/logout', async (req: any, res) => {
+    try {
+      const { performLogout } = await import('../tokenVersion');
+      await performLogout(req);
+    } catch (error) {
+      console.error('Logout token invalidation error:', error);
+    }
     req.session?.destroy(() => {
       res.clearCookie('connect.sid');
       res.redirect('/');

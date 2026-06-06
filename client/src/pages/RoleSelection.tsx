@@ -8,9 +8,25 @@ import { HelixAuthLayout, HelixRoleCard } from "@/components/app/HelixAuthLayout
 import { AppPageSkeleton } from "@/components/app/AppPageSkeleton";
 
 export default function RoleSelection() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasAthleteProfile, hasCoachProfile, isLoading: roleLoading } = useRole();
+  const {
+    hasAthleteProfile,
+    hasCoachProfile,
+    isLoading: roleLoading,
+    switchToRole,
+    isEnteringRole,
+  } = useRole();
+
+  const roleParam = new URLSearchParams(location.split("?")[1] || "").get("role");
+  const continueRole =
+    roleParam === "coach" || roleParam === "athlete"
+      ? roleParam
+      : hasAthleteProfile
+        ? "athlete"
+        : "coach";
+  const continueHref =
+    continueRole === "coach" ? "/coach/dashboard" : "/athlete/dashboard";
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) setLocation("/auth/login");
@@ -55,9 +71,13 @@ export default function RoleSelection() {
         />
       </div>
 
-      {hasAthleteProfile && hasCoachProfile && (
-        <Button className="w-full mt-6 h-12" onClick={() => setLocation("/athlete/dashboard")}>
-          Continue to app
+      {hasAny && (
+        <Button
+          className="w-full mt-6 h-12 gloss-btn"
+          disabled={isEnteringRole}
+          onClick={() => switchToRole(continueRole, continueHref)}
+        >
+          {isEnteringRole ? "Opening dashboard…" : "Continue to dashboard"}
         </Button>
       )}
 

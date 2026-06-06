@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { connectionApi, requestApi, profileApi } from '../../lib/api';
@@ -12,6 +12,11 @@ import StatTile from '../../components/ui/StatTile';
 import SectionHeader from '../../components/ui/SectionHeader';
 import AtlasActionCard from '../../components/AtlasActionCard';
 import StatusPill from '../../components/ui/StatusPill';
+import AppCanvas from '../../components/ui/AppCanvas';
+import PageHeader from '../../components/ui/PageHeader';
+import ActionBanner from '../../components/ui/ActionBanner';
+import GlossCard from '../../components/ui/GlossCard';
+import PressableScale from '../../components/ui/PressableScale';
 import { formatDate, formatTime, formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
@@ -45,122 +50,105 @@ export default function CoachHome() {
 
   const handleRefresh = () => Promise.all([refetchConnections(), refetchRequests()]);
 
+  const headerActions = (
+    <>
+      <PressableScale onPress={() => router.push('/messages')} style={styles.iconBtn} scaleTo={0.9}>
+        <Ionicons name="chatbubbles-outline" size={20} color={Colors.ink} />
+      </PressableScale>
+      <PressableScale
+        onPress={async () => { await exitRole(); router.replace('/role-select'); }}
+        style={styles.iconBtn}
+        scaleTo={0.9}
+      >
+        <Ionicons name="swap-horizontal-outline" size={20} color={Colors.ink} />
+      </PressableScale>
+    </>
+  );
+
   return (
-    <View style={styles.container}>
+    <AppCanvas>
       <StatusBar style="light" />
-
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: safeTop }]}>
-        <View style={styles.headerInner}>
-          <View>
-            <Text style={styles.greeting}>Coach Dashboard</Text>
-            <Text style={styles.name}>{profile?.name || user?.firstName}</Text>
-          </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.switchBtn}>
-              <Ionicons name="chatbubbles-outline" size={20} color={Colors.white} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={async () => { await exitRole(); router.replace('/role-select'); }} style={styles.switchBtn}>
-              <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Stats */}
-        <View style={styles.statsRow}>
-          <StatTile icon="people-outline"   value={acceptedAthletes.length}           label="Athletes"  color={Colors.statusBlue}   />
-          <StatTile icon="calendar-outline" value={upcomingRequests.length}            label="Upcoming"  color={Colors.primary}      />
-          <StatTile icon="star-outline"     value={profile?.rating?.toFixed(1) ?? '—'} label="Rating"   color={Colors.statusOrange} />
-          <StatTile icon="cash-outline"     value={formatPrice(profile?.pricePerHour || 0)} label="/hr"  color={Colors.statusGreen}  />
-        </View>
-      </View>
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
         refreshControl={
           <RefreshControl
             refreshing={connectionsLoading || requestsLoading}
             onRefresh={handleRefresh}
-            tintColor={Colors.primary}
+            tintColor={Colors.ink}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Needs attention */}
-        {needsAttention > 0 && (
-          <TouchableOpacity style={styles.alertBox} onPress={() => router.push('/(coach)/requests')} activeOpacity={0.85}>
-            <View style={styles.alertLeft}>
-              <View style={styles.alertDot} />
-              <View>
-                <Text style={styles.alertTitle}>⚡ Needs Attention</Text>
-                {pendingConnections.length > 0 && (
-                  <Text style={styles.alertItem}>• {pendingConnections.length} new connection request{pendingConnections.length > 1 ? 's' : ''}</Text>
-                )}
-                {pendingRequests.length > 0 && (
-                  <Text style={styles.alertItem}>• {pendingRequests.length} session request{pendingRequests.length > 1 ? 's' : ''} to review</Text>
-                )}
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={Colors.statusOrange} />
-          </TouchableOpacity>
-        )}
+        <PageHeader
+          label="Coach"
+          title={profile?.name || user?.firstName || 'Dashboard'}
+          subtitle={`${acceptedAthletes.length} athletes · ${formatPrice(profile?.pricePerHour || 0)}/hr`}
+          actions={headerActions}
+        />
 
-        {/* Quick actions */}
-        <View style={styles.quickRow}>
-          <AtlasActionCard
-            eyebrow="Calendar"
-            title="Schedule"
-            icon="calendar-outline"
-            iconColor={Colors.statusBlue}
-            variant={0}
-            onPress={() => router.push('/(coach)/schedule')}
-          />
-          <View style={styles.quickCardWrap}>
-            <AtlasActionCard
-              eyebrow="Inbox"
-              title="Requests"
-              icon="notifications-outline"
-              iconColor={Colors.statusOrange}
-              variant={1}
-              onPress={() => router.push('/(coach)/requests')}
-            />
-            {needsAttention > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{needsAttention}</Text>
-              </View>
-            )}
-          </View>
+        <View style={styles.statsRow}>
+          <StatTile value={upcomingRequests.length} label="Upcoming" color={Colors.success} />
+          <StatTile value={pendingRequests.length} label="Pending" />
+          <StatTile value={profile?.rating?.toFixed(1) ?? '—'} label="Rating" />
         </View>
 
-        {/* Upcoming sessions */}
-        <SectionHeader label="Upcoming Sessions" color={Colors.primary} count={upcomingRequests.length} />
+        {needsAttention > 0 && (
+          <ActionBanner
+            title={`${needsAttention} item${needsAttention > 1 ? 's' : ''} need attention`}
+            description={[
+              pendingConnections.length > 0 ? `${pendingConnections.length} connection request${pendingConnections.length > 1 ? 's' : ''}` : null,
+              pendingRequests.length > 0 ? `${pendingRequests.length} session request${pendingRequests.length > 1 ? 's' : ''}` : null,
+            ].filter(Boolean).join(' · ')}
+            actionLabel="Review"
+            onPress={() => router.push('/(coach)/requests')}
+          />
+        )}
+
+        <View style={styles.quickRow}>
+          <AtlasActionCard
+            eyebrow="Plan"
+            title="Schedule"
+            icon="calendar-outline"
+            variant={2}
+            onPress={() => router.push('/(coach)/schedule')}
+          />
+          <AtlasActionCard
+            eyebrow="Inbox"
+            title={needsAttention > 0 ? `${needsAttention} requests` : 'Requests'}
+            icon="notifications-outline"
+            variant={0}
+            onPress={() => router.push('/(coach)/requests')}
+          />
+        </View>
+
+        <SectionHeader
+          label="Upcoming Sessions"
+          count={upcomingRequests.length}
+          linkLabel="View all"
+          onPress={() => router.push('/(coach)/schedule')}
+        />
         {upcomingRequests.length === 0 ? (
-          <View style={styles.emptyCard}>
+          <GlossCard style={styles.emptyCard} padding={Spacing.xl}>
             <Ionicons name="calendar-outline" size={32} color={Colors.muted} />
             <Text style={styles.emptyText}>No upcoming sessions</Text>
-          </View>
+          </GlossCard>
         ) : (
-          upcomingRequests.slice(0, 4).map((r: any) => (
-            <View key={r.id} style={styles.sessionRow}>
-              <View style={styles.sessionAccent} />
-              <View style={styles.sessionBody}>
-                <View style={styles.sessionTop}>
-                  <View style={styles.athleteRow}>
-                    <Avatar name={r.athleteName} size={32} />
-                    <Text style={styles.athleteName}>{r.athleteName}</Text>
-                  </View>
-                  <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
+          <GlossCard padding={0}>
+            {upcomingRequests.slice(0, 4).map((r: any, i: number) => (
+              <View key={r.id} style={[styles.dataRow, i < Math.min(upcomingRequests.length, 4) - 1 && styles.dataRowBorder]}>
+                <Avatar name={r.athleteName} size={36} />
+                <View style={styles.dataRowMain}>
+                  <Text style={styles.dataRowTitle}>{r.athleteName}</Text>
+                  <Text style={styles.dataRowSub}>
+                    {formatDate(r.requestedDate)} · {formatTime(r.requestedStartTime)} – {formatTime(r.requestedEndTime)}
+                  </Text>
                 </View>
-                <View style={styles.metaRow}>
-                  <Ionicons name="calendar-outline" size={13} color={Colors.muted} />
-                  <Text style={styles.metaText}>{formatDate(r.requestedDate)}</Text>
-                  <Ionicons name="time-outline" size={13} color={Colors.muted} style={{ marginLeft: 8 }} />
-                  <Text style={styles.metaText}>{formatTime(r.requestedStartTime)} – {formatTime(r.requestedEndTime)}</Text>
-                </View>
+                <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
               </View>
-            </View>
-          ))
+            ))}
+          </GlossCard>
         )}
 
         {upcomingRequests.length > 4 && (
@@ -170,201 +158,63 @@ export default function CoachHome() {
           </TouchableOpacity>
         )}
       </ScrollView>
-    </View>
+    </AppCanvas>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.ink,
-    paddingBottom: Spacing.lg,
+  scroll: { flex: 1 },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
-  headerInner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  greeting: {
-    fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.65)',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  name: {
-    fontSize: FontSizes.xl,
-    fontWeight: '800',
-    color: Colors.white,
-    marginTop: 2,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  switchBtn: {
-    width: 38,
-    height: 38,
+  iconBtn: {
+    width: 40,
+    height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
   statsRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
-  scroll: { flex: 1 },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-
-  // Alert
-  alertBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: `${Colors.statusOrange}12`,
-    borderRadius: BorderRadius.md,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.statusOrange,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-  },
-  alertLeft: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.sm,
-    flex: 1,
-  },
-  alertDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.statusOrange,
-    marginTop: 5,
-  },
-  alertTitle: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.ink,
-    marginBottom: 4,
-  },
-  alertItem: {
-    fontSize: FontSizes.sm,
-    color: Colors.body,
-    marginBottom: 1,
-  },
-
-  // Quick
   quickRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  quickCardWrap: {
-    flex: 1,
-    position: 'relative',
-  },
-  quickCard: {
-    flex: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+  dataRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-    position: 'relative',
+    gap: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
   },
-  quickIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
+  dataRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
-  quickLabel: {
+  dataRowMain: {
+    flex: 1,
+    minWidth: 0,
+  },
+  dataRowTitle: {
     fontSize: FontSizes.sm,
-    fontWeight: '700',
+    fontWeight: '500',
     color: Colors.ink,
   },
-  badge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: Colors.statusOrange,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: Colors.white,
-  },
-
-  // Sessions
-  sessionRow: {
-    flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.sm,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-  },
-  sessionAccent: {
-    width: 4,
-    backgroundColor: Colors.primary,
-  },
-  sessionBody: {
-    flex: 1,
-    padding: Spacing.md,
-  },
-  sessionTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  athleteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  athleteName: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.ink,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  metaText: {
+  dataRowSub: {
     fontSize: FontSizes.xs,
     color: Colors.muted,
-    fontWeight: '500',
+    marginTop: 2,
   },
   emptyCard: {
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.xl,
     marginBottom: Spacing.sm,
     gap: 8,
   },
@@ -382,7 +232,7 @@ const styles = StyleSheet.create({
   },
   viewAllText: {
     fontSize: FontSizes.sm,
-    fontWeight: '700',
-    color: Colors.primary,
+    fontWeight: '600',
+    color: Colors.accent,
   },
 });

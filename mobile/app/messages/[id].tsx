@@ -64,7 +64,7 @@ export default function MessageThreadScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={0}
     >
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.ink} />
@@ -121,9 +121,9 @@ export default function MessageThreadScreen() {
           disabled={!text.trim() || sendMutation.isPending}
         >
           {sendMutation.isPending ? (
-            <ActivityIndicator size="small" color={Colors.white} />
+            <ActivityIndicator size="small" color={Colors.primaryOn} />
           ) : (
-            <Ionicons name="send" size={18} color={Colors.white} />
+            <Ionicons name="send" size={18} color={Colors.primaryOn} />
           )}
         </TouchableOpacity>
       </View>
@@ -158,9 +158,9 @@ const styles = StyleSheet.create({
   bubbleMine: { backgroundColor: Colors.primary, borderBottomRightRadius: 4 },
   bubbleTheirs: { backgroundColor: Colors.surfaceSection, borderBottomLeftRadius: 4 },
   bubbleText: { fontSize: FontSizes.base, color: Colors.ink, lineHeight: 20 },
-  bubbleTextMine: { color: Colors.white },
+  bubbleTextMine: { color: Colors.primaryOn },
   bubbleTime: { fontSize: 10, color: Colors.muted, marginTop: 4 },
-  bubbleTimeMine: { color: 'rgba(255,255,255,0.7)', textAlign: 'right' },
+  bubbleTimeMine: { color: 'rgba(10,10,10,0.55)', textAlign: 'right' },
   emptyThread: { alignItems: 'center', paddingVertical: 48 },
   emptyThreadText: { fontSize: FontSizes.sm, color: Colors.muted },
   inputRow: {

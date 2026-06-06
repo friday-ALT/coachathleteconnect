@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  View, Text, TextInput, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -11,7 +11,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileApi } from '../../lib/api';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import AppCanvas from '../../components/ui/AppCanvas';
+import GlossCard from '../../components/ui/GlossCard';
+import SectionHeader from '../../components/ui/SectionHeader';
+import Button from '../../components/ui/Button';
+import PressableScale from '../../components/ui/PressableScale';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const SPECIALTIES = [
@@ -94,20 +99,21 @@ export default function EditCoachProfile() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      <AppCanvas style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.accent} />
+      </AppCanvas>
     );
   }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      <AppCanvas>
       <StatusBar style="light" />
 
       <View style={[styles.header, { paddingTop: safeTop }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
-        </TouchableOpacity>
+        <PressableScale onPress={() => router.back()} style={styles.backBtn} scaleTo={0.9}>
+          <Ionicons name="arrow-back" size={22} color={Colors.ink} />
+        </PressableScale>
         <Text style={styles.headerTitle}>Edit Coach Profile</Text>
       </View>
 
@@ -177,15 +183,15 @@ export default function EditCoachProfile() {
             {SPECIALTIES.map((s) => {
               const active = selectedSpecialties.includes(s);
               return (
-                <TouchableOpacity
+                <PressableScale
                   key={s}
-                  style={[styles.chip, active && styles.chipActive]}
+                  scaleTo={0.96}
                   onPress={() => toggleSpecialty(s)}
-                  activeOpacity={0.8}
+                  style={[styles.chip, active && styles.chipActive]}
                 >
-                  {active && <Ionicons name="checkmark" size={12} color={Colors.white} />}
+                  {active && <Ionicons name="checkmark" size={12} color={Colors.accent} />}
                   <Text style={[styles.chipText, active && styles.chipTextActive]}>{s}</Text>
-                </TouchableOpacity>
+                </PressableScale>
               );
             })}
           </View>
@@ -268,22 +274,16 @@ export default function EditCoachProfile() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.saveBtn, mutation.isPending && styles.btnDisabled]}
+        <Button
+          title="Save Changes"
+          variant="accent"
+          loading={mutation.isPending}
           onPress={handleSubmit((d) => mutation.mutate(d))}
-          disabled={mutation.isPending}
-          activeOpacity={0.85}
-        >
-          {mutation.isPending ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <>
-              <Ionicons name="checkmark" size={18} color={Colors.white} />
-              <Text style={styles.saveBtnText}>Save Changes</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          leftIcon={<Ionicons name="checkmark" size={18} color={Colors.white} />}
+          style={styles.saveBtn}
+        />
       </View>
+      </AppCanvas>
     </KeyboardAvoidingView>
   );
 }
@@ -291,8 +291,8 @@ export default function EditCoachProfile() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.sectionCard}>{children}</View>
+      <SectionHeader label={title} />
+      <GlossCard padding={0}>{children}</GlossCard>
     </View>
   );
 }
@@ -311,31 +311,24 @@ function ErrText({ msg }: { msg: string }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.lg,
-    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.md,
   },
   backBtn: {
     width: 40, height: 40, borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderStrong,
+    justifyContent: 'center', alignItems: 'center',
   },
-  headerTitle: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.white },
+  headerTitle: {
+    fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.ink, letterSpacing: -0.5,
+  },
   scroll: { flex: 1 },
-  scrollContent: { padding: Spacing.lg },
+  scrollContent: { padding: Spacing.lg, paddingTop: 0 },
 
-  section: { marginBottom: Spacing.lg },
-  sectionTitle: {
-    fontSize: FontSizes.xs, fontWeight: '700', color: Colors.muted,
-    textTransform: 'uppercase', letterSpacing: 0.8,
-    marginBottom: Spacing.sm, marginLeft: 4,
-  },
-  sectionCard: {
-    backgroundColor: Colors.surface, borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.md, borderWidth: 1, borderColor: Colors.border, ...Shadow.xs,
-  },
+  section: { marginBottom: Spacing.sm },
   field: {
     paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.border,
   },
@@ -365,20 +358,15 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full, borderWidth: 1.5, borderColor: Colors.border,
     backgroundColor: Colors.background,
   },
-  chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  chipActive: { backgroundColor: Colors.accentLight, borderColor: Colors.accent },
   chipText: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.body },
-  chipTextActive: { color: Colors.white },
+  chipTextActive: { color: Colors.accent, fontWeight: '700' },
 
   footer: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     padding: Spacing.lg, paddingBottom: Spacing.xl,
-    backgroundColor: Colors.surface, borderTopWidth: 1,
-    borderTopColor: Colors.border, ...Shadow.md,
+    backgroundColor: Colors.background,
+    borderTopWidth: 1, borderTopColor: Colors.border,
   },
-  saveBtn: {
-    height: 52, backgroundColor: Colors.primary, borderRadius: BorderRadius.lg,
-    flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.sm,
-  },
-  saveBtnText: { fontSize: FontSizes.base, fontWeight: '800', color: Colors.white },
-  btnDisabled: { opacity: 0.5 },
+  saveBtn: { width: '100%' },
 });

@@ -5,6 +5,7 @@ import {
 import { useRouter, useRootNavigationState } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
 import { useRole } from '../hooks/useRole';
+import { Colors, FontSizes } from '../constants/theme';
 
 export default function Index() {
   const router       = useRouter();
@@ -13,7 +14,6 @@ export default function Index() {
   const { isAuthenticated, isLoading: authLoading, error: authError } = useAuth();
   const { activeRole, hasAthleteProfile, hasCoachProfile, isLoading: roleLoading } = useRole();
 
-  // ── Navigation gates ────────────────────────────────────────────────────────
   const splashDone = useRef(false);
   const navReady   = useRef(false);
   const pending    = useRef<string | null>(null);
@@ -24,6 +24,9 @@ export default function Index() {
       tryNavigate();
     }
   }, [rootNavState?.key]);
+
+  const fadeIn  = useRef(new Animated.Value(0)).current;
+  const fadeOut = useRef(new Animated.Value(1)).current;
 
   const doNavigate = (path: string) => {
     Animated.timing(fadeOut, {
@@ -43,10 +46,6 @@ export default function Index() {
     tryNavigate();
   };
 
-  // ── Single fade-in animation ─────────────────────────────────────────────────
-  const fadeIn  = useRef(new Animated.Value(0)).current;
-  const fadeOut = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     Animated.sequence([
       Animated.timing(fadeIn, { toValue: 1, duration: 500, useNativeDriver: true }),
@@ -57,7 +56,6 @@ export default function Index() {
     });
   }, []);
 
-  // ── Auth routing ────────────────────────────────────────────────────────────
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (authLoading || roleLoading) navigate('/welcome');
@@ -76,19 +74,15 @@ export default function Index() {
 
   return (
     <Animated.View style={[styles.root, { opacity: fadeOut }]}>
-
-      {/* White card — Economist-style */}
-      <Animated.View style={[styles.card, { opacity: fadeIn }]}>
-        <Text style={styles.coach}>Coach</Text>
-        <Text style={styles.athlete}>Athlete</Text>
-        <Text style={styles.connectWord}>Connect</Text>
+      <Animated.View style={[styles.logoWrap, { opacity: fadeIn }]}>
+        <View style={styles.logoMark} />
+        <Text style={styles.brandName}>CoachConnect</Text>
+        <Text style={styles.tagline}>Train smarter. Connect faster.</Text>
       </Animated.View>
 
-      {/* Spinner below the card */}
       <Animated.View style={[styles.spinnerWrap, { opacity: fadeIn }]}>
-        <ActivityIndicator color="rgba(255,255,255,0.5)" size="small" />
+        <ActivityIndicator color={Colors.ink} size="small" />
       </Animated.View>
-
     </Animated.View>
   );
 }
@@ -96,37 +90,31 @@ export default function Index() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#26a641',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  card: {
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 36,
-    paddingVertical: 28,
+  logoWrap: {
     alignItems: 'center',
   },
-  coach: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#26a641',
-    letterSpacing: -0.5,
-    lineHeight: 38,
+  logoMark: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: Colors.ink,
+    marginBottom: 20,
   },
-  athlete: {
-    fontSize: 36,
+  brandName: {
+    fontSize: FontSizes['3xl'],
     fontWeight: '800',
-    color: '#26a641',
-    letterSpacing: -0.5,
-    lineHeight: 38,
+    color: Colors.ink,
+    letterSpacing: -1,
   },
-  connectWord: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#26a641',
-    letterSpacing: 5,
-    textTransform: 'uppercase',
-    marginTop: 6,
+  tagline: {
+    marginTop: 8,
+    fontSize: FontSizes.sm,
+    color: Colors.muted,
+    fontWeight: '500',
   },
   spinnerWrap: {
     marginTop: 48,

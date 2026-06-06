@@ -1,19 +1,32 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSizes, Spacing } from '../../constants/theme';
 
 interface SectionHeaderProps {
   label: string;
   color?: string;
   count?: number;
+  linkLabel?: string;
+  onPress?: () => void;
 }
 
-export default function SectionHeader({ label, color = Colors.muted, count }: SectionHeaderProps) {
+export default function SectionHeader({
+  label,
+  count,
+  linkLabel = 'See all',
+  onPress,
+}: SectionHeaderProps) {
   return (
     <View style={styles.row}>
-      <View style={[styles.bar, { backgroundColor: color }]} />
-      <Text style={[styles.label, { color }]}>
-        {label}{count !== undefined ? ` (${count})` : ''}
+      <Text style={styles.title}>
+        {label}{count !== undefined && count > 0 ? ` (${count})` : ''}
       </Text>
+      {onPress && (
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.link}>
+          <Text style={styles.linkText}>{linkLabel}</Text>
+          <Ionicons name="arrow-forward" size={14} color={Colors.accent} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -22,19 +35,24 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
-    marginTop: Spacing.md,
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+    marginTop: Spacing.xl,
   },
-  bar: {
-    width: 3,
-    height: 14,
-    borderRadius: 2,
-    marginRight: 8,
-  },
-  label: {
-    fontSize: FontSizes.xs,
+  title: {
+    fontSize: FontSizes.lg,
     fontWeight: '700',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    letterSpacing: -0.3,
+    color: Colors.ink,
+  },
+  link: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  linkText: {
+    fontSize: FontSizes.sm,
+    color: Colors.accent,
+    fontWeight: '600',
   },
 });

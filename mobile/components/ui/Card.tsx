@@ -1,43 +1,18 @@
-import { View, StyleSheet, type ViewProps } from 'react-native';
-import { Colors, Spacing, BorderRadius, Shadow } from '../../constants/theme';
+import { type ViewStyle } from 'react-native';
+import GlossCard from './GlossCard';
 
-interface CardProps extends ViewProps {
+interface CardProps {
+  children: React.ReactNode;
+  style?: ViewStyle;
   variant?: 'default' | 'elevated' | 'flat';
+  accent?: boolean;
+  padding?: number;
 }
 
-export default function Card({ children, variant = 'default', style, ...props }: CardProps) {
+export default function Card({ children, style, accent = false, padding = 16 }: CardProps) {
   return (
-    <View
-      style={[
-        styles.card,
-        variant === 'elevated' && styles.elevated,
-        variant === 'flat' && styles.flat,
-        style,
-      ]}
-      {...props}
-    >
+    <GlossCard style={style} accent={accent} padding={padding}>
       {children}
-    </View>
+    </GlossCard>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.md,
-    ...Shadow.xs,
-  },
-  elevated: {
-    ...Shadow.md,
-    borderWidth: 0,
-  },
-  flat: {
-    backgroundColor: Colors.surfaceSection,
-    borderWidth: 0,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-});

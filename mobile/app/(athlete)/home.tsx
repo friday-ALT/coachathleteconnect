@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -15,6 +15,11 @@ import StatTile from '../../components/ui/StatTile';
 import AtlasActionCard from '../../components/AtlasActionCard';
 import SectionHeader from '../../components/ui/SectionHeader';
 import StatusPill from '../../components/ui/StatusPill';
+import AppCanvas from '../../components/ui/AppCanvas';
+import PageHeader from '../../components/ui/PageHeader';
+import ActionBanner from '../../components/ui/ActionBanner';
+import GlossCard from '../../components/ui/GlossCard';
+import PressableScale from '../../components/ui/PressableScale';
 import { formatDate, formatTime } from '../../utils/format';
 
 export default function AthleteHome() {
@@ -82,192 +87,148 @@ export default function AthleteHome() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
+  const headerActions = (
+    <>
+      <PressableScale onPress={() => router.push('/messages')} style={styles.iconBtn} scaleTo={0.9}>
+        <Ionicons name="chatbubbles-outline" size={20} color={Colors.ink} />
+        {unreadMessages > 0 && (
+          <View style={styles.msgBadge}>
+            <Text style={styles.msgBadgeText}>{unreadMessages > 9 ? '9+' : unreadMessages}</Text>
+          </View>
+        )}
+      </PressableScale>
+      <PressableScale onPress={handleSwitchMode} style={styles.iconBtn} scaleTo={0.9}>
+        <Ionicons name="swap-horizontal-outline" size={20} color={Colors.ink} />
+      </PressableScale>
+    </>
+  );
+
   return (
-    <View style={styles.container}>
+    <AppCanvas>
       <StatusBar style="light" />
-
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: safeTop }]}>
-        <View style={styles.headerInner}>
-          <View>
-            <Text style={styles.greeting}>{greeting}, {user?.firstName} 👋</Text>
-            <Text style={styles.subGreeting}>Athlete Mode</Text>
-          </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.switchBtn}>
-              <Ionicons name="chatbubbles-outline" size={20} color={Colors.white} />
-              {unreadMessages > 0 && (
-                <View style={styles.msgBadge}>
-                  <Text style={styles.msgBadgeText}>{unreadMessages > 9 ? '9+' : unreadMessages}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleSwitchMode} style={styles.switchBtn}>
-              <Ionicons name="swap-horizontal-outline" size={20} color={Colors.white} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Stat tiles */}
-        <View style={styles.statsRow}>
-          <StatTile
-            icon="people-outline"
-            value={acceptedConnections.length}
-            label="Coaches"
-            color={Colors.statusBlue}
-          />
-          <StatTile
-            icon="calendar-outline"
-            value={upcomingRequests.length}
-            label="Upcoming"
-            color={Colors.primary}
-          />
-          <StatTile
-            icon="time-outline"
-            value={pendingRequests.length}
-            label="Pending"
-            color={Colors.statusOrange}
-          />
-        </View>
-      </View>
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
         refreshControl={
           <RefreshControl
             refreshing={connectionsLoading || requestsLoading}
             onRefresh={handleRefresh}
-            tintColor={Colors.primary}
+            tintColor={Colors.ink}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Pending reviews prompt */}
+        <PageHeader
+          label={greeting}
+          title={user?.firstName || 'Athlete'}
+          subtitle={
+            upcomingRequests.length > 0
+              ? `${upcomingRequests.length} upcoming session${upcomingRequests.length > 1 ? 's' : ''}`
+              : 'Ready to train?'
+          }
+          actions={headerActions}
+        />
+
+        <View style={styles.statsRow}>
+          <StatTile value={acceptedConnections.length} label="Coaches" />
+          <StatTile value={upcomingRequests.length} label="Upcoming" color={Colors.success} />
+          <StatTile value={pendingRequests.length} label="Pending" />
+        </View>
+
         {pendingReviews && pendingReviews.length > 0 && (
-          <View style={styles.reviewBanner}>
-            <View style={styles.reviewBannerLeft}>
-              <Ionicons name="star" size={16} color="#FDAB3D" />
-              <View>
-                <Text style={styles.reviewBannerTitle}>Leave a Review</Text>
-                <Text style={styles.reviewBannerSub}>
-                  {pendingReviews.length} coach{pendingReviews.length > 1 ? 'es' : ''} waiting for your feedback
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.reviewBannerBtn}
-              onPress={() => openReviewModal(pendingReviews[0])}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.reviewBannerBtnText}>Rate Now</Text>
-              <Ionicons name="chevron-forward" size={14} color={Colors.white} />
-            </TouchableOpacity>
-          </View>
+          <ActionBanner
+            title={`${pendingReviews.length} coach${pendingReviews.length > 1 ? 'es' : ''} to review`}
+            description="Leave feedback to help other athletes find great coaches."
+            actionLabel="Rate now"
+            onPress={() => openReviewModal(pendingReviews[0])}
+          />
         )}
 
-        {/* Needs attention */}
         {(pendingConnections.length > 0 || pendingRequests.length > 0) && (
-          <View style={styles.alertBox}>
-            <View style={styles.alertHeader}>
-              <Ionicons name="flash" size={14} color={Colors.statusOrange} />
-              <Text style={styles.alertTitle}>NEEDS ATTENTION</Text>
-            </View>
-            {pendingConnections.length > 0 && (
-              <Text style={styles.alertItem}>
-                • {pendingConnections.length} connection request{pendingConnections.length > 1 ? 's' : ''} pending
-              </Text>
-            )}
-            {pendingRequests.length > 0 && (
-              <Text style={styles.alertItem}>
-                • {pendingRequests.length} session request{pendingRequests.length > 1 ? 's' : ''} awaiting reply
-              </Text>
-            )}
-          </View>
+          <ActionBanner
+            title="Needs attention"
+            description={[
+              pendingConnections.length > 0 ? `${pendingConnections.length} connection request${pendingConnections.length > 1 ? 's' : ''} pending` : null,
+              pendingRequests.length > 0 ? `${pendingRequests.length} session request${pendingRequests.length > 1 ? 's' : ''} awaiting reply` : null,
+            ].filter(Boolean).join(' · ')}
+            actionLabel="View"
+            onPress={() => router.push('/(athlete)/sessions')}
+          />
         )}
 
-        {/* Quick actions */}
         <View style={styles.quickRow}>
           <AtlasActionCard
             eyebrow="Discover"
             title="Find coaches"
             icon="search-outline"
-            iconColor={Colors.statusBlue}
             variant={0}
             onPress={() => router.push('/(athlete)/browse')}
           />
           <AtlasActionCard
-            eyebrow="Schedule"
+            eyebrow="Train"
             title="My sessions"
             icon="calendar-outline"
-            iconColor={Colors.primary}
             variant={1}
             onPress={() => router.push('/(athlete)/sessions')}
           />
         </View>
 
-        {/* Upcoming sessions */}
-        <SectionHeader label="Upcoming Sessions" color={Colors.primary} count={upcomingRequests.length} />
+        <SectionHeader label="Upcoming Sessions" count={upcomingRequests.length} />
         {upcomingRequests.length === 0 ? (
-          <View style={styles.emptyCard}>
+          <GlossCard style={styles.emptyCard} padding={Spacing.xl}>
             <Ionicons name="calendar-outline" size={32} color={Colors.muted} />
             <Text style={styles.emptyText}>No upcoming sessions</Text>
             <TouchableOpacity onPress={() => router.push('/(athlete)/browse')} style={styles.emptyAction}>
               <Text style={styles.emptyActionText}>Browse coaches →</Text>
             </TouchableOpacity>
-          </View>
+          </GlossCard>
         ) : (
-          upcomingRequests.slice(0, 3).map((r: any) => (
-            <View key={r.id} style={styles.sessionRow}>
-              <View style={styles.sessionAccent} />
-              <View style={styles.sessionBody}>
-                <View style={styles.sessionTop}>
-                  <Text style={styles.sessionCoach}>{r.coachName}</Text>
-                  <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
-                </View>
-                <View style={styles.sessionMeta}>
-                  <Ionicons name="calendar-outline" size={13} color={Colors.muted} />
-                  <Text style={styles.sessionMetaText}>{formatDate(r.requestedDate)}</Text>
-                  <Ionicons name="time-outline" size={13} color={Colors.muted} style={{ marginLeft: 8 }} />
-                  <Text style={styles.sessionMetaText}>
-                    {formatTime(r.requestedStartTime)} – {formatTime(r.requestedEndTime)}
+          <GlossCard padding={0}>
+            {upcomingRequests.slice(0, 3).map((r: any, i: number) => (
+              <View key={r.id} style={[styles.dataRow, i < 2 && styles.dataRowBorder]}>
+                <View style={styles.dataRowMain}>
+                  <Text style={styles.dataRowTitle}>{r.coachName}</Text>
+                  <Text style={styles.dataRowSub}>
+                    {formatDate(r.requestedDate)} · {formatTime(r.requestedStartTime)} – {formatTime(r.requestedEndTime)}
                   </Text>
                 </View>
+                <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
               </View>
-            </View>
-          ))
+            ))}
+          </GlossCard>
         )}
 
-        {/* My Coaches */}
-        <SectionHeader label="My Coaches" color={Colors.statusBlue} count={acceptedConnections.length} />
+        <SectionHeader label="My Coaches" count={acceptedConnections.length} />
         {acceptedConnections.length === 0 ? (
-          <View style={styles.emptyCard}>
+          <GlossCard style={styles.emptyCard} padding={Spacing.xl}>
             <Ionicons name="people-outline" size={32} color={Colors.muted} />
             <Text style={styles.emptyText}>No coaches connected yet</Text>
             <TouchableOpacity onPress={() => router.push('/(athlete)/browse')} style={styles.emptyAction}>
               <Text style={styles.emptyActionText}>Find a coach →</Text>
             </TouchableOpacity>
-          </View>
+          </GlossCard>
         ) : (
-          acceptedConnections.map((c: any) => (
-            <TouchableOpacity
-              key={c.id}
-              style={styles.coachRow}
-              onPress={() => router.push(`/coach/${c.coachId}`)}
-              activeOpacity={0.8}
-            >
-              <Avatar name={c.coachName} uri={c.avatarUrl} size={44} />
-              <View style={styles.coachInfo}>
-                <Text style={styles.coachName}>{c.coachName}</Text>
-                <Text style={styles.coachLocation}>{c.locationCity}, {c.locationState}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={Colors.muted} />
-            </TouchableOpacity>
-          ))
+          <GlossCard padding={0}>
+            {acceptedConnections.map((c: any, i: number) => (
+              <TouchableOpacity
+                key={c.id}
+                style={[styles.dataRow, i < acceptedConnections.length - 1 && styles.dataRowBorder]}
+                onPress={() => router.push(`/coach/${c.coachId}`)}
+                activeOpacity={0.7}
+              >
+                <Avatar name={c.coachName} uri={c.avatarUrl} size={40} />
+                <View style={styles.dataRowMain}>
+                  <Text style={styles.dataRowTitle}>{c.coachName}</Text>
+                  <Text style={styles.dataRowSub}>{c.locationCity}, {c.locationState}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={Colors.muted} />
+              </TouchableOpacity>
+            ))}
+          </GlossCard>
         )}
       </ScrollView>
 
-      {/* Review Modal */}
       <Modal visible={reviewModal} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setReviewModal(false)}>
         <View style={styles.reviewModal}>
           <View style={styles.reviewModalHeader}>
@@ -285,7 +246,7 @@ export default function AthleteHome() {
                   <Ionicons
                     name={star <= rating ? 'star' : 'star-outline'}
                     size={36}
-                    color={star <= rating ? '#FDAB3D' : Colors.muted}
+                    color={star <= rating ? Colors.statusOrange : Colors.muted}
                   />
                 </TouchableOpacity>
               ))}
@@ -313,10 +274,10 @@ export default function AthleteHome() {
               activeOpacity={0.85}
             >
               {submitReviewMutation.isPending ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.black} />
               ) : (
                 <>
-                  <Ionicons name="star" size={16} color={Colors.white} />
+                  <Ionicons name="star" size={16} color={Colors.black} />
                   <Text style={styles.reviewSubmitText}>Submit Review</Text>
                 </>
               )}
@@ -324,46 +285,23 @@ export default function AthleteHome() {
           </View>
         </View>
       </Modal>
-    </View>
+    </AppCanvas>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.primary,
-    paddingBottom: Spacing.lg,
+  scroll: { flex: 1 },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
-  headerInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.lg,
-  },
-  greeting: {
-    fontSize: FontSizes.lg,
-    fontWeight: '800',
-    color: Colors.white,
-  },
-  subGreeting: {
-    fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.75)',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  switchBtn: {
-    width: 38,
-    height: 38,
+  iconBtn: {
+    width: 40,
+    height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -379,7 +317,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: Colors.primary,
+    borderColor: Colors.surface,
   },
   msgBadgeText: {
     fontSize: 9,
@@ -389,148 +327,40 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-
-  // Alert
-  alertBox: {
-    backgroundColor: `${Colors.statusOrange}15`,
-    borderRadius: BorderRadius.md,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.statusOrange,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
-  },
-  alertHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginBottom: 6,
-  },
-  alertTitle: {
-    fontSize: FontSizes.xs,
-    fontWeight: '800',
-    color: Colors.statusOrange,
-    letterSpacing: 0.8,
-  },
-  alertItem: {
-    fontSize: FontSizes.sm,
-    color: Colors.body,
-    marginTop: 2,
-  },
-
-  // Quick actions
   quickRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  quickCard: {
-    flex: 1,
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-  },
-  quickIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quickLabel: {
-    fontSize: FontSizes.sm,
-    fontWeight: '700',
-    color: Colors.ink,
-  },
-
-  // Session rows
-  sessionRow: {
-    flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.sm,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-  },
-  sessionAccent: {
-    width: 4,
-    backgroundColor: Colors.statusGreen,
-  },
-  sessionBody: {
-    flex: 1,
-    padding: Spacing.md,
-  },
-  sessionTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  sessionCoach: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.ink,
-  },
-  sessionMeta: {
+  dataRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-  },
-  sessionMetaText: {
-    fontSize: FontSizes.xs,
-    color: Colors.muted,
-    fontWeight: '500',
-  },
-
-  // Coach rows
-  coachRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
     gap: Spacing.md,
-    ...Shadow.xs,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
   },
-  coachInfo: {
+  dataRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  dataRowMain: {
     flex: 1,
+    minWidth: 0,
   },
-  coachName: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
+  dataRowTitle: {
+    fontSize: FontSizes.sm,
+    fontWeight: '500',
     color: Colors.ink,
   },
-  coachLocation: {
+  dataRowSub: {
     fontSize: FontSizes.xs,
     color: Colors.muted,
     marginTop: 2,
   },
-
-  // Empty states
   emptyCard: {
     alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.xl,
     marginBottom: Spacing.sm,
     gap: 8,
   },
@@ -544,44 +374,25 @@ const styles = StyleSheet.create({
   },
   emptyActionText: {
     fontSize: FontSizes.sm,
-    color: Colors.primary,
-    fontWeight: '700',
+    color: Colors.accent,
+    fontWeight: '600',
   },
-
-  // Review banner
-  reviewBanner: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: '#FFF8EC', borderRadius: BorderRadius.lg,
-    padding: Spacing.md, marginBottom: Spacing.md,
-    borderWidth: 1, borderColor: '#FDAB3D40',
-  },
-  reviewBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
-  reviewBannerTitle: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink },
-  reviewBannerSub: { fontSize: FontSizes.xs, color: Colors.muted, marginTop: 1 },
-  reviewBannerBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    backgroundColor: '#FDAB3D', paddingHorizontal: Spacing.md, paddingVertical: 7,
-    borderRadius: BorderRadius.md,
-  },
-  reviewBannerBtnText: { fontSize: FontSizes.xs, fontWeight: '800', color: Colors.white },
-
-  // Review Modal
   reviewModal: { flex: 1, backgroundColor: Colors.background },
   reviewModalHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing.md,
     backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border,
   },
-  reviewModalTitle: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.ink },
+  reviewModalTitle: { fontSize: FontSizes.xl, fontWeight: '600', color: Colors.ink },
   reviewCloseBtn: {
     width: 36, height: 36, borderRadius: BorderRadius.full,
-    backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center',
+    backgroundColor: Colors.surfaceHover, justifyContent: 'center', alignItems: 'center',
   },
   reviewModalBody: { padding: Spacing.lg, gap: Spacing.md },
-  reviewLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink, marginBottom: 4 },
+  reviewLabel: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.ink, marginBottom: 4 },
   starsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   reviewTextArea: {
-    minHeight: 120, borderWidth: 1.5, borderColor: Colors.border,
+    minHeight: 120, borderWidth: 1, borderColor: Colors.borderStrong,
     borderRadius: BorderRadius.md, paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md, fontSize: FontSizes.base, color: Colors.ink,
     backgroundColor: Colors.surface,
@@ -591,8 +402,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface,
   },
   reviewSubmitBtn: {
-    height: 52, backgroundColor: '#FDAB3D', borderRadius: BorderRadius.lg,
+    height: 52, backgroundColor: Colors.primary, borderRadius: BorderRadius.full,
     flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.sm,
   },
-  reviewSubmitText: { fontSize: FontSizes.base, fontWeight: '800', color: Colors.white },
+  reviewSubmitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.primaryOn },
 });

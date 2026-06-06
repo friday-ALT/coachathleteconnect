@@ -9,6 +9,10 @@ import { useRole } from '../../hooks/useRole';
 import { profileApi, requestApi } from '../../lib/api';
 import { usePaymentsConfig, useCoachStripeStatus, useStripeConnect } from '../../hooks/useStripeConnect';
 import Avatar from '../../components/ui/Avatar';
+import AppCanvas from '../../components/ui/AppCanvas';
+import GlossCard from '../../components/ui/GlossCard';
+import SectionHeader from '../../components/ui/SectionHeader';
+import PressableScale from '../../components/ui/PressableScale';
 import { formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
@@ -57,44 +61,53 @@ export default function CoachProfile() {
   });
 
   return (
-    <View style={styles.container}>
+    <AppCanvas>
       <StatusBar style="light" />
 
-      {/* Hero */}
-      <View style={[styles.hero, { paddingTop: safeTop }]}>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <Ionicons name="log-out-outline" size={20} color={Colors.white} />
-        </TouchableOpacity>
-        <Avatar name={profile?.name || user?.firstName} uri={profile?.avatarUrl} size={84} />
-        <Text style={styles.name}>{profile?.name || user?.firstName}</Text>
-        {profile?.rating ? (
-          <View style={styles.ratingRow}>
-            <Ionicons name="star" size={16} color="#FDAB3D" />
-            <Text style={styles.ratingText}>{profile.rating.toFixed(1)} ({profile.reviewCount || 0} reviews)</Text>
-          </View>
-        ) : (
-          <Text style={styles.noRating}>No reviews yet</Text>
-        )}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.profileHeader}>
+          <PressableScale onPress={handleLogout} style={styles.logoutBtn} scaleTo={0.9}>
+            <Ionicons name="log-out-outline" size={20} color={Colors.body} />
+          </PressableScale>
 
-        {/* Quick stats */}
-        <View style={styles.heroStats}>
-          <View style={styles.heroStat}>
-            <Text style={styles.heroStatVal}>{formatPrice(profile?.pricePerHour || 0)}</Text>
-            <Text style={styles.heroStatLabel}>Per Hour</Text>
+          <View style={styles.avatarRing}>
+            <Avatar name={profile?.name || user?.firstName} uri={profile?.avatarUrl} size={84} />
           </View>
-          <View style={styles.heroStatDivider} />
-          <View style={styles.heroStat}>
-            <Text style={styles.heroStatVal}>{profile?.locationCity || '—'}</Text>
-            <Text style={styles.heroStatLabel}>Location</Text>
-          </View>
+
+          <Text style={styles.name}>{profile?.name || user?.firstName}</Text>
+          {profile?.rating ? (
+            <View style={styles.ratingRow}>
+              <Ionicons name="star" size={16} color={Colors.accent} />
+              <Text style={styles.ratingText}>
+                {profile.rating.toFixed(1)} ({profile.reviewCount || 0} reviews)
+              </Text>
+            </View>
+          ) : (
+            <Text style={styles.noRating}>No reviews yet</Text>
+          )}
+
+          <GlossCard style={styles.heroStats} padding={Spacing.md}>
+            <View style={styles.heroStatsInner}>
+              <View style={styles.heroStat}>
+                <Text style={styles.heroStatVal}>{formatPrice(profile?.pricePerHour || 0)}</Text>
+                <Text style={styles.heroStatLabel}>Per hour</Text>
+              </View>
+              <View style={styles.heroStatDivider} />
+              <View style={styles.heroStat}>
+                <Text style={styles.heroStatVal}>{profile?.locationCity || '—'}</Text>
+                <Text style={styles.heroStatLabel}>Location</Text>
+              </View>
+            </View>
+          </GlossCard>
         </View>
-      </View>
-
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Completion */}
         {completionPct < 100 && (
-          <View style={styles.completionCard}>
+          <GlossCard style={styles.completionCard}>
             <View style={styles.completionHeader}>
               <Text style={styles.completionTitle}>Profile Strength</Text>
               <Text style={[styles.completionPct, { color: completionPct >= 80 ? Colors.statusGreen : Colors.statusOrange }]}>
@@ -108,19 +121,14 @@ export default function CoachProfile() {
               }]} />
             </View>
             <Text style={styles.completionHint}>A complete profile gets 3x more connection requests</Text>
-          </View>
+          </GlossCard>
         )}
 
         {/* Pending booking requests panel */}
         {pendingRequests.length > 0 && (
           <View style={styles.section}>
-            <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionLabel}>Action Needed</Text>
-              <View style={styles.urgentBadge}>
-                <Text style={styles.urgentBadgeText}>{pendingRequests.length} pending</Text>
-              </View>
-            </View>
-            <View style={styles.card}>
+            <SectionHeader label="Action needed" count={pendingRequests.length} />
+            <GlossCard padding={0}>
               {pendingRequests.slice(0, 3).map((r: any, i: number) => (
                 <View
                   key={r.id}
@@ -156,16 +164,15 @@ export default function CoachProfile() {
                   </View>
                 </View>
               ))}
-            </View>
+            </GlossCard>
             {pendingRequests.length > 3 && (
-              <TouchableOpacity
+              <PressableScale
                 style={styles.viewAllBtn}
                 onPress={() => router.push('/(coach)/requests')}
-                activeOpacity={0.7}
               >
                 <Text style={styles.viewAllText}>See all {pendingRequests.length} requests</Text>
-                <Ionicons name="arrow-forward" size={13} color={Colors.primary} />
-              </TouchableOpacity>
+                <Ionicons name="arrow-forward" size={13} color={Colors.accent} />
+              </PressableScale>
             )}
           </View>
         )}
@@ -173,15 +180,15 @@ export default function CoachProfile() {
         {/* Coach info */}
         {profile && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Coach Information</Text>
-            <View style={styles.card}>
+            <SectionHeader label="Coach information" />
+            <GlossCard padding={0}>
               <DetailRow icon="location-outline"   label="Location"    value={`${profile.locationCity}, ${profile.locationState}`} />
               <DetailRow icon="cash-outline"        label="Hourly Rate" value={formatPrice(profile.pricePerHour)} />
               <DetailRow icon="call-outline"        label="Phone"       value={profile.phone} last={!profile.experience} />
               {profile.experience && (
                 <View style={detailStyles.row}>
-                  <View style={[detailStyles.iconWrap, { backgroundColor: Colors.primaryLight }]}>
-                    <Ionicons name="document-text-outline" size={16} color={Colors.primary} />
+                  <View style={detailStyles.iconWrap}>
+                    <Ionicons name="document-text-outline" size={16} color={Colors.accent} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={detailStyles.label}>Experience</Text>
@@ -189,15 +196,15 @@ export default function CoachProfile() {
                   </View>
                 </View>
               )}
-            </View>
+            </GlossCard>
           </View>
         )}
 
         {/* Stripe Payments Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Payments & Earnings</Text>
+          <SectionHeader label="Payments & earnings" />
           {showServerStripeWarning ? (
-            <View style={[styles.card, styles.stripeDisabled]}>
+            <GlossCard style={styles.stripeDisabled}>
               <Ionicons name="alert-circle-outline" size={22} color={Colors.statusOrange} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.stripeDisabledTitle}>Payments not configured on server</Text>
@@ -205,18 +212,18 @@ export default function CoachProfile() {
                   Add STRIPE_SECRET_KEY in Railway Variables and redeploy. Same keys as your website.
                 </Text>
               </View>
-            </View>
+            </GlossCard>
           ) : payConfigUnavailable ? (
             <Text style={styles.stripeHint}>
               Using production API — tap Connect Stripe below (same as website).
             </Text>
           ) : null}
           {stripeLoading ? (
-            <View style={styles.card}>
-              <ActivityIndicator color={Colors.primary} style={{ padding: Spacing.md }} />
-            </View>
+            <GlossCard>
+              <ActivityIndicator color={Colors.accent} style={{ padding: Spacing.md }} />
+            </GlossCard>
           ) : stripeStatus?.onboardingComplete ? (
-            <View style={[styles.card, styles.stripeConnected]}>
+            <GlossCard style={styles.stripeConnected}>
               <View style={styles.stripeRow}>
                 <View style={[styles.stripeIconWrap, { backgroundColor: '#635BFF20' }]}>
                   <Ionicons name="checkmark-circle" size={20} color="#635BFF" />
@@ -226,10 +233,10 @@ export default function CoachProfile() {
                   <Text style={styles.stripeSub}>You can receive payments for bookings</Text>
                 </View>
               </View>
-            </View>
+            </GlossCard>
           ) : (
             <TouchableOpacity
-              style={[styles.card, styles.stripeCTA]}
+              style={styles.stripeCTA}
               onPress={() => onboardMutation.mutate()}
               disabled={onboardMutation.isPending}
               activeOpacity={0.8}
@@ -256,8 +263,8 @@ export default function CoachProfile() {
 
         {/* Account actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Account</Text>
-          <View style={styles.card}>
+          <SectionHeader label="Account" />
+          <GlossCard padding={0}>
             <ActionRow
               icon="create-outline"
               label="Edit Coach Profile"
@@ -283,10 +290,10 @@ export default function CoachProfile() {
               />
             )}
             <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger last />
-          </View>
+          </GlossCard>
         </View>
       </ScrollView>
-    </View>
+    </AppCanvas>
   );
 }
 
@@ -294,7 +301,7 @@ function DetailRow({ icon, label, value, last }: { icon: any; label: string; val
   return (
     <View style={[detailStyles.row, !last && detailStyles.rowBorder]}>
       <View style={detailStyles.iconWrap}>
-        <Ionicons name={icon} size={16} color={Colors.primary} />
+        <Ionicons name={icon} size={16} color={Colors.accent} />
       </View>
       <Text style={detailStyles.label}>{label}</Text>
       <Text style={detailStyles.value}>{value}</Text>
@@ -306,7 +313,7 @@ function ActionRow({ icon, label, onPress, danger, last }: { icon: any; label: s
   return (
     <TouchableOpacity style={[detailStyles.row, !last && detailStyles.rowBorder]} onPress={onPress} activeOpacity={0.7}>
       <View style={[detailStyles.iconWrap, danger && { backgroundColor: `${Colors.statusRed}15` }]}>
-        <Ionicons name={icon} size={16} color={danger ? Colors.statusRed : Colors.primary} />
+        <Ionicons name={icon} size={16} color={danger ? Colors.statusRed : Colors.accent} />
       </View>
       <Text style={[detailStyles.label, { flex: 1 }, danger && { color: Colors.statusRed }]}>{label}</Text>
       {!danger && <Ionicons name="chevron-forward" size={16} color={Colors.muted} />}
@@ -329,7 +336,7 @@ const detailStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: BorderRadius.sm,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.accentLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -352,29 +359,41 @@ const detailStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  hero: {
-    backgroundColor: Colors.ink,
-    alignItems: 'center',
-    paddingBottom: Spacing.xl,
+  scroll: { flex: 1 },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+  },
+  profileHeader: {
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+    position: 'relative',
   },
   logoutBtn: {
     position: 'absolute',
-    top: Spacing.xxl + Spacing.md,
-    right: Spacing.lg,
-    width: 38,
-    height: 38,
+    top: 0,
+    right: 0,
+    width: 40,
+    height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  avatarRing: {
+    padding: 3,
+    borderRadius: 46,
+    borderWidth: 2,
+    borderColor: Colors.accent,
+    marginBottom: Spacing.md,
+  },
   name: {
-    fontSize: FontSizes.xl,
+    fontSize: FontSizes['2xl'],
     fontWeight: '800',
-    color: Colors.white,
-    marginTop: Spacing.md,
+    color: Colors.ink,
+    letterSpacing: -0.5,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -384,56 +403,45 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.8)',
+    color: Colors.body,
     fontWeight: '600',
   },
   noRating: {
     fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.muted,
     marginTop: 6,
   },
   heroStats: {
+    width: '100%',
+    marginTop: Spacing.lg,
+  },
+  heroStatsInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    marginTop: Spacing.lg,
-    gap: Spacing.xl,
+    justifyContent: 'space-around',
   },
   heroStat: {
     alignItems: 'center',
+    flex: 1,
   },
   heroStatVal: {
     fontSize: FontSizes.lg,
     fontWeight: '800',
-    color: Colors.white,
+    color: Colors.ink,
   },
   heroStatLabel: {
     fontSize: FontSizes.xs,
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.body,
     marginTop: 2,
     fontWeight: '500',
   },
   heroStatDivider: {
     width: 1,
     height: 32,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  scroll: { flex: 1 },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
+    backgroundColor: Colors.border,
   },
   completionCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
   },
   completionHeader: {
     flexDirection: 'row',
@@ -450,14 +458,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   progressBar: {
-    height: 8,
-    backgroundColor: Colors.border,
+    height: 6,
+    backgroundColor: Colors.ringTrack,
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressFill: {
-    height: 8,
+    height: 6,
     borderRadius: BorderRadius.full,
   },
   completionHint: {
@@ -506,7 +514,7 @@ const styles = StyleSheet.create({
   pendingActions: { flexDirection: 'row', gap: 6 },
   approveBtn: {
     width: 32, height: 32, borderRadius: 16,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.success,
     alignItems: 'center', justifyContent: 'center',
   },
   declineBtn: {
@@ -520,7 +528,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', marginTop: 6,
   },
   viewAllText: {
-    fontSize: FontSizes.xs, color: Colors.primary, fontWeight: '600',
+    fontSize: FontSizes.xs, color: Colors.accent, fontWeight: '600',
   },
 
   sectionLabel: {
@@ -566,8 +574,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#635BFF',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
     borderColor: '#635BFF',
-    paddingVertical: Spacing.md,
+    padding: Spacing.md,
   },
   stripeCTALeft:  { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
   stripeCTATitle: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.white },

@@ -15,6 +15,9 @@ import { authApi } from '../../lib/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { navigateAfterAuth } from '../../lib/navigateAfterAuth';
 import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import AppCanvas from '../../components/ui/AppCanvas';
+import Button from '../../components/ui/Button';
+import PressableScale from '../../components/ui/PressableScale';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const schema = z.object({
@@ -59,11 +62,12 @@ export default function LoginScreen() {
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar style="dark" />
+      <AppCanvas>
+      <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: safeTop }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <PressableScale onPress={() => router.back()} style={styles.backBtn} scaleTo={0.9}>
           <Ionicons name="arrow-back" size={22} color={Colors.ink} />
-        </TouchableOpacity>
+        </PressableScale>
         <Text style={styles.headerTitle}>Log In</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -151,17 +155,13 @@ export default function LoginScreen() {
           </View>
         )}
 
-        <TouchableOpacity
-          style={[styles.submitBtn, loginMutation.isPending && styles.disabled]}
+        <Button
+          title="Log In"
+          variant="primary"
+          loading={loginMutation.isPending}
           onPress={handleSubmit((data) => loginMutation.mutate(data))}
-          disabled={loginMutation.isPending}
-        >
-          {loginMutation.isPending ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <Text style={styles.submitText}>Log In</Text>
-          )}
-        </TouchableOpacity>
+          style={styles.submitBtn}
+        />
 
         <TouchableOpacity onPress={() => router.push('/auth/signup')} style={styles.switchRow}>
           <Text style={styles.switchText}>
@@ -169,21 +169,24 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      </AppCanvas>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.background },
+  root: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
-  backBtn: { width: 40, height: 40, justifyContent: 'center' },
+  backBtn: {
+    width: 40, height: 40, justifyContent: 'center', alignItems: 'center',
+    borderRadius: BorderRadius.full, backgroundColor: Colors.surface,
+    borderWidth: 1, borderColor: Colors.borderStrong,
+  },
   headerTitle: { flex: 1, textAlign: 'center', fontSize: FontSizes.lg, fontWeight: '700', color: Colors.ink },
   headerSpacer: { width: 40 },
   content: { padding: Spacing.xl, paddingBottom: 48 },
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
   },
   errorBox: { marginTop: Spacing.sm },
   oauthHintBtn: { marginTop: Spacing.sm },
-  oauthHintText: { fontSize: FontSizes.sm, color: Colors.primary, fontWeight: '700' },
+  oauthHintText: { fontSize: FontSizes.sm, color: Colors.accent, fontWeight: '700' },
   label: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.ink, marginBottom: 6 },
   input: {
     height: 52,
@@ -209,20 +212,11 @@ const styles = StyleSheet.create({
   },
   error: { fontSize: FontSizes.sm, color: Colors.statusRed, marginTop: 4 },
   forgotLink: { alignSelf: 'flex-end', marginTop: Spacing.sm },
-  forgotText: { fontSize: FontSizes.sm, color: Colors.primary, fontWeight: '600' },
-  submitBtn: {
-    height: 52,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.xl,
-  },
-  submitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.white },
-  disabled: { opacity: 0.6 },
+  forgotText: { fontSize: FontSizes.sm, color: Colors.accent, fontWeight: '600' },
+  submitBtn: { marginTop: Spacing.xl, width: '100%' },
   switchRow: { marginTop: Spacing.xl, alignItems: 'center' },
   switchText: { fontSize: FontSizes.sm, color: Colors.muted },
-  switchLink: { color: Colors.primary, fontWeight: '700' },
+  switchLink: { color: Colors.accent, fontWeight: '700' },
   alert: {
     flexDirection: 'row',
     gap: Spacing.sm,
@@ -235,5 +229,5 @@ const styles = StyleSheet.create({
   },
   alertBody: { flex: 1 },
   alertText: { fontSize: FontSizes.sm, color: Colors.body, marginBottom: 4 },
-  alertLink: { fontSize: FontSizes.sm, color: Colors.primary, fontWeight: '700' },
+  alertLink: { fontSize: FontSizes.sm, color: Colors.accent, fontWeight: '700' },
 });

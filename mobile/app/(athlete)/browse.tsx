@@ -4,10 +4,11 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import { coachApi } from '../../lib/api';
 import CoachAtlasCard from '../../components/CoachAtlasCard';
-import { AtlasColors } from '../../constants/atlasTheme';
+import AppCanvas from '../../components/ui/AppCanvas';
+import PressableScale from '../../components/ui/PressableScale';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const SKILL_LEVELS = ['', 'Beginner', 'Intermediate', 'Advanced'];
@@ -41,10 +42,9 @@ export default function Browse() {
   const isSearching = searchQuery !== debouncedQuery;
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <AppCanvas>
+      <StatusBar style="light" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <Text style={styles.headerTitle}>Find Coaches</Text>
         <Text style={styles.headerSub}>
@@ -73,18 +73,24 @@ export default function Browse() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersRow}>
           {SKILL_LEVELS.map((level) => {
             const isActive = skillLevel === level;
-            const color = level ? SKILL_COLORS[level] : Colors.primary;
+            const accent = level ? SKILL_COLORS[level] : Colors.accent;
             return (
-              <TouchableOpacity
+              <PressableScale
                 key={level || 'all'}
-                style={[styles.filterPill, isActive && { backgroundColor: color, borderColor: color }]}
+                scaleTo={0.96}
                 onPress={() => setSkillLevel(level)}
-                activeOpacity={0.8}
+                style={[
+                  styles.filterPill,
+                  isActive && {
+                    backgroundColor: level ? `${accent}22` : Colors.accentLight,
+                    borderColor: accent,
+                  },
+                ]}
               >
-                <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                <Text style={[styles.filterText, isActive && { color: accent, fontWeight: '700' }]}>
                   {level || 'All Levels'}
                 </Text>
-              </TouchableOpacity>
+              </PressableScale>
             );
           })}
         </ScrollView>
@@ -94,7 +100,7 @@ export default function Browse() {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <View style={styles.loaderWrap}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={Colors.accent} />
             <Text style={styles.loaderText}>Finding coaches...</Text>
           </View>
         ) : coaches?.length === 0 ? (
@@ -121,35 +127,28 @@ export default function Browse() {
           ))
         )}
       </ScrollView>
-    </View>
+    </AppCanvas>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F7',
-  },
   header: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: '#F5F5F7',
-    borderBottomWidth: 0,
   },
   headerTitle: {
-    fontSize: FontSizes['2xl'],
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    color: AtlasColors.ink,
+    fontSize: FontSizes['3xl'],
+    fontWeight: '800',
+    letterSpacing: -1,
+    color: Colors.ink,
   },
   headerSub: {
     fontSize: FontSizes.sm,
-    color: Colors.muted,
-    marginTop: 2,
+    color: Colors.body,
+    marginTop: 6,
     fontWeight: '500',
   },
   searchSection: {
-    backgroundColor: '#F5F5F7',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
   },
@@ -161,9 +160,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     height: 46,
     marginVertical: Spacing.sm,
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     gap: Spacing.sm,
-    ...Shadow.xs,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   searchInput: {
     flex: 1,
@@ -186,9 +190,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.sm,
     fontWeight: '600',
     color: Colors.body,
-  },
-  filterTextActive: {
-    color: Colors.white,
   },
   scroll: {
     flex: 1,

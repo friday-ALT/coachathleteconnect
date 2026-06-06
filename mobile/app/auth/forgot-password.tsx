@@ -13,6 +13,8 @@ import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../lib/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import AppCanvas from '../../components/ui/AppCanvas';
+import Button from '../../components/ui/Button';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const schema = z.object({
@@ -70,7 +72,8 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <StatusBar style="dark" />
+      <AppCanvas>
+      <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.ink} />
@@ -109,24 +112,21 @@ export default function ForgotPasswordScreen() {
           </Text>
         )}
 
-        <TouchableOpacity
-          style={[styles.submitBtn, resetMutation.isPending && styles.disabled]}
+        <Button
+          title="Send Reset Link"
+          variant="primary"
+          loading={resetMutation.isPending}
           onPress={handleSubmit((data) => resetMutation.mutate(data))}
-          disabled={resetMutation.isPending}
-        >
-          {resetMutation.isPending ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <Text style={styles.submitText}>Send Reset Link</Text>
-          )}
-        </TouchableOpacity>
+          style={styles.submitBtn}
+        />
       </View>
+      </AppCanvas>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.background },
+  root: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -152,16 +152,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
   },
   error: { fontSize: FontSizes.sm, color: Colors.statusRed, marginTop: 4 },
-  submitBtn: {
-    height: 52,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.xl,
-  },
-  submitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.white },
-  disabled: { opacity: 0.6 },
+  submitBtn: { marginTop: Spacing.xl, width: '100%' },
+  submitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.primaryOn },
   centered: { flex: 1, padding: Spacing.xl, alignItems: 'center', justifyContent: 'center' },
   iconCircle: {
     width: 80, height: 80, borderRadius: 40,

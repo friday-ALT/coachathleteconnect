@@ -214,7 +214,7 @@ export default function RequestSession() {
 
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
+          <Ionicons name="arrow-back" size={22} color={Colors.ink} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Book Session</Text>
@@ -414,17 +414,18 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.lg,
-    backgroundColor: Colors.primary,
   },
   backBtn: {
     width: 40, height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center', alignItems: 'center',
   },
   headerText: { flex: 1 },
-  headerTitle: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.white },
-  headerSub: { fontSize: FontSizes.sm, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  headerTitle: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.ink, letterSpacing: -0.5 },
+  headerSub: { fontSize: FontSizes.sm, color: Colors.body, marginTop: 2 },
   scroll: { flex: 1 },
   scrollContent: { padding: Spacing.lg },
 
@@ -436,7 +437,7 @@ const styles = StyleSheet.create({
   },
   coachBannerName: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.ink },
   coachBannerLoc: { fontSize: FontSizes.xs, color: Colors.muted, marginTop: 2 },
-  coachBannerPrice: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.primary },
+  coachBannerPrice: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.accent },
   perHr: { fontSize: FontSizes.sm, fontWeight: '400', color: Colors.muted },
 
   fieldLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink, marginBottom: Spacing.sm },
@@ -448,11 +449,11 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg, backgroundColor: Colors.surface,
     borderWidth: 1.5, borderColor: Colors.border, gap: 3,
   },
-  dayCellActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  dayCellActive: { backgroundColor: Colors.accentLight, borderColor: Colors.accent },
   dayName: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.muted },
-  dayNameActive: { color: 'rgba(255,255,255,0.85)' },
+  dayNameActive: { color: Colors.accent, fontWeight: '700' },
   dayNum: { fontSize: FontSizes.lg, fontWeight: '800', color: Colors.ink },
-  dayNumActive: { color: Colors.white },
+  dayNumActive: { color: Colors.accent },
 
   timeLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -466,10 +467,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: Colors.border,
     alignItems: 'center',
   },
-  timeSlotActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  timeSlotActive: { backgroundColor: Colors.accentLight, borderColor: Colors.accent },
   timeSlotBooked: { backgroundColor: `${Colors.statusRed}10`, borderColor: `${Colors.statusRed}40` },
   timeSlotText: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.body },
-  timeSlotTextActive: { color: Colors.white },
+  timeSlotTextActive: { color: Colors.accent, fontWeight: '700' },
   timeSlotTextBooked: { color: Colors.statusRed, opacity: 0.6, textDecorationLine: 'line-through' },
 
   durationRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
@@ -478,9 +479,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: Colors.border,
     justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.surface,
   },
-  durationBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  durationBtnActive: { backgroundColor: Colors.accentLight, borderColor: Colors.accent },
   durationText: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.body },
-  durationTextActive: { color: Colors.white },
+  durationTextActive: { color: Colors.accent },
 
   summaryCard: {
     backgroundColor: Colors.primaryLight, borderRadius: BorderRadius.lg,
@@ -488,7 +489,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: `${Colors.primary}30`,
   },
   summaryRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  summaryText: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.primaryDark },
+  summaryText: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.accent },
 
   textArea: {
     minHeight: 100, borderWidth: 1.5, borderColor: Colors.border,
@@ -502,14 +503,14 @@ const styles = StyleSheet.create({
   footer: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     padding: Spacing.lg, paddingBottom: Spacing.xl,
-    backgroundColor: Colors.surface, borderTopWidth: 1,
-    borderTopColor: Colors.border, ...Shadow.md,
+    backgroundColor: Colors.background, borderTopWidth: 1,
+    borderTopColor: Colors.border,
   },
   submitBtn: {
-    height: 54, backgroundColor: Colors.primary, borderRadius: BorderRadius.lg,
+    height: 54, backgroundColor: Colors.primary, borderRadius: BorderRadius.full,
     flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.sm,
   },
-  submitBtnText: { fontSize: FontSizes.base, fontWeight: '800', color: Colors.white },
+  submitBtnText: { fontSize: FontSizes.base, fontWeight: '800', color: Colors.primaryOn },
   submitBtnPay: { backgroundColor: '#635BFF' }, // Stripe purple for paid bookings
   btnDisabled: { opacity: 0.4 },
 
@@ -519,9 +520,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
     marginBottom: Spacing.sm, borderWidth: 1, borderColor: `${Colors.primary}30`,
   },
-  priceSummaryLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.primaryDark },
+  priceSummaryLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink },
   priceSummaryNote:  { fontSize: FontSizes.xs, color: Colors.muted, marginTop: 1 },
-  priceSummaryAmount: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.primary },
+  priceSummaryAmount: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.accent },
   stripeNote: {
     fontSize: 10, color: Colors.muted, textAlign: 'center',
     marginTop: Spacing.xs, flexDirection: 'row', alignItems: 'center',

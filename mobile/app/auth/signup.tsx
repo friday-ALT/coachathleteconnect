@@ -15,6 +15,8 @@ import { getApiErrorMessage } from '../../lib/apiError';
 import { saveAuthToken } from '../../lib/authStorage';
 import { navigateAfterAuth } from '../../lib/navigateAfterAuth';
 import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import AppCanvas from '../../components/ui/AppCanvas';
+import Button from '../../components/ui/Button';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const schema = z.object({
@@ -107,7 +109,8 @@ export default function SignupScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <StatusBar style="dark" />
+      <AppCanvas>
+      <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color={Colors.ink} />
@@ -177,17 +180,13 @@ export default function SignupScreen() {
           </Text>
         )}
 
-        <TouchableOpacity
-          style={[styles.submitBtn, signupMutation.isPending && styles.disabled]}
+        <Button
+          title="Create Account"
+          variant="primary"
+          loading={signupMutation.isPending}
           onPress={handleSubmit((data) => signupMutation.mutate(data))}
-          disabled={signupMutation.isPending}
-        >
-          {signupMutation.isPending ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <Text style={styles.submitText}>Create Account</Text>
-          )}
-        </TouchableOpacity>
+          style={styles.submitBtn}
+        />
 
         <TouchableOpacity onPress={() => router.push('/auth/login')} style={styles.switchRow}>
           <Text style={styles.switchText}>
@@ -195,19 +194,18 @@ export default function SignupScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      </AppCanvas>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.background },
+  root: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: { flex: 1, textAlign: 'center', fontSize: FontSizes.lg, fontWeight: '700', color: Colors.ink },
@@ -233,19 +231,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
   },
   error: { fontSize: FontSizes.sm, color: Colors.statusRed, marginTop: 4 },
-  submitBtn: {
-    height: 52,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.xl,
-  },
-  submitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.white },
-  disabled: { opacity: 0.6 },
+  submitBtn: { marginTop: Spacing.xl, width: '100%' },
+  submitText: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.primaryOn },
   switchRow: { marginTop: Spacing.xl, alignItems: 'center' },
   switchText: { fontSize: FontSizes.sm, color: Colors.muted },
-  switchLink: { color: Colors.primary, fontWeight: '700' },
+  switchLink: { color: Colors.accent, fontWeight: '700' },
   centered: { flex: 1, padding: Spacing.xl, alignItems: 'center', justifyContent: 'center' },
   iconCircle: {
     width: 80, height: 80, borderRadius: 40,

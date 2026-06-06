@@ -74,7 +74,7 @@ export default function CoachRequests() {
           onPress={() => setTab('connections')}
           activeOpacity={0.8}
         >
-          <Ionicons name="people-outline" size={16} color={tab === 'connections' ? Colors.primary : Colors.muted} />
+          <Ionicons name="people-outline" size={16} color={tab === 'connections' ? Colors.accent : Colors.muted} />
           <Text style={[styles.tabText, tab === 'connections' && styles.tabTextActive]}>
             Connections
             {pendingConns.length > 0 && ` (${pendingConns.length})`}
@@ -85,7 +85,7 @@ export default function CoachRequests() {
           onPress={() => setTab('sessions')}
           activeOpacity={0.8}
         >
-          <Ionicons name="calendar-outline" size={16} color={tab === 'sessions' ? Colors.primary : Colors.muted} />
+          <Ionicons name="calendar-outline" size={16} color={tab === 'sessions' ? Colors.accent : Colors.muted} />
           <Text style={[styles.tabText, tab === 'sessions' && styles.tabTextActive]}>
             Sessions
             {pendingReqs.length > 0 && ` (${pendingReqs.length})`}
@@ -368,7 +368,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   tabActive: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.accentLight,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
   },
   tabText: {
     fontSize: FontSizes.sm,
@@ -376,7 +378,7 @@ const styles = StyleSheet.create({
     color: Colors.muted,
   },
   tabTextActive: {
-    color: Colors.primary,
+    color: Colors.accent,
     fontWeight: '700',
   },
 
@@ -477,7 +479,7 @@ const styles = StyleSheet.create({
     color: Colors.body,
   },
   acceptBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.success,
   },
   acceptBtnText: {
     fontSize: FontSizes.sm,

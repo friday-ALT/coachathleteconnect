@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Loader2, ArrowLeft, Mail, CheckCircle, AlertCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { getSignupSuccessPath } from "@/lib/postAuthNavigation";
+import type { ActiveRole } from "@/hooks/useRole";
 
 const signupSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -39,8 +41,14 @@ function parseApiError(err: unknown): string {
 }
 
 export default function AuthSignup() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const urlParams = new URLSearchParams(location.split("?")[1] || "");
+  const roleParam = urlParams.get("role") as ActiveRole;
+  const loginHref =
+    roleParam === "athlete" || roleParam === "coach"
+      ? `/auth/login?role=${roleParam}`
+      : "/auth/login";
   const [emailSent, setEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
 
@@ -75,7 +83,7 @@ export default function AuthSignup() {
         queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
         queryClient.refetchQueries({ queryKey: ["/api/auth/session"] }),
       ]);
-      setLocation("/auth/role-selection");
+      setLocation(getSignupSuccessPath(roleParam));
     },
   });
 
@@ -280,7 +288,7 @@ export default function AuthSignup() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-primary font-medium hover:underline">
+            <Link href={loginHref} className="text-primary font-medium hover:underline">
               Log in
             </Link>
           </p>

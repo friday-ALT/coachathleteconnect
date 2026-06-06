@@ -1,7 +1,17 @@
 import type { ReactNode } from "react";
 import { Link } from "wouter";
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Primary CTA — green gloss, dark label (never low-contrast). */
+export function GlossButton({ className, children, ...props }: ButtonProps) {
+  return (
+    <Button className={cn("gloss-btn", className)} {...props}>
+      {children}
+    </Button>
+  );
+}
 
 export function AppPageHeader({
   label,

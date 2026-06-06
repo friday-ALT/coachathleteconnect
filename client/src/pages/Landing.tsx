@@ -112,7 +112,7 @@ export default function Landing() {
     } else if (isAuthenticated) {
       setLocation("/auth/onboarding/athlete/step1");
     } else {
-      setLocation("/auth/signup");
+      setLocation("/auth/get-started?role=athlete");
     }
   };
 
@@ -123,7 +123,7 @@ export default function Landing() {
     } else if (isAuthenticated) {
       setLocation("/auth/onboarding/coach/step1");
     } else {
-      setLocation("/auth/signup");
+      setLocation("/auth/get-started?role=coach");
     }
   };
 
@@ -370,7 +370,7 @@ export default function Landing() {
             >
               Browse coaches
             </Link>
-            <Link href="/auth/signup" className="helix-btn helix-btn--accent" data-testid="button-get-started">
+            <Link href="/auth/get-started" className="helix-btn helix-btn--accent" data-testid="button-get-started">
               Get started
             </Link>
           </div>

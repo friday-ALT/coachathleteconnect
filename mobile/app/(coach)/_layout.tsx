@@ -1,98 +1,38 @@
-import { View, Text, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AnimatedTabBar, { FLOATING_TAB_BAR_HEIGHT } from '../../components/navigation/AnimatedTabBar';
 import { Colors } from '../../constants/theme';
 import { useCoachPendingCount } from '../../hooks/usePendingCounts';
 
-function Badge({ count }: { count: number }) {
-  if (count === 0) return null;
-  return (
-    <View style={styles.badge}>
-      <Text style={styles.badgeText}>{count > 9 ? '9+' : count}</Text>
-    </View>
-  );
-}
-
-function TabIcon({ name, color, size, badge = 0 }: { name: any; color: string; size: number; badge?: number }) {
-  return (
-    <View>
-      <Ionicons name={name} size={size} color={color} />
-      <Badge count={badge} />
-    </View>
-  );
-}
+const TAB_BAR_PAD = FLOATING_TAB_BAR_HEIGHT + 24;
 
 export default function CoachLayout() {
   const pendingCount = useCoachPendingCount();
 
   return (
     <Tabs
+      tabBar={(props) => (
+        <AnimatedTabBar
+          {...props}
+          badges={{ requests: pendingCount }}
+        />
+      )}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        animation: 'shift',
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: Colors.border,
-          paddingTop: 8,
-          paddingBottom: 20,
-          height: 80,
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
+          height: TAB_BAR_PAD,
         },
+        sceneStyle: { paddingBottom: TAB_BAR_PAD, backgroundColor: Colors.background },
       }}
     >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="home-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          title: 'Schedule',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="calendar-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="requests"
-        options={{
-          title: 'Requests',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="notifications-outline" color={color} size={size} badge={pendingCount} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="person-outline" color={color} size={size} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="home" options={{ title: 'Home' }} />
+      <Tabs.Screen name="schedule" options={{ title: 'Schedule' }} />
+      <Tabs.Screen name="requests" options={{ title: 'Requests' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  badge: {
-    position: 'absolute',
-    top: -4, right: -8,
-    minWidth: 16, height: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.statusRed,
-    alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 3,
-    borderWidth: 1.5, borderColor: Colors.surface,
-  },
-  badgeText: {
-    fontSize: 9, fontWeight: '800',
-    color: '#fff',
-  },
-});

@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity, type ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
-import { AtlasGradients, AtlasColors } from '../constants/atlasTheme';
-import { FontSizes, Spacing, BorderRadius, Shadow } from '../constants/theme';
+import { Colors, FontSizes, Spacing, BorderRadius, NTCGradients } from '../constants/theme';
+import PressableScale from './ui/PressableScale';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -11,83 +11,109 @@ type AtlasActionCardProps = {
   eyebrow: string;
   title: string;
   icon: IconName;
-  iconColor: string;
+  iconColor?: string;
   onPress: () => void;
-  variant?: 0 | 1 | 2;
+  variant?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
   style?: ViewStyle;
 };
 
-const GRADIENTS = [AtlasGradients.blue, AtlasGradients.lavender, AtlasGradients.slate];
+const GRADIENTS = [
+  NTCGradients.sunset,
+  NTCGradients.ocean,
+  NTCGradients.forest,
+  NTCGradients.steel,
+  NTCGradients.violet,
+  NTCGradients.ember,
+  NTCGradients.slate,
+  NTCGradients.charcoal,
+];
 
 export default function AtlasActionCard({
   eyebrow,
   title,
-  icon,
-  iconColor,
   onPress,
   variant = 0,
   style,
 }: AtlasActionCardProps) {
   const gradient = GRADIENTS[variant % GRADIENTS.length];
+  const displayEyebrow = eyebrow || 'Explore';
 
   return (
-    <TouchableOpacity style={[styles.wrap, style]} onPress={onPress} activeOpacity={0.9}>
-      <LinearGradient colors={[...gradient]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-        <Text style={styles.eyebrow}>{eyebrow}</Text>
-        <View style={[styles.iconCircle, { backgroundColor: `${iconColor}22` }]}>
-          <Ionicons name={icon} size={24} color={iconColor} />
+    <PressableScale
+      onPress={onPress}
+      scaleTo={0.97}
+      style={[styles.wrap, style]}
+    >
+      <LinearGradient
+        colors={[...gradient]}
+        style={styles.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+      >
+        <View style={styles.glowOrb} />
+        <Text style={styles.eyebrow}>{displayEyebrow}</Text>
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.footer}>
+          <Text style={styles.cta}>Start</Text>
+          <Ionicons name="arrow-forward" size={16} color={Colors.ink} />
         </View>
       </LinearGradient>
-      <View style={styles.footer}>
-        <Text style={styles.title}>{title}</Text>
-        <Ionicons name="chevron-forward" size={18} color={AtlasColors.link} />
-      </View>
-    </TouchableOpacity>
+    </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    borderRadius: BorderRadius.xl,
+    borderRadius: BorderRadius.md,
     overflow: 'hidden',
-    backgroundColor: AtlasColors.surface,
-    borderWidth: 1,
-    borderColor: AtlasColors.border,
-    ...Shadow.sm,
+    minHeight: 168,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   gradient: {
+    flex: 1,
     padding: Spacing.md,
-    minHeight: 108,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    minHeight: 168,
+    overflow: 'hidden',
+  },
+  glowOrb: {
+    position: 'absolute',
+    top: -20,
+    right: -20,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   eyebrow: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.9,
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.65)',
+    marginBottom: 6,
     textTransform: 'uppercase',
-    color: AtlasColors.muted,
+    letterSpacing: 1,
   },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-    marginTop: Spacing.sm,
+  title: {
+    fontSize: FontSizes.lg,
+    fontWeight: '800',
+    color: Colors.ink,
+    letterSpacing: -0.5,
+    lineHeight: 26,
+    marginBottom: Spacing.sm,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 2,
+    gap: 4,
   },
-  title: {
+  cta: {
     fontSize: FontSizes.sm,
     fontWeight: '700',
-    color: AtlasColors.ink,
-    letterSpacing: -0.2,
+    color: Colors.ink,
   },
 });

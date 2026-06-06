@@ -1,14 +1,18 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { profileApi, requestApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import StatusPill from '../../components/ui/StatusPill';
+import AppCanvas from '../../components/ui/AppCanvas';
+import GlossCard from '../../components/ui/GlossCard';
+import SectionHeader from '../../components/ui/SectionHeader';
+import PressableScale from '../../components/ui/PressableScale';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const SKILL_COLORS: Record<string, string> = {
@@ -43,7 +47,6 @@ export default function AthleteProfile() {
     onError: () => Alert.alert('Error', 'Could not cancel request.'),
   });
 
-  // Profile completion
   const fields = [
     !!profile?.age,
     !!profile?.skillLevel,
@@ -62,67 +65,74 @@ export default function AthleteProfile() {
   };
 
   return (
-    <View style={styles.container}>
+    <AppCanvas>
       <StatusBar style="light" />
 
-      {/* Hero header */}
-      <View style={[styles.hero, { paddingTop: safeTop }]}>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-          <Ionicons name="log-out-outline" size={20} color={Colors.white} />
-        </TouchableOpacity>
-        <Avatar name={`${user?.firstName} ${user?.lastName}`} size={80} />
-        <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-        <View style={styles.badgesRow}>
-          {user?.emailVerified && (
-            <View style={styles.verifiedChip}>
-              <Ionicons name="checkmark-circle" size={13} color={Colors.statusGreen} />
-              <Text style={styles.verifiedText}>Verified</Text>
-            </View>
-          )}
-          {profile?.skillLevel && (
-            <StatusPill label={profile.skillLevel} color={SKILL_COLORS[profile.skillLevel] ?? Colors.primary} size="sm" />
-          )}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile header — blended into dark canvas */}
+        <View style={styles.profileHeader}>
+          <PressableScale onPress={handleLogout} style={styles.logoutBtn} scaleTo={0.9}>
+            <Ionicons name="log-out-outline" size={20} color={Colors.body} />
+          </PressableScale>
+
+          <View style={styles.avatarRing}>
+            <Avatar name={`${user?.firstName} ${user?.lastName}`} size={80} />
+          </View>
+
+          <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
+
+          <View style={styles.badgesRow}>
+            {user?.emailVerified && (
+              <View style={styles.verifiedChip}>
+                <Ionicons name="checkmark-circle" size={13} color={Colors.success} />
+                <Text style={styles.verifiedText}>Verified</Text>
+              </View>
+            )}
+            {profile?.skillLevel && (
+              <StatusPill
+                label={profile.skillLevel}
+                color={SKILL_COLORS[profile.skillLevel] ?? Colors.accent}
+                size="sm"
+              />
+            )}
+          </View>
         </View>
-      </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-        {/* Completion bar */}
         {completionPct < 100 && (
-          <View style={styles.completionCard}>
+          <GlossCard style={styles.completionCard}>
             <View style={styles.completionHeader}>
-              <Text style={styles.completionTitle}>Profile Strength</Text>
-              <Text style={[styles.completionPct, { color: completionPct >= 80 ? Colors.statusGreen : Colors.statusOrange }]}>
+              <Text style={styles.completionTitle}>Profile strength</Text>
+              <Text style={[styles.completionPct, {
+                color: completionPct >= 80 ? Colors.success : Colors.accent,
+              }]}>
                 {completionPct}%
               </Text>
             </View>
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, {
                 width: `${completionPct}%`,
-                backgroundColor: completionPct >= 80 ? Colors.statusGreen : Colors.statusOrange,
+                backgroundColor: completionPct >= 80 ? Colors.success : Colors.accent,
               }]} />
             </View>
-            {completionPct < 100 && (
-              <Text style={styles.completionHint}>Complete your profile to improve discoverability</Text>
-            )}
-          </View>
+            <Text style={styles.completionHint}>
+              Complete your profile to improve discoverability
+            </Text>
+          </GlossCard>
         )}
 
-        {/* Pending requests panel */}
         {pendingRequests.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Pending Requests</Text>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{pendingRequests.length}</Text>
-              </View>
-            </View>
-            <View style={styles.card}>
+          <>
+            <SectionHeader label="Pending requests" count={pendingRequests.length} />
+            <GlossCard padding={0}>
               {pendingRequests.map((r: any, i: number) => (
                 <View
                   key={r.id}
-                  style={[styles.pendingRow, i < pendingRequests.length - 1 && styles.pendingRowBorder]}
+                  style={[styles.pendingRow, i < pendingRequests.length - 1 && rowStyles.rowBorder]}
                 >
                   <View style={styles.pendingDot} />
                   <View style={styles.pendingInfo}>
@@ -130,98 +140,77 @@ export default function AthleteProfile() {
                       {r.coachName || r.coach?.name || 'Coach'}
                     </Text>
                     <Text style={styles.pendingMeta}>
-                      {r.requestedDate}  ·  {r.requestedStartTime}
-                      {r.durationMins ? `  ·  ${r.durationMins}min` : ''}
+                      {r.requestedDate} · {r.requestedStartTime}
                     </Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.cancelBtn}
+                  <PressableScale
+                    scaleTo={0.9}
                     onPress={() =>
                       Alert.alert('Cancel Request', 'Remove this pending request?', [
                         { text: 'Keep', style: 'cancel' },
-                        { text: 'Cancel Request', style: 'destructive', onPress: () => cancelMutation.mutate(r.id) },
+                        { text: 'Cancel', style: 'destructive', onPress: () => cancelMutation.mutate(r.id) },
                       ])
                     }
-                    activeOpacity={0.7}
                   >
                     <Ionicons name="close-circle" size={20} color={Colors.statusRed} />
-                  </TouchableOpacity>
+                  </PressableScale>
                 </View>
               ))}
-            </View>
-            <TouchableOpacity
-              style={styles.viewAllBtn}
+            </GlossCard>
+            <PressableScale
               onPress={() => router.push('/(athlete)/sessions')}
-              activeOpacity={0.7}
+              style={styles.viewAllBtn}
             >
               <Text style={styles.viewAllText}>View all sessions</Text>
-              <Ionicons name="arrow-forward" size={13} color={Colors.primary} />
-            </TouchableOpacity>
-          </View>
+              <Ionicons name="arrow-forward" size={13} color={Colors.accent} />
+            </PressableScale>
+          </>
         )}
 
-        {/* Profile details */}
         {profile && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Athlete Information</Text>
-            <View style={styles.card}>
-              <DetailRow icon="person-outline"    label="Age"       value={`${profile.age} years old`} />
-              <DetailRow icon="trending-up-outline" label="Skill"   value={profile.skillLevel} />
-              <DetailRow icon="location-outline"  label="Location"  value={`${profile.locationCity}, ${profile.locationState}`} />
-              <DetailRow icon="call-outline"      label="Phone"     value={profile.phone} last />
-            </View>
-          </View>
+          <>
+            <SectionHeader label="Athlete information" />
+            <GlossCard padding={0}>
+              <DetailRow icon="person-outline" label="Age" value={`${profile.age} years old`} />
+              <DetailRow icon="trending-up-outline" label="Skill" value={profile.skillLevel} />
+              <DetailRow icon="location-outline" label="Location" value={`${profile.locationCity}, ${profile.locationState}`} />
+              <DetailRow icon="call-outline" label="Phone" value={profile.phone || '—'} last />
+            </GlossCard>
+          </>
         )}
 
-        {/* Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
-          <View style={styles.card}>
+        <SectionHeader label="Account" />
+        <GlossCard padding={0}>
+          <ActionRow icon="create-outline" label="Edit profile" onPress={() => router.push('/edit-profile/athlete')} />
+          <ActionRow icon="chatbubbles-outline" label="Messages" onPress={() => router.push('/messages')} />
+          {hasCoachProfile && (
             <ActionRow
-              icon="create-outline"
-              label="Edit Profile"
-              onPress={() => router.push('/edit-profile/athlete')}
+              icon="swap-horizontal-outline"
+              label="Switch to coach mode"
+              onPress={async () => { await exitRole(); router.replace('/role-select'); }}
             />
+          )}
+          {!hasCoachProfile && (
             <ActionRow
-              icon="chatbubbles-outline"
-              label="Messages"
-              onPress={() => router.push('/messages')}
+              icon="trophy-outline"
+              label="Become a coach"
+              onPress={() => router.push('/auth/onboarding/coach/step1')}
             />
-            {hasCoachProfile && (
-              <ActionRow
-                icon="swap-horizontal-outline"
-                label="Switch to Coach Mode"
-                onPress={async () => { await exitRole(); router.replace('/role-select'); }}
-              />
-            )}
-            {!hasCoachProfile && (
-              <ActionRow
-                icon="trophy-outline"
-                label="Become a Coach"
-                onPress={() => router.push('/auth/onboarding/coach/step1')}
-              />
-            )}
-            <ActionRow
-              icon="log-out-outline"
-              label="Logout"
-              onPress={handleLogout}
-              danger
-              last
-            />
-          </View>
-        </View>
+          )}
+          <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger last />
+        </GlossCard>
       </ScrollView>
-    </View>
+    </AppCanvas>
   );
 }
 
 function DetailRow({ icon, label, value, last }: {
-  icon: any; label: string; value: string; last?: boolean;
+  icon: keyof typeof Ionicons.glyphMap; label: string; value: string; last?: boolean;
 }) {
   return (
     <View style={[rowStyles.row, !last && rowStyles.rowBorder]}>
       <View style={rowStyles.iconWrap}>
-        <Ionicons name={icon} size={16} color={Colors.primary} />
+        <Ionicons name={icon} size={16} color={Colors.accent} />
       </View>
       <Text style={rowStyles.label}>{label}</Text>
       <Text style={rowStyles.value}>{value}</Text>
@@ -230,16 +219,18 @@ function DetailRow({ icon, label, value, last }: {
 }
 
 function ActionRow({ icon, label, onPress, danger, last }: {
-  icon: any; label: string; onPress: () => void; danger?: boolean; last?: boolean;
+  icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void; danger?: boolean; last?: boolean;
 }) {
   return (
-    <TouchableOpacity style={[rowStyles.row, !last && rowStyles.rowBorder]} onPress={onPress} activeOpacity={0.7}>
-      <View style={[rowStyles.iconWrap, danger && { backgroundColor: `${Colors.statusRed}15` }]}>
-        <Ionicons name={icon} size={16} color={danger ? Colors.statusRed : Colors.primary} />
+    <PressableScale onPress={onPress} scaleTo={0.98}>
+      <View style={[rowStyles.row, !last && rowStyles.rowBorder]}>
+        <View style={[rowStyles.iconWrap, danger && rowStyles.iconWrapDanger]}>
+          <Ionicons name={icon} size={16} color={danger ? Colors.statusRed : Colors.accent} />
+        </View>
+        <Text style={[rowStyles.label, { flex: 1 }, danger && { color: Colors.statusRed }]}>{label}</Text>
+        {!danger && <Ionicons name="chevron-forward" size={16} color={Colors.muted} />}
       </View>
-      <Text style={[rowStyles.label, { flex: 1 }, danger && { color: Colors.statusRed }]}>{label}</Text>
-      {!danger && <Ionicons name="chevron-forward" size={16} color={Colors.muted} />}
-    </TouchableOpacity>
+    </PressableScale>
   );
 }
 
@@ -247,7 +238,8 @@ const rowStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 13,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
     gap: Spacing.md,
   },
   rowBorder: {
@@ -258,89 +250,92 @@ const rowStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: BorderRadius.sm,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.accentLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  iconWrapDanger: {
+    backgroundColor: 'rgba(255, 69, 106, 0.15)',
+  },
   label: {
-    fontSize: FontSizes.base,
+    fontSize: FontSizes.sm,
     fontWeight: '600',
     color: Colors.ink,
   },
   value: {
-    fontSize: FontSizes.base,
+    fontSize: FontSizes.sm,
     color: Colors.body,
     marginLeft: 'auto',
+    fontWeight: '500',
   },
 });
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  hero: {
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    paddingBottom: Spacing.xl,
+  scroll: { flex: 1 },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+  },
+  profileHeader: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+    position: 'relative',
   },
   logoutBtn: {
     position: 'absolute',
-    top: Spacing.xxl + Spacing.md,
-    right: Spacing.lg,
-    width: 38,
-    height: 38,
+    top: 0,
+    right: 0,
+    width: 40,
+    height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  avatarRing: {
+    padding: 3,
+    borderRadius: 44,
+    borderWidth: 2,
+    borderColor: Colors.accent,
+    marginBottom: Spacing.md,
+  },
   name: {
-    fontSize: FontSizes.xl,
+    fontSize: FontSizes['2xl'],
     fontWeight: '800',
-    color: Colors.white,
-    marginTop: Spacing.md,
+    color: Colors.ink,
+    letterSpacing: -0.5,
   },
   email: {
     fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.8)',
+    color: Colors.body,
     marginTop: 4,
+    fontWeight: '500',
   },
   badgesRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginTop: Spacing.sm,
+    marginTop: Spacing.md,
   },
   verifiedChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: Colors.successLight,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.25)',
   },
   verifiedText: {
     fontSize: FontSizes.xs,
-    color: Colors.white,
+    color: Colors.success,
     fontWeight: '600',
   },
-  scroll: { flex: 1 },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-
-  // Completion
   completionCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
     marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
   },
   completionHeader: {
     flexDirection: 'row',
@@ -357,80 +352,56 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   progressBar: {
-    height: 8,
-    backgroundColor: Colors.border,
+    height: 6,
+    backgroundColor: Colors.ringTrack,
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressFill: {
-    height: 8,
+    height: 6,
     borderRadius: BorderRadius.full,
   },
   completionHint: {
     fontSize: FontSizes.xs,
-    color: Colors.muted,
+    color: Colors.body,
     fontWeight: '500',
   },
-
-  section: {
-    marginBottom: Spacing.lg,
-  },
-  sectionHeader: {
-    flexDirection: 'row', alignItems: 'center',
-    gap: Spacing.sm, marginBottom: Spacing.sm, marginLeft: 4,
-  },
-  badge: {
-    minWidth: 20, height: 20, borderRadius: 10,
-    backgroundColor: Colors.statusRed,
-    alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 5,
-  },
-  badgeText: { fontSize: 10, fontWeight: '800', color: '#fff' },
-
-  // Pending rows
   pendingRow: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingVertical: Spacing.sm, gap: Spacing.sm,
-  },
-  pendingRowBorder: {
-    borderBottomWidth: 1, borderBottomColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
   },
   pendingDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: Colors.statusOrange,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accent,
   },
   pendingInfo: { flex: 1 },
   pendingCoach: {
-    fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink,
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    color: Colors.ink,
   },
   pendingMeta: {
-    fontSize: FontSizes.xs, color: Colors.muted, marginTop: 2,
+    fontSize: FontSizes.xs,
+    color: Colors.body,
+    marginTop: 2,
   },
-  cancelBtn: { padding: 4 },
   viewAllBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    justifyContent: 'flex-end', marginTop: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    justifyContent: 'flex-end',
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   viewAllText: {
-    fontSize: FontSizes.xs, color: Colors.primary, fontWeight: '600',
-  },
-
-  sectionTitle: {
     fontSize: FontSizes.xs,
-    fontWeight: '700',
-    color: Colors.muted,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
-    marginLeft: 4,
-  },
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
+    color: Colors.accent,
+    fontWeight: '600',
   },
 });

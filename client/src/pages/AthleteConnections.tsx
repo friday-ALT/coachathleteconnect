@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AppAnimatedTabs } from "@/components/app/AppAnimatedTabs";
 import { Loader2, Search, Star, MapPin, DollarSign, Clock, Calendar, Users } from "lucide-react";
-import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
+import { AppPageHeader, EmptyState, StatusPill, GlossButton } from "@/components/app/AppPrimitives";
 
 function getConnectionStatus(status: string) {
   switch (status) {
@@ -159,9 +159,9 @@ export default function AthleteConnections() {
         }
         action={
           t.id === "all" ? (
-            <Link href="/athlete/find-coaches">
-              <Button>Browse coaches</Button>
-            </Link>
+            <GlossButton asChild>
+              <Link href="/athlete/find-coaches">Browse coaches</Link>
+            </GlossButton>
           ) : undefined
         }
       />
@@ -175,12 +175,12 @@ export default function AthleteConnections() {
         title="My connections"
         subtitle="Manage your coaching relationships."
         actions={
-          <Link href="/athlete/find-coaches">
-            <Button>
+          <GlossButton asChild>
+            <Link href="/athlete/find-coaches">
               <Search className="h-4 w-4 mr-2" />
               Find coaches
-            </Button>
-          </Link>
+            </Link>
+          </GlossButton>
         }
       />
 

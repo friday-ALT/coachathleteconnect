@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader2, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import { OryzoAuthFrame } from "@/components/oryzo/OryzoAuthFrame";
 import { apiRequest } from "@/lib/queryClient";
+import { getPostAuthPath } from "@/lib/postAuthNavigation";
+import type { ActiveRole } from "@/hooks/useRole";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -27,6 +29,11 @@ export default function AuthLogin() {
 
   const urlParams = new URLSearchParams(location.split("?")[1] || "");
   const verified = urlParams.get("verified") === "true";
+  const roleParam = urlParams.get("role") as ActiveRole;
+  const signupHref =
+    roleParam === "athlete" || roleParam === "coach"
+      ? `/auth/signup?role=${roleParam}`
+      : "/auth/signup";
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -45,7 +52,31 @@ export default function AuthLogin() {
         queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }),
         queryClient.refetchQueries({ queryKey: ["/api/auth/session"] }),
       ]);
-      setLocation("/");
+
+      const preferredRole =
+        roleParam === "athlete" || roleParam === "coach" ? roleParam : null;
+
+      let session = queryClient.getQueryData<{
+        activeRole: ActiveRole;
+        hasAthleteProfile: boolean;
+        hasCoachProfile: boolean;
+        athleteProfileComplete?: boolean;
+        coachProfileComplete?: boolean;
+      }>(["/api/auth/session"]);
+
+      if (
+        preferredRole &&
+        session &&
+        !session.activeRole &&
+        ((preferredRole === "athlete" && session.hasAthleteProfile) ||
+          (preferredRole === "coach" && session.hasCoachProfile))
+      ) {
+        await apiRequest("POST", "/api/auth/enter-role", { role: preferredRole });
+        await queryClient.refetchQueries({ queryKey: ["/api/auth/session"] });
+        session = queryClient.getQueryData(["/api/auth/session"]);
+      }
+
+      setLocation(getPostAuthPath(session, preferredRole));
     },
     onError: (error: any) => {
       if (error.requiresVerification) {
@@ -175,7 +206,7 @@ export default function AuthLogin() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-[var(--helix-green)] font-medium hover:underline">
+            <Link href={signupHref} className="text-[var(--helix-green)] font-medium hover:underline">
               Sign up
             </Link>
           </p>

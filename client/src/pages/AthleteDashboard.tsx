@@ -14,6 +14,7 @@ import {
   DataRow,
   EmptyState,
   AppPanel,
+  GlossButton,
 } from "@/components/app/AppPrimitives";
 import {
   Loader2, Search, Calendar, Star, Users,
@@ -111,12 +112,12 @@ export default function AthleteDashboard() {
           Switch to Coach
         </Button>
       )}
-      <Link href="/athlete/find-coaches">
-        <Button size="sm">
+      <GlossButton asChild size="sm">
+        <Link href="/athlete/find-coaches">
           <Search className="h-4 w-4 mr-2" />
           Find Coaches
-        </Button>
-      </Link>
+        </Link>
+      </GlossButton>
     </>
   );
 

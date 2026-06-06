@@ -27,18 +27,15 @@ import { authApi } from '../lib/api';
 import { getApiErrorMessage } from '../lib/apiError';
 import { navigateAfterAuth } from '../lib/navigateAfterAuth';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID } from '../constants/config';
+import PressableScale from '../components/ui/PressableScale';
+import { Colors } from '../constants/theme';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const HERO = require('../assets/welcome-hero.png');
 
 function WingLogo() {
-  return (
-    <View style={logoStyles.wrap}>
-      <View style={[logoStyles.arc, logoStyles.arcLeft]} />
-      <View style={[logoStyles.arc, logoStyles.arcRight]} />
-    </View>
-  );
+  return <View style={logoStyles.circle} />;
 }
 
 function GoogleMark() {
@@ -50,34 +47,12 @@ function GoogleMark() {
 }
 
 const logoStyles = StyleSheet.create({
-  wrap: {
-    width: 52,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+  circle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
     marginBottom: 12,
-  },
-  arc: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2.5,
-    borderColor: '#FFFFFF',
-  },
-  arcLeft: {
-    left: 6,
-    top: 6,
-    borderTopColor: 'transparent',
-    borderRightColor: 'transparent',
-    transform: [{ rotate: '-40deg' }],
-  },
-  arcRight: {
-    right: 6,
-    top: 2,
-    borderBottomColor: 'transparent',
-    borderLeftColor: 'transparent',
-    transform: [{ rotate: '28deg' }],
   },
   googleMark: {
     width: 22,
@@ -220,8 +195,8 @@ export default function Welcome() {
         imageStyle={styles.heroImageCrop}
       >
         <LinearGradient
-          colors={['transparent', 'rgba(255,255,255,0.15)', 'rgba(255,255,255,0.92)', '#FFFFFF']}
-          locations={[0, 0.5, 0.68, 0.82]}
+          colors={['transparent', 'rgba(12,12,14,0.15)', 'rgba(12,12,14,0.9)', Colors.background]}
+          locations={[0, 0.45, 0.68, 0.82]}
           style={StyleSheet.absoluteFill}
         />
 
@@ -239,49 +214,49 @@ export default function Welcome() {
               { opacity: fadeIn, transform: [{ translateY: slideUp }] },
             ]}
           >
-            <TouchableOpacity
+            <PressableScale
               style={[styles.pill, styles.pillGoogle, isLoading && styles.disabled]}
               onPress={onGooglePress}
               disabled={isLoading}
-              activeOpacity={0.88}
+              scaleTo={0.96}
             >
               {googleMutation.isPending || googleSessionActive ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={Colors.primaryOn} />
               ) : (
                 <>
                   <GoogleMark />
                   <Text style={styles.pillGoogleText}>Continue with Google</Text>
                 </>
               )}
-            </TouchableOpacity>
+            </PressableScale>
 
             {Platform.OS === 'ios' && (
-              <TouchableOpacity
+              <PressableScale
                 style={[styles.pill, styles.pillApple, isLoading && styles.disabled]}
                 onPress={handleAppleSignIn}
                 disabled={isLoading}
-                activeOpacity={0.88}
+                scaleTo={0.96}
               >
                 {appleMutation.isPending ? (
-                  <ActivityIndicator color="#000000" />
+                  <ActivityIndicator color={Colors.ink} />
                 ) : (
                   <>
-                    <Ionicons name="logo-apple" size={22} color="#000000" style={styles.pillIcon} />
+                    <Ionicons name="logo-apple" size={22} color={Colors.ink} style={styles.pillIcon} />
                     <Text style={styles.pillAppleText}>Continue with Apple</Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </PressableScale>
             )}
 
-            <TouchableOpacity
+            <PressableScale
               style={[styles.pill, styles.pillEmail, isLoading && styles.disabled]}
               onPress={() => router.push('/auth/login')}
               disabled={isLoading}
-              activeOpacity={0.7}
+              scaleTo={0.96}
             >
-              <Ionicons name="mail-outline" size={20} color="#000000" style={styles.pillIcon} />
+              <Ionicons name="mail-outline" size={20} color={Colors.ink} style={styles.pillIcon} />
               <Text style={styles.pillEmailText}>Continue with Email</Text>
-            </TouchableOpacity>
+            </PressableScale>
 
             <TouchableOpacity
               onPress={() => router.push('/auth/signup')}
@@ -321,7 +296,7 @@ const PILL_HEIGHT = 56;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background,
   },
   heroImage: {
     flex: 1,
@@ -342,16 +317,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    fontSize: 34,
+    fontSize: 32,
     color: '#FFFFFF',
     textAlign: 'center',
-    letterSpacing: 0.3,
-    fontFamily: Platform.select({
-      ios: 'Georgia',
-      android: 'serif',
-      default: 'serif',
-    }),
-    fontWeight: '400',
+    letterSpacing: -0.8,
+    fontWeight: '800',
   },
   spacer: {
     flex: 1,
@@ -372,21 +342,23 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   pillGoogle: {
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   pillGoogleText: {
     fontSize: 17,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#111111',
     letterSpacing: -0.2,
   },
   pillApple: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   pillAppleText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#000000',
+    color: '#f4f4f5',
     letterSpacing: -0.2,
   },
   pillEmail: {
@@ -396,7 +368,7 @@ const styles = StyleSheet.create({
   pillEmailText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#000000',
+    color: '#f4f4f5',
     letterSpacing: -0.2,
   },
   pillIcon: {
@@ -408,15 +380,15 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 14,
-    color: '#6B6B6B',
+    color: Colors.body,
   },
   signupBold: {
-    color: '#000000',
-    fontWeight: '600',
+    color: Colors.accent,
+    fontWeight: '700',
   },
   terms: {
     fontSize: 11,
-    color: '#AEAEB2',
+    color: Colors.muted,
     textAlign: 'center',
     lineHeight: 16,
     marginTop: 4,
@@ -429,7 +401,7 @@ const styles = StyleSheet.create({
   },
   demoText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: Colors.body,
     fontWeight: '500',
   },
   disabled: {

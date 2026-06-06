@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Modal, Switch, Alert, ActivityIndicator,
+  Modal, Switch, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +9,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
 import { requestApi, availabilityApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
+import AppCanvas from '../../components/ui/AppCanvas';
+import GlossCard from '../../components/ui/GlossCard';
+import Button from '../../components/ui/Button';
+import PressableScale from '../../components/ui/PressableScale';
 import SectionHeader from '../../components/ui/SectionHeader';
 import { formatDate, formatTime } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -151,22 +155,21 @@ export default function CoachSchedule() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <AppCanvas>
+      <StatusBar style="light" />
 
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <View>
           <Text style={styles.title}>My Schedule</Text>
           <Text style={styles.sub}>{confirmed.length} confirmed session{confirmed.length !== 1 ? 's' : ''}</Text>
         </View>
-        <TouchableOpacity style={styles.availBtn} onPress={openEditor} activeOpacity={0.8}>
-          <Ionicons name="settings-outline" size={15} color={Colors.primary} />
+        <PressableScale style={styles.availBtn} onPress={openEditor} scaleTo={0.96}>
+          <Ionicons name="settings-outline" size={15} color={Colors.accent} />
           <Text style={styles.availBtnText}>Availability</Text>
-        </TouchableOpacity>
+        </PressableScale>
       </View>
 
-      {/* Week strip */}
-      <View style={styles.weekSection}>
+      <GlossCard style={styles.weekSection} padding={Spacing.md}>
         <View style={styles.weekNav}>
           <TouchableOpacity onPress={() => setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate()-7); return n; })}>
             <Ionicons name="chevron-back" size={20} color={Colors.body} />
@@ -200,12 +203,11 @@ export default function CoachSchedule() {
             );
           })}
         </View>
-      </View>
+      </GlossCard>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <SectionHeader
           label={isSameDay(selectedDay, today) ? 'Today' : DAYS[selectedDay.getDay()] + ' ' + selectedDay.getDate()}
-          color={Colors.primary}
           count={daySessions.length}
         />
 
@@ -217,7 +219,7 @@ export default function CoachSchedule() {
           daySessions.map((r: any) => <SessionCard key={r.id} request={r} />)
         )}
 
-        <SectionHeader label="All Upcoming" color={Colors.statusBlue} count={upcoming.length} />
+        <SectionHeader label="All Upcoming" count={upcoming.length} />
         {upcoming.length === 0 ? (
           <View style={styles.emptyCard}>
             <Ionicons name="calendar-outline" size={40} color={Colors.muted} />
@@ -252,8 +254,9 @@ export default function CoachSchedule() {
                     <Switch
                       value={schedule.enabled}
                       onValueChange={() => toggleDay(idx)}
-                      trackColor={{ false: Colors.border, true: `${Colors.primary}60` }}
-                      thumbColor={schedule.enabled ? Colors.primary : Colors.muted}
+                      trackColor={{ false: Colors.ringTrack, true: 'rgba(34, 197, 94, 0.45)' }}
+                      thumbColor={schedule.enabled ? Colors.accentSoft : Colors.muted}
+                      ios_backgroundColor={Colors.ringTrack}
                     />
                   </View>
                   {schedule.enabled && (
@@ -280,25 +283,18 @@ export default function CoachSchedule() {
           </ScrollView>
 
           <View style={modal.footer}>
-            <TouchableOpacity
-              style={[modal.saveBtn, saveRulesMutation.isPending && modal.saveBtnDisabled]}
+            <Button
+              title="Save Availability"
+              variant="accent"
+              loading={saveRulesMutation.isPending}
               onPress={handleSave}
-              disabled={saveRulesMutation.isPending}
-              activeOpacity={0.85}
-            >
-              {saveRulesMutation.isPending ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="checkmark" size={18} color={Colors.white} />
-                  <Text style={modal.saveBtnText}>Save Availability</Text>
-                </>
-              )}
-            </TouchableOpacity>
+              leftIcon={<Ionicons name="checkmark" size={18} color={Colors.white} />}
+              style={modal.saveBtn}
+            />
           </View>
         </View>
       </Modal>
-    </View>
+    </AppCanvas>
   );
 }
 
@@ -362,15 +358,15 @@ const sessionStyles = StyleSheet.create({
   card: {
     flexDirection: 'row', backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg, marginBottom: Spacing.sm,
-    borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', ...Shadow.xs,
+    borderWidth: 1, borderColor: Colors.borderStrong, overflow: 'hidden',
   },
   timeCol: {
-    width: 52, backgroundColor: Colors.primaryLight,
+    width: 52, backgroundColor: Colors.accentLight,
     alignItems: 'center', paddingVertical: Spacing.md, gap: 4,
   },
-  startTime: { fontSize: FontSizes.xs, fontWeight: '800', color: Colors.primaryDark },
-  timeLine: { width: 1, flex: 1, backgroundColor: Colors.primary, opacity: 0.3, minHeight: 12 },
-  endTime: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.primaryDark, opacity: 0.7 },
+  startTime: { fontSize: FontSizes.xs, fontWeight: '800', color: Colors.accent },
+  timeLine: { width: 1, flex: 1, backgroundColor: Colors.accent, opacity: 0.35, minHeight: 12 },
+  endTime: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.accentSoft, opacity: 0.9 },
   body: { flex: 1, padding: Spacing.md },
   top: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   info: { flex: 1 },
@@ -384,12 +380,12 @@ const modal = StyleSheet.create({
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing.sm,
-    backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border,
   },
-  title: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.ink },
+  title: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.ink, letterSpacing: -0.5 },
   closeBtn: {
-    width: 36, height: 36, borderRadius: BorderRadius.full,
-    backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center',
+    width: 40, height: 40, borderRadius: BorderRadius.full,
+    backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderStrong,
+    justifyContent: 'center', alignItems: 'center',
   },
   sub: {
     fontSize: FontSizes.sm, color: Colors.muted,
@@ -419,40 +415,35 @@ const modal = StyleSheet.create({
     borderWidth: 1.5, borderColor: Colors.border, zIndex: 100, ...Shadow.md,
   },
   dropdownItem: { paddingHorizontal: Spacing.md, paddingVertical: 10 },
-  dropdownItemActive: { backgroundColor: Colors.primaryLight },
+  dropdownItemActive: { backgroundColor: Colors.accentLight },
   dropdownText: { fontSize: FontSizes.sm, color: Colors.body, fontWeight: '500' },
-  dropdownTextActive: { color: Colors.primaryDark, fontWeight: '700' },
+  dropdownTextActive: { color: Colors.accent, fontWeight: '700' },
   footer: {
     padding: Spacing.lg, paddingBottom: Spacing.xl,
-    borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface,
+    borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.background,
   },
-  saveBtn: {
-    height: 52, backgroundColor: Colors.primary, borderRadius: BorderRadius.lg,
-    flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: Spacing.sm,
-  },
-  saveBtnDisabled: { opacity: 0.5 },
-  saveBtnText: { fontSize: FontSizes.base, fontWeight: '800', color: Colors.white },
+  saveBtn: { width: '100%' },
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm,
-    backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border,
+    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.md,
   },
-  title: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.ink },
-  sub: { fontSize: FontSizes.sm, color: Colors.muted, fontWeight: '500', marginTop: 2 },
+  title: {
+    fontSize: FontSizes['3xl'], fontWeight: '800', color: Colors.ink, letterSpacing: -1,
+  },
+  sub: { fontSize: FontSizes.sm, color: Colors.body, fontWeight: '500', marginTop: 6 },
   availBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingHorizontal: Spacing.md, paddingVertical: 7,
-    borderRadius: BorderRadius.md, borderWidth: 1.5,
-    borderColor: Colors.primary, backgroundColor: Colors.primaryLight,
+    paddingHorizontal: Spacing.md, paddingVertical: 8,
+    borderRadius: BorderRadius.full, borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.35)', backgroundColor: Colors.accentLight,
   },
-  availBtnText: { fontSize: FontSizes.xs, fontWeight: '700', color: Colors.primary },
+  availBtnText: { fontSize: FontSizes.xs, fontWeight: '700', color: Colors.accent },
   weekSection: {
-    backgroundColor: Colors.surface, paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.border,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   weekNav: {
     flexDirection: 'row', justifyContent: 'space-between',
@@ -460,15 +451,22 @@ const styles = StyleSheet.create({
   },
   weekLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink },
   daysRow: { flexDirection: 'row', gap: 4 },
-  dayCell: { flex: 1, alignItems: 'center', paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, gap: 3 },
-  dayCellActive: { backgroundColor: Colors.primary },
+  dayCell: {
+    flex: 1, alignItems: 'center', paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md, gap: 3,
+    borderWidth: 1, borderColor: 'transparent',
+  },
+  dayCellActive: {
+    backgroundColor: Colors.accentLight,
+    borderColor: 'rgba(34, 197, 94, 0.4)',
+  },
   dayName: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.muted },
-  dayNameActive: { color: Colors.white },
+  dayNameActive: { color: Colors.accent, fontWeight: '700' },
   dayNum: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.ink },
-  dayNumActive: { color: Colors.white },
-  dayNumToday: { color: Colors.primary },
-  dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: Colors.primary },
-  dotActive: { backgroundColor: Colors.white },
+  dayNumActive: { color: Colors.ink },
+  dayNumToday: { color: Colors.accent },
+  dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: Colors.accent },
+  dotActive: { backgroundColor: Colors.success },
   scroll: { flex: 1 },
   scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
   emptyDay: {

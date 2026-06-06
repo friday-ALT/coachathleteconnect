@@ -3,11 +3,16 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import { coachApi, connectionApi, reviewApi, messagesApi } from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import { getApiErrorMessage } from '../../lib/apiError';
 import Avatar from '../../components/ui/Avatar';
+import AppCanvas from '../../components/ui/AppCanvas';
+import GlossCard from '../../components/ui/GlossCard';
+import SectionHeader from '../../components/ui/SectionHeader';
+import Button from '../../components/ui/Button';
+import PressableScale from '../../components/ui/PressableScale';
 import StatusPill from '../../components/ui/StatusPill';
 import { formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -71,27 +76,30 @@ export default function CoachDetail() {
   }
 
   return (
-    <View style={styles.container}>
+    <AppCanvas>
       <StatusBar style="light" />
 
-      {/* Sticky back button overlaying hero */}
-      <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { top: safeTop }]}>
-        <Ionicons name="arrow-back" size={22} color={Colors.white} />
-      </TouchableOpacity>
+      <PressableScale onPress={() => router.back()} style={[styles.backBtn, { top: safeTop }]} scaleTo={0.9}>
+        <Ionicons name="arrow-back" size={22} color={Colors.ink} />
+      </PressableScale>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-        {/* Hero band */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + 56 }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.hero}>
-          <Avatar name={coach.name} uri={coach.avatarUrl} size={90} />
+          <View style={styles.avatarRing}>
+            <Avatar name={coach.name} uri={coach.avatarUrl} size={90} />
+          </View>
           <Text style={styles.heroName}>{coach.name}</Text>
           <Text style={styles.heroLocation}>
-            <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.8)" />
+            <Ionicons name="location-outline" size={13} color={Colors.body} />
             {' '}{coach.locationCity}, {coach.locationState}
           </Text>
 
-          {/* Stats row */}
-          <View style={styles.statsRow}>
+          <GlossCard style={styles.statsCard} padding={Spacing.md}>
+            <View style={styles.statsRow}>
             <View style={styles.stat}>
               <Text style={styles.statVal}>{formatPrice(coach.pricePerHour)}</Text>
               <Text style={styles.statLabel}>Per Hour</Text>
@@ -113,7 +121,8 @@ export default function CoachDetail() {
               <Text style={styles.statVal}>{reviews?.length || 0}</Text>
               <Text style={styles.statLabel}>Sessions</Text>
             </View>
-          </View>
+            </View>
+          </GlossCard>
 
           {/* Connection status pill */}
           {connection && (
@@ -128,7 +137,7 @@ export default function CoachDetail() {
         {/* Session Types */}
         {coach.sessionTypes && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Session Types</Text>
+            <SectionHeader label="Session types" />
             <View style={styles.chipRow}>
               {(Array.isArray(coach.sessionTypes)
                 ? coach.sessionTypes
@@ -148,19 +157,18 @@ export default function CoachDetail() {
         {/* About */}
         {coach.experience && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About</Text>
-            <View style={styles.card}>
+            <SectionHeader label="About" />
+            <GlossCard>
               <Text style={styles.about}>{coach.experience}</Text>
-            </View>
+            </GlossCard>
           </View>
         )}
 
-        {/* Reviews */}
         {reviews && reviews.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Reviews ({reviews.length})</Text>
+            <SectionHeader label="Reviews" count={reviews.length} />
             {reviews.slice(0, 5).map((review: any) => (
-              <View key={review.id} style={styles.reviewCard}>
+              <GlossCard key={review.id} style={styles.reviewCard}>
                 <View style={styles.reviewHeader}>
                   <Text style={styles.reviewAuthor}>{review.athleteName}</Text>
                   <View style={styles.stars}>
@@ -170,7 +178,7 @@ export default function CoachDetail() {
                   </View>
                 </View>
                 {review.comment && <Text style={styles.reviewComment}>{review.comment}</Text>}
-              </View>
+              </GlossCard>
             ))}
           </View>
         )}
@@ -183,21 +191,14 @@ export default function CoachDetail() {
       <View style={styles.footer}>
         <View style={styles.footerRow}>
           {!connection && (
-            <TouchableOpacity
-              style={[styles.footerBtn, styles.connectBtn, connectMutation.isPending && styles.btnDisabled]}
+            <Button
+              title="Connect"
+              variant="primary"
+              loading={connectMutation.isPending}
               onPress={() => requireAuth(() => connectMutation.mutate())}
-              disabled={connectMutation.isPending}
-              activeOpacity={0.85}
-            >
-              {connectMutation.isPending ? (
-                <ActivityIndicator color={Colors.white} size="small" />
-              ) : (
-                <>
-                  <Ionicons name="person-add-outline" size={18} color={Colors.white} />
-                  <Text style={styles.connectBtnText}>Connect</Text>
-                </>
-              )}
-            </TouchableOpacity>
+              leftIcon={<Ionicons name="person-add-outline" size={18} color={Colors.primaryOn} />}
+              style={styles.footerBtnFlex}
+            />
           )}
           {connection?.status === 'PENDING' && (
             <View style={[styles.footerBtn, styles.pendingBtn]}>
@@ -206,34 +207,23 @@ export default function CoachDetail() {
             </View>
           )}
           {(connection?.status === 'ACCEPTED' || !connection) && (
-            <TouchableOpacity
-              style={[styles.footerBtn, styles.messageBtn, messageMutation.isPending && styles.btnDisabled]}
+            <Button
+              title="Message"
+              variant="outline"
+              loading={messageMutation.isPending}
               onPress={() => requireAuth(() => messageMutation.mutate())}
-              disabled={messageMutation.isPending}
-              activeOpacity={0.85}
-            >
-              {messageMutation.isPending ? (
-                <ActivityIndicator color={Colors.primary} size="small" />
-              ) : (
-                <>
-                  <Ionicons name="chatbubble-outline" size={18} color={Colors.primary} />
-                  <Text style={styles.messageBtnText}>Message</Text>
-                </>
-              )}
-            </TouchableOpacity>
+              leftIcon={<Ionicons name="chatbubble-outline" size={18} color={Colors.accent} />}
+              style={styles.footerBtnFlex}
+            />
           )}
         </View>
 
-        <TouchableOpacity
-          style={[styles.footerBtn, styles.sessionBtn]}
+        <Button
+          title={`Book Session — ${formatPrice(coach.pricePerHour)}/hr`}
+          variant="primary"
           onPress={() => requireAuth(() => router.push(`/request-session/${id}`))}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="calendar-outline" size={18} color={Colors.white} />
-          <Text style={styles.sessionBtnText}>
-            Book Session — {formatPrice(coach.pricePerHour)}/hr
-          </Text>
-        </TouchableOpacity>
+          leftIcon={<Ionicons name="calendar-outline" size={18} color={Colors.primaryOn} />}
+        />
         {connection?.status === 'ACCEPTED' && (
           <View style={styles.connectedNote}>
             <Ionicons name="checkmark-circle" size={13} color={Colors.statusGreen} />
@@ -241,7 +231,7 @@ export default function CoachDetail() {
           </View>
         )}
       </View>
-    </View>
+    </AppCanvas>
   );
 }
 
@@ -264,44 +254,45 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.borderStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: Spacing.lg },
 
-  // Hero
   hero: {
-    backgroundColor: Colors.primary,
     alignItems: 'center',
-    paddingTop: 76,
-    paddingBottom: Spacing.xl,
+    paddingBottom: Spacing.lg,
     paddingHorizontal: Spacing.lg,
-    borderBottomLeftRadius: BorderRadius.xxl,
-    borderBottomRightRadius: BorderRadius.xxl,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  avatarRing: {
+    padding: 3,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: Colors.accent,
   },
   heroName: {
     fontSize: FontSizes['2xl'],
     fontWeight: '800',
-    color: Colors.white,
+    color: Colors.ink,
     marginTop: Spacing.md,
+    letterSpacing: -0.5,
   },
   heroLocation: {
     fontSize: FontSizes.sm,
-    color: 'rgba(255,255,255,0.85)',
+    color: Colors.body,
     marginTop: 4,
     fontWeight: '500',
   },
+  statsCard: { width: '100%', marginTop: Spacing.lg },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.15)',
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    marginTop: Spacing.lg,
+    justifyContent: 'space-around',
     gap: Spacing.lg,
   },
   stat: {
@@ -310,18 +301,18 @@ const styles = StyleSheet.create({
   statVal: {
     fontSize: FontSizes.lg,
     fontWeight: '800',
-    color: Colors.white,
+    color: Colors.ink,
   },
   statLabel: {
     fontSize: FontSizes.xs,
-    color: 'rgba(255,255,255,0.7)',
+    color: Colors.body,
     marginTop: 2,
     fontWeight: '500',
   },
   statDivider: {
     width: 1,
     height: 28,
-    backgroundColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: Colors.border,
   },
   ratingInline: {
     flexDirection: 'row',
@@ -333,23 +324,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
   },
-  sectionTitle: {
-    fontSize: FontSizes.xs,
-    fontWeight: '700',
-    color: Colors.muted,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
-    marginLeft: 2,
-  },
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-  },
   about: {
     fontSize: FontSizes.base,
     color: Colors.body,
@@ -357,15 +331,7 @@ const styles = StyleSheet.create({
   },
 
   // Reviews
-  reviewCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.xs,
-  },
+  reviewCard: { marginBottom: Spacing.sm },
   reviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -395,15 +361,14 @@ const styles = StyleSheet.create({
     right: 0,
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.background,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    ...Shadow.md,
+    gap: Spacing.sm,
   },
   footerRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    marginBottom: Spacing.sm,
   },
   footerBtn: {
     flex: 1,
@@ -414,41 +379,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
   },
-  connectBtn: {
-    backgroundColor: Colors.primary,
-  },
-  connectBtnText: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.white,
-  },
-  messageBtn: {
-    backgroundColor: Colors.primaryLight,
-    borderWidth: 1,
-    borderColor: `${Colors.primary}40`,
-  },
-  messageBtnText: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.primary,
-  },
-  btnDisabled: {
-    opacity: 0.5,
-  },
+  footerBtnFlex: { flex: 1 },
   connectedNote: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 5, marginTop: 8,
   },
   connectedNoteText: {
     fontSize: FontSizes.xs, color: Colors.statusGreen, fontWeight: '600',
-  },
-  sessionBtn: {
-    backgroundColor: Colors.ink,
-  },
-  sessionBtnText: {
-    fontSize: FontSizes.base,
-    fontWeight: '700',
-    color: Colors.white,
   },
   pendingBtn: {
     backgroundColor: `${Colors.statusOrange}15`,
@@ -487,6 +424,6 @@ const styles = StyleSheet.create({
   sessionTypeText: {
     fontSize: FontSizes.sm,
     fontWeight: '600',
-    color: Colors.primaryDark,
+    color: Colors.accent,
   },
 });

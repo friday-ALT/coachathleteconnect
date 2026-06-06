@@ -34,6 +34,7 @@ import { AthleteRouteGuard, CoachRouteGuard } from "@/components/RouteGuards";
 import WelcomeRedirect from "@/pages/WelcomeRedirect";
 import AuthLogin from "@/pages/AuthLogin";
 import AuthSignup from "@/pages/AuthSignup";
+import AuthGetStarted from "@/pages/AuthGetStarted";
 import AuthForgotPassword from "@/pages/AuthForgotPassword";
 import RoleSelection from "@/pages/RoleSelection";
 import OnboardingSteps from "@/pages/OnboardingSteps";
@@ -55,6 +56,7 @@ function Router() {
     <Switch>
       {/* Auth pages (no header) */}
       <Route path="/welcome" component={WelcomeRedirect} />
+      <Route path="/auth/get-started" component={AuthGetStarted} />
       <Route path="/auth/login" component={AuthLogin} />
       <Route path="/auth/signup" component={AuthSignup} />
       <Route path="/auth/forgot-password" component={AuthForgotPassword} />

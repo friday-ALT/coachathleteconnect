@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
+import { AppPageHeader, EmptyState, StatusPill, GlossButton } from "@/components/app/AppPrimitives";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AppAnimatedTabs } from "@/components/app/AppAnimatedTabs";
 import { useToast } from "@/hooks/use-toast";
@@ -196,9 +196,9 @@ export default function AthleteSessions() {
         }
         action={
           t.id === "upcoming" ? (
-            <Link href="/athlete/find-coaches">
-              <Button>Browse coaches</Button>
-            </Link>
+            <GlossButton asChild>
+              <Link href="/athlete/find-coaches">Browse coaches</Link>
+            </GlossButton>
           ) : undefined
         }
       />
@@ -212,12 +212,12 @@ export default function AthleteSessions() {
         title="My sessions"
         subtitle="Track upcoming, pending, and past session requests."
         actions={
-          <Link href="/athlete/find-coaches">
-            <Button>
+          <GlossButton asChild>
+            <Link href="/athlete/find-coaches">
               <Search className="h-4 w-4 mr-2" />
               Find coaches
-            </Button>
-          </Link>
+            </Link>
+          </GlossButton>
         }
       />
 

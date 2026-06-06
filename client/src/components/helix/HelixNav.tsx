@@ -43,7 +43,7 @@ export function HelixNav({ isAuthenticated, activeRole, onDashboard }: HelixNavP
                   Sign in
                 </button>
               </Link>
-              <Link href="/auth/signup">
+              <Link href="/auth/get-started">
                 <button type="button" className="helix-btn helix-btn--accent">
                   Get started
                 </button>

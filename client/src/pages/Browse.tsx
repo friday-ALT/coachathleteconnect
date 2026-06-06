@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { AppPageHeader } from "@/components/app/AppPrimitives";
 import { Link, useSearch, useLocation } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,8 +31,21 @@ function BrowseCoaches() {
   const [skillLevel, setSkillLevel] = useState<string>("all");
   const [selectedCoach, setSelectedCoach] = useState<CoachWithUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filtersStuck, setFiltersStuck] = useState(false);
+  const filtersRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const el = filtersRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFiltersStuck(!entry.isIntersecting),
+      { threshold: 1, rootMargin: "-3.25rem 0px 0px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const { data: coaches, isLoading } = useQuery<CoachWithUser[]>({
     queryKey: ["/api/coaches", { q: searchTerm, skillLevel }],
@@ -56,18 +70,16 @@ function BrowseCoaches() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-      <div className="mb-8">
-        <p className="helix-mono mb-3 text-[var(--helix-green)]">Browse · coaches</p>
-        <h1 className="mb-3 text-3xl sm:text-5xl font-semibold tracking-tight text-[var(--helix-gray-100)] leading-[1.05]">
-          Find a coach.
-        </h1>
-        <p className="text-base text-[var(--helix-gray-500)] max-w-xl leading-relaxed">
-          Profiles, ratings, and booking — editorial cards inspired by premium product sites.
-        </p>
-      </div>
+    <div className="container mx-auto max-w-7xl">
+      <AppPageHeader
+        label="Browse · coaches"
+        title="Find a coach"
+        subtitle="Profiles, ratings, and booking — filter by skill level and location."
+      />
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+      <div ref={filtersRef} className="h-0" aria-hidden />
+
+      <div className={`browse-filters-sticky ${filtersStuck ? "is-stuck" : ""} flex flex-col sm:flex-row gap-3`}>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input

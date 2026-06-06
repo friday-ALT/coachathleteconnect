@@ -12,6 +12,7 @@ import { useUnreadMessages } from '../../hooks/useUnreadMessages';
 import { connectionApi, requestApi, reviewApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import StatTile from '../../components/ui/StatTile';
+import AtlasActionCard from '../../components/AtlasActionCard';
 import SectionHeader from '../../components/ui/SectionHeader';
 import StatusPill from '../../components/ui/StatusPill';
 import { formatDate, formatTime } from '../../utils/format';
@@ -187,18 +188,22 @@ export default function AthleteHome() {
 
         {/* Quick actions */}
         <View style={styles.quickRow}>
-          <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/(athlete)/browse')} activeOpacity={0.8}>
-            <View style={[styles.quickIcon, { backgroundColor: `${Colors.statusBlue}18` }]}>
-              <Ionicons name="search-outline" size={22} color={Colors.statusBlue} />
-            </View>
-            <Text style={styles.quickLabel}>Find Coaches</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/(athlete)/sessions')} activeOpacity={0.8}>
-            <View style={[styles.quickIcon, { backgroundColor: `${Colors.primary}18` }]}>
-              <Ionicons name="calendar-outline" size={22} color={Colors.primary} />
-            </View>
-            <Text style={styles.quickLabel}>My Sessions</Text>
-          </TouchableOpacity>
+          <AtlasActionCard
+            eyebrow="Discover"
+            title="Find coaches"
+            icon="search-outline"
+            iconColor={Colors.statusBlue}
+            variant={0}
+            onPress={() => router.push('/(athlete)/browse')}
+          />
+          <AtlasActionCard
+            eyebrow="Schedule"
+            title="My sessions"
+            icon="calendar-outline"
+            iconColor={Colors.primary}
+            variant={1}
+            onPress={() => router.push('/(athlete)/sessions')}
+          />
         </View>
 
         {/* Upcoming sessions */}

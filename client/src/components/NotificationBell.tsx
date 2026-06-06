@@ -31,20 +31,25 @@ function timeAgo(dateStr: string) {
 
 function linkForNotification(n: any): string {
   const d = n.data || {};
+  const role = d.role as string | undefined;
+
   switch (n.type) {
     case "session_request":
+      return role === "coach" ? "/coach/requests" : "/athlete/sessions";
     case "session_accepted":
     case "session_declined":
       return "/athlete/sessions";
     case "connection_request":
-      return "/coach/athletes";
+      return "/coach/requests";
     case "connection_accepted":
     case "connection_declined":
       return "/athlete/connections";
     case "new_message":
       return d.conversationId ? `/messages/${d.conversationId}` : "/messages";
+    case "review_request":
+      return "/athlete/reviews";
     default:
-      return "/";
+      return d.href || "/";
   }
 }
 

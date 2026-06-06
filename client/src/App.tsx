@@ -5,7 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Header } from "@/components/Header";
+import { AppShell } from "@/components/app/AppShell";
 import { TealGlowShell } from "@/components/TealGlowShell";
+import { useAuth } from "@/hooks/useAuth";
+import { useRole } from "@/hooks/useRole";
+import { shouldUseAppShell } from "@/lib/appShell";
+import { AppPageTransition } from "@/components/app/AppPageTransition";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Browse from "@/pages/Browse";
@@ -150,19 +155,30 @@ function Router() {
 
 function AppContent() {
   const [location] = useLocation();
+  const { isAuthenticated } = useAuth();
+  const { effectiveRole } = useRole();
+
+  const useShell = shouldUseAppShell(location, isAuthenticated, effectiveRole);
 
   const hideAppHeader =
     location === "/" ||
     location.startsWith("/welcome") ||
-    location.startsWith("/auth/");
+    location.startsWith("/auth/") ||
+    useShell;
 
   const isLanding = location === "/";
+
+  const content = (
+    <AppPageTransition>
+      <Router />
+    </AppPageTransition>
+  );
 
   return (
     <TealGlowShell>
       {!hideAppHeader && <Header />}
-      <div className={isLanding ? "" : "helix-app-page"}>
-        <Router />
+      <div className={useShell ? "helix-app-shell-wrap" : isLanding ? "" : "helix-app-page"}>
+        {useShell ? <AppShell>{content}</AppShell> : content}
       </div>
     </TealGlowShell>
   );

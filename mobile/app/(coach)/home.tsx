@@ -10,6 +10,7 @@ import { connectionApi, requestApi, profileApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import StatTile from '../../components/ui/StatTile';
 import SectionHeader from '../../components/ui/SectionHeader';
+import AtlasActionCard from '../../components/AtlasActionCard';
 import StatusPill from '../../components/ui/StatusPill';
 import { formatDate, formatTime, formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -107,19 +108,29 @@ export default function CoachHome() {
 
         {/* Quick actions */}
         <View style={styles.quickRow}>
-          <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/(coach)/schedule')} activeOpacity={0.8}>
-            <View style={[styles.quickIcon, { backgroundColor: `${Colors.statusBlue}18` }]}>
-              <Ionicons name="calendar-outline" size={22} color={Colors.statusBlue} />
-            </View>
-            <Text style={styles.quickLabel}>Schedule</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/(coach)/requests')} activeOpacity={0.8}>
-            <View style={[styles.quickIcon, { backgroundColor: `${Colors.statusOrange}18` }]}>
-              <Ionicons name="notifications-outline" size={22} color={Colors.statusOrange} />
-            </View>
-            <Text style={styles.quickLabel}>Requests</Text>
-            {needsAttention > 0 && <View style={styles.badge}><Text style={styles.badgeText}>{needsAttention}</Text></View>}
-          </TouchableOpacity>
+          <AtlasActionCard
+            eyebrow="Calendar"
+            title="Schedule"
+            icon="calendar-outline"
+            iconColor={Colors.statusBlue}
+            variant={0}
+            onPress={() => router.push('/(coach)/schedule')}
+          />
+          <View style={styles.quickCardWrap}>
+            <AtlasActionCard
+              eyebrow="Inbox"
+              title="Requests"
+              icon="notifications-outline"
+              iconColor={Colors.statusOrange}
+              variant={1}
+              onPress={() => router.push('/(coach)/requests')}
+            />
+            {needsAttention > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{needsAttention}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* Upcoming sessions */}
@@ -256,6 +267,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.sm,
     marginBottom: Spacing.sm,
+  },
+  quickCardWrap: {
+    flex: 1,
+    position: 'relative',
   },
   quickCard: {
     flex: 1,

@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -15,19 +15,18 @@ import {
 function getStatusConfig(status: string) {
   switch (status) {
     case "PENDING":
-      return { label: "Pending", className: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300", icon: Clock };
+      return { label: "Pending", variant: "warning" as const, icon: Clock };
     case "ACCEPTED":
-      return { label: "Confirmed", className: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300", icon: CheckCircle2 };
+      return { label: "Confirmed", variant: "success" as const, icon: CheckCircle2 };
     case "DECLINED":
-      return { label: "Declined", className: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300", icon: XCircle };
+      return { label: "Declined", variant: "danger" as const, icon: XCircle };
     default:
-      return { label: status, className: "bg-muted text-muted-foreground", icon: AlertCircle };
+      return { label: status, variant: "default" as const, icon: AlertCircle };
   }
 }
 
 function SessionCard({ request, onCancel }: { request: any; onCancel?: (id: string) => void }) {
   const status = getStatusConfig(request.status);
-  const StatusIcon = status.icon;
 
   const sessionDate = request.requestedDate
     ? new Date(request.requestedDate)
@@ -56,10 +55,7 @@ function SessionCard({ request, onCancel }: { request: any; onCancel?: (id: stri
                   {request.coachProfile?.locationCity}, {request.coachProfile?.locationState}
                 </p>
               </div>
-              <Badge className={`${status.className} flex items-center gap-1 text-xs`}>
-                <StatusIcon className="h-3 w-3" />
-                {status.label}
-              </Badge>
+              <StatusPill label={status.label} variant={status.variant} />
             </div>
 
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -129,7 +125,7 @@ function SessionCard({ request, onCancel }: { request: any; onCancel?: (id: stri
 
 export default function AthleteSessions() {
   const { toast } = useToast();
-  const [tab, setTab] = useState("all");
+  const [tab, setTab] = useState("upcoming");
 
   const { data: requests = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/requests", "athlete"],
@@ -150,31 +146,39 @@ export default function AthleteSessions() {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const isUpcoming = (r: any) => {
+    if (r.status !== "ACCEPTED" || !r.requestedDate) return false;
+    return new Date(r.requestedDate) > new Date();
+  };
+  const isPast = (r: any) => {
+    if (r.status === "DECLINED") return true;
+    if (r.status === "ACCEPTED" && r.requestedDate) return new Date(r.requestedDate) <= new Date();
+    return false;
+  };
+
   const tabs = [
-    { id: "all", label: "All", filter: () => true },
+    { id: "upcoming", label: "Upcoming", filter: isUpcoming },
     { id: "pending", label: "Pending", filter: (r: any) => r.status === "PENDING" },
-    { id: "accepted", label: "Confirmed", filter: (r: any) => r.status === "ACCEPTED" },
-    { id: "declined", label: "Declined", filter: (r: any) => r.status === "DECLINED" },
+    { id: "past", label: "Past", filter: isPast },
   ];
 
   const filtered = requests.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">My Sessions</h1>
-          <p className="text-muted-foreground text-sm">
-            Track all your session requests and their status.
-          </p>
-        </div>
-        <Link href="/athlete/find-coaches">
-          <Button>
-            <Search className="h-4 w-4 mr-2" />
-            Find Coaches
-          </Button>
-        </Link>
-      </div>
+    <div className="container mx-auto max-w-4xl">
+      <AppPageHeader
+        label="Sessions"
+        title="My sessions"
+        subtitle="Track upcoming, pending, and past session requests."
+        actions={
+          <Link href="/athlete/find-coaches">
+            <Button>
+              <Search className="h-4 w-4 mr-2" />
+              Find coaches
+            </Button>
+          </Link>
+        }
+      />
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-6 w-full sm:w-auto">
@@ -210,20 +214,22 @@ export default function AthleteSessions() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Calendar className="h-12 w-12 text-muted-foreground mb-4 opacity-40" />
-                <p className="font-medium mb-1">No {t.id === "all" ? "" : t.label.toLowerCase()} sessions</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t.id === "all"
+              <EmptyState
+                icon={Calendar}
+                title={`No ${t.label.toLowerCase()} sessions`}
+                description={
+                  t.id === "upcoming"
                     ? "Book your first session with a coach to get started."
-                    : `No ${t.label.toLowerCase()} session requests yet.`}
-                </p>
-                {t.id === "all" && (
-                  <Link href="/athlete/find-coaches">
-                    <Button>Browse Coaches</Button>
-                  </Link>
-                )}
-              </div>
+                    : `No ${t.label.toLowerCase()} session requests yet.`
+                }
+                action={
+                  t.id === "upcoming" ? (
+                    <Link href="/athlete/find-coaches">
+                      <Button>Browse coaches</Button>
+                    </Link>
+                  ) : undefined
+                }
+              />
             )}
           </TabsContent>
         ))}

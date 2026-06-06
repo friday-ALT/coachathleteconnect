@@ -6,9 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
 import { coachApi } from '../../lib/api';
-import Avatar from '../../components/ui/Avatar';
-import StatusPill from '../../components/ui/StatusPill';
-import { formatPrice } from '../../utils/format';
+import CoachAtlasCard from '../../components/CoachAtlasCard';
+import { AtlasColors } from '../../constants/atlasTheme';
 import { useSafeTop } from '../../hooks/useSafeTop';
 
 const SKILL_LEVELS = ['', 'Beginner', 'Intermediate', 'Advanced'];
@@ -105,12 +104,12 @@ export default function Browse() {
             <Text style={styles.emptySub}>Try adjusting your search or filters</Text>
           </View>
         ) : (
-          coaches?.map((coach: any) => (
-            <TouchableOpacity
+          coaches?.map((coach: any, index: number) => (
+            <CoachAtlasCard
               key={coach.userId}
-              style={styles.coachCard}
+              coach={coach}
+              gradientIndex={index}
               onPress={() => {
-                // Prefetch coach profile before navigation for instant load
                 queryClient.prefetchQuery({
                   queryKey: ['coach', coach.userId],
                   queryFn: () => coachApi.getCoach(coach.userId),
@@ -118,57 +117,7 @@ export default function Browse() {
                 });
                 router.push(`/coach/${coach.userId}`);
               }}
-              activeOpacity={0.85}
-            >
-              {/* Left accent bar based on skill */}
-              <View style={[styles.cardAccent, { backgroundColor: coach.skillLevel ? SKILL_COLORS[coach.skillLevel] ?? Colors.primary : Colors.primary }]} />
-
-              <View style={styles.cardBody}>
-                {/* Top row */}
-                <View style={styles.cardTop}>
-                  <Avatar name={coach.name} uri={coach.avatarUrl} size={52} />
-                  <View style={styles.coachInfo}>
-                    <Text style={styles.coachName}>{coach.name}</Text>
-                    <View style={styles.coachMeta}>
-                      <Ionicons name="location-outline" size={12} color={Colors.muted} />
-                      <Text style={styles.coachLocation}>{coach.locationCity}, {coach.locationState}</Text>
-                    </View>
-                    {coach.rating && (
-                      <View style={styles.ratingRow}>
-                        <Ionicons name="star" size={12} color="#FDAB3D" />
-                        <Text style={styles.ratingText}>
-                          {coach.rating.toFixed(1)} · {coach.reviewCount || 0} reviews
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.priceCol}>
-                    <Text style={styles.price}>{formatPrice(coach.pricePerHour)}</Text>
-                    <Text style={styles.priceLabel}>/hr</Text>
-                  </View>
-                </View>
-
-                {/* Bio */}
-                {coach.experience && (
-                  <Text style={styles.bio} numberOfLines={2}>{coach.experience}</Text>
-                )}
-
-                {/* Footer */}
-                <View style={styles.cardFooter}>
-                  {coach.skillLevel && (
-                    <StatusPill
-                      label={coach.skillLevel}
-                      color={SKILL_COLORS[coach.skillLevel] ?? Colors.primary}
-                      size="sm"
-                    />
-                  )}
-                  <View style={styles.viewBtn}>
-                    <Text style={styles.viewBtnText}>View Profile</Text>
-                    <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
+            />
           ))
         )}
       </ScrollView>
@@ -179,19 +128,19 @@ export default function Browse() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#F5F5F7',
   },
   header: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    backgroundColor: '#F5F5F7',
+    borderBottomWidth: 0,
   },
   headerTitle: {
     fontSize: FontSizes['2xl'],
-    fontWeight: '800',
-    color: Colors.ink,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    color: AtlasColors.ink,
   },
   headerSub: {
     fontSize: FontSizes.sm,
@@ -200,23 +149,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   searchSection: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#F5F5F7',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     height: 46,
     marginVertical: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: 0,
     gap: Spacing.sm,
+    ...Shadow.xs,
   },
   searchInput: {
     flex: 1,
@@ -273,92 +220,5 @@ const styles = StyleSheet.create({
   emptySub: {
     fontSize: FontSizes.sm,
     color: Colors.muted,
-  },
-
-  // Coach card
-  coachCard: {
-    flexDirection: 'row',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.md,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadow.sm,
-  },
-  cardAccent: {
-    width: 4,
-  },
-  cardBody: {
-    flex: 1,
-    padding: Spacing.md,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: Spacing.sm,
-    gap: Spacing.md,
-  },
-  coachInfo: {
-    flex: 1,
-    gap: 3,
-  },
-  coachName: {
-    fontSize: FontSizes.md,
-    fontWeight: '700',
-    color: Colors.ink,
-  },
-  coachMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  coachLocation: {
-    fontSize: FontSizes.xs,
-    color: Colors.muted,
-    fontWeight: '500',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  ratingText: {
-    fontSize: FontSizes.xs,
-    color: Colors.muted,
-    fontWeight: '600',
-  },
-  priceCol: {
-    alignItems: 'flex-end',
-  },
-  price: {
-    fontSize: FontSizes.xl,
-    fontWeight: '800',
-    color: Colors.primary,
-  },
-  priceLabel: {
-    fontSize: FontSizes.xs,
-    color: Colors.muted,
-  },
-  bio: {
-    fontSize: FontSizes.sm,
-    color: Colors.body,
-    lineHeight: 19,
-    marginBottom: Spacing.sm,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  viewBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  viewBtnText: {
-    fontSize: FontSizes.sm,
-    fontWeight: '700',
-    color: Colors.primary,
   },
 });

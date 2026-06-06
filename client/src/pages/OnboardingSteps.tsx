@@ -10,11 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { SquareGridLoader } from "@/components/SquareGridLoader";
+import { HelixOnboardingStep } from "@/components/app/HelixAuthLayout";
+import { AppPageSkeleton } from "@/components/app/AppPageSkeleton";
 
 type Role = "athlete" | "coach";
 
@@ -149,27 +150,8 @@ export default function OnboardingSteps() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <SquareGridLoader size="lg" />
-      </div>
-    );
-  }
-
-  function ProgressHeader({ step, total, onBack }: { step: number; total: number; onBack: () => void }) {
-    return (
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-3">
-          <Button variant="ghost" size="icon" onClick={onBack}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="text-sm text-muted-foreground font-medium">Step {step} of {total}</span>
-          <div className="w-10" />
-        </div>
-        <div className="flex gap-1.5">
-          {Array.from({ length: total }).map((_, i) => (
-            <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < step ? "bg-primary" : "bg-muted"}`} />
-          ))}
-        </div>
+      <div className="helix-auth">
+        <AppPageSkeleton variant="form" />
       </div>
     );
   }
@@ -178,14 +160,14 @@ export default function OnboardingSteps() {
   if (role === "athlete") {
     if (currentStep === 1) {
       return (
-        <div className="flex min-h-screen flex-col">
-          <ProgressHeader step={1} total={2} onBack={() => setLocation("/auth/role-selection")} />
-          <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
-            <div className="mb-6">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Athlete Setup</p>
-              <h2 className="text-2xl font-bold mb-1">Basic Information</h2>
-              <p className="text-muted-foreground text-sm">Tell us a bit about yourself</p>
-            </div>
+        <HelixOnboardingStep
+          label="Athlete setup"
+          title="Basic information"
+          lead="Tell us a bit about yourself."
+          step={1}
+          total={2}
+          onBack={() => setLocation("/auth/role-selection")}
+        >
             <Form {...athleteStep1Form}>
               <form onSubmit={athleteStep1Form.handleSubmit((data) => {
                 save("athlete", { ...loadSaved("athlete"), ...data });
@@ -208,21 +190,20 @@ export default function OnboardingSteps() {
                 <Button type="submit" className="w-full h-12 text-base mt-4">Continue →</Button>
               </form>
             </Form>
-          </div>
-        </div>
+        </HelixOnboardingStep>
       );
     }
 
     if (currentStep === 2) {
       return (
-        <div className="flex min-h-screen flex-col">
-          <ProgressHeader step={2} total={2} onBack={() => setLocation("/auth/onboarding/athlete/step1")} />
-          <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
-            <div className="mb-6">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Athlete Setup</p>
-              <h2 className="text-2xl font-bold mb-1">Your Skills & Location</h2>
-              <p className="text-muted-foreground text-sm">Help coaches understand your level</p>
-            </div>
+        <HelixOnboardingStep
+          label="Athlete setup"
+          title="Your skills & location"
+          lead="Help coaches understand your level."
+          step={2}
+          total={2}
+          onBack={() => setLocation("/auth/onboarding/athlete/step1")}
+        >
             <Form {...athleteStep2Form}>
               <form onSubmit={athleteStep2Form.handleSubmit((data) => {
                 const finalData = { ...loadSaved("athlete"), ...data };
@@ -282,12 +263,11 @@ export default function OnboardingSteps() {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full h-12 text-base mt-2" disabled={submitAthleteMutation.isPending}>
-                  {submitAthleteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating profile...</> : "Complete Setup 🎉"}
+                  {submitAthleteMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating profile...</> : "Complete setup"}
                 </Button>
               </form>
             </Form>
-          </div>
-        </div>
+        </HelixOnboardingStep>
       );
     }
   }
@@ -296,14 +276,14 @@ export default function OnboardingSteps() {
   if (role === "coach") {
     if (currentStep === 1) {
       return (
-        <div className="flex min-h-screen flex-col">
-          <ProgressHeader step={1} total={2} onBack={() => setLocation("/auth/role-selection")} />
-          <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
-            <div className="mb-6">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Coach Setup</p>
-              <h2 className="text-2xl font-bold mb-1">Your Identity</h2>
-              <p className="text-muted-foreground text-sm">How athletes will see you on the platform</p>
-            </div>
+        <HelixOnboardingStep
+          label="Coach setup"
+          title="Your identity"
+          lead="How athletes will see you on the platform."
+          step={1}
+          total={2}
+          onBack={() => setLocation("/auth/role-selection")}
+        >
             <Form {...coachStep1Form}>
               <form onSubmit={coachStep1Form.handleSubmit((data) => {
                 save("coach", { ...loadSaved("coach"), ...data });
@@ -326,21 +306,20 @@ export default function OnboardingSteps() {
                 <Button type="submit" className="w-full h-12 text-base mt-4">Continue →</Button>
               </form>
             </Form>
-          </div>
-        </div>
+        </HelixOnboardingStep>
       );
     }
 
     if (currentStep === 2) {
       return (
-        <div className="flex min-h-screen flex-col">
-          <ProgressHeader step={2} total={2} onBack={() => setLocation("/auth/onboarding/coach/step1")} />
-          <div className="flex-1 px-6 py-8 max-w-md mx-auto w-full">
-            <div className="mb-6">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Coach Setup</p>
-              <h2 className="text-2xl font-bold mb-1">Your Expertise</h2>
-              <p className="text-muted-foreground text-sm">Share your experience and pricing</p>
-            </div>
+        <HelixOnboardingStep
+          label="Coach setup"
+          title="Your expertise"
+          lead="Share your experience and pricing."
+          step={2}
+          total={2}
+          onBack={() => setLocation("/auth/onboarding/coach/step1")}
+        >
             <Form {...coachStep2Form}>
               <form onSubmit={coachStep2Form.handleSubmit((data) => {
                 const finalData = { ...loadSaved("coach"), ...data };
@@ -392,19 +371,18 @@ export default function OnboardingSteps() {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full h-12 text-base mt-2" disabled={submitCoachMutation.isPending}>
-                  {submitCoachMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating profile...</> : "Complete Setup 🎉"}
+                  {submitCoachMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating profile...</> : "Complete setup"}
                 </Button>
               </form>
             </Form>
-          </div>
-        </div>
+        </HelixOnboardingStep>
       );
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <SquareGridLoader size="lg" />
+    <div className="helix-auth">
+      <AppPageSkeleton variant="form" />
     </div>
   );
 }

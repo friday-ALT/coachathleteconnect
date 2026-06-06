@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppAnimatedTabs } from "@/components/app/AppAnimatedTabs";
 import { Loader2, Search, Star, MapPin, DollarSign, Clock, Calendar, Users } from "lucide-react";
 import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
 
@@ -27,7 +27,8 @@ function ConnectionCard({ connection }: { connection: any }) {
   const coach = connection.coachProfile;
 
   return (
-    <Card className="hover:shadow-sm transition-all">
+    <Card className="gloss-card gloss-card--interactive transition-all">
+      <span className="gloss-card__shine" aria-hidden />
       <CardContent className="p-4 md:p-5">
         <div className="flex items-start gap-4">
           <Avatar className="h-12 w-12 flex-shrink-0">
@@ -129,7 +130,43 @@ export default function AthleteConnections() {
     { id: "all", label: "All", filter: () => true },
   ];
 
-  const filtered = connections.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
+  const renderTabContent = (t: (typeof tabs)[number]) => {
+    const items = connections.filter(t.filter);
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--helix-green)]" />
+        </div>
+      );
+    }
+    if (items.length > 0) {
+      return (
+        <div className="space-y-4">
+          {items.map((conn: any) => (
+            <ConnectionCard key={conn.id} connection={conn} />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <EmptyState
+        icon={Users}
+        title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} connections`}
+        description={
+          t.id === "all"
+            ? "Browse coaches and send a connection request to get started."
+            : `No ${t.label.toLowerCase()} connections yet.`
+        }
+        action={
+          t.id === "all" ? (
+            <Link href="/athlete/find-coaches">
+              <Button>Browse coaches</Button>
+            </Link>
+          ) : undefined
+        }
+      />
+    );
+  };
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -147,56 +184,16 @@ export default function AthleteConnections() {
         }
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-6 w-full sm:w-auto">
-          {tabs.map((t) => {
-            const count = connections.filter(t.filter).length;
-            return (
-              <TabsTrigger key={t.id} value={t.id} className="flex items-center gap-1.5">
-                {t.label}
-                {count > 0 && (
-                  <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                    {count}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        {tabs.map((t) => (
-          <TabsContent key={t.id} value={t.id}>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : filtered.length > 0 ? (
-              <div className="space-y-4">
-                {filtered.map((conn: any) => (
-                  <ConnectionCard key={conn.id} connection={conn} />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Users}
-                title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} connections`}
-                description={
-                  t.id === "all"
-                    ? "Browse coaches and send a connection request to get started."
-                    : `No ${t.label.toLowerCase()} connections yet.`
-                }
-                action={
-                  t.id === "all" ? (
-                    <Link href="/athlete/find-coaches">
-                      <Button>Browse coaches</Button>
-                    </Link>
-                  ) : undefined
-                }
-              />
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      <AppAnimatedTabs
+        value={tab}
+        onValueChange={setTab}
+        tabs={tabs.map((t) => ({
+          id: t.id,
+          label: t.label,
+          count: connections.filter(t.filter).length,
+          content: renderTabContent(t),
+        }))}
+      />
     </div>
   );
 }

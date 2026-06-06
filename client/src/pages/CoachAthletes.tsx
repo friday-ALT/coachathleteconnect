@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppAnimatedTabs } from "@/components/app/AppAnimatedTabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
@@ -27,7 +27,8 @@ function AthleteCard({
   const athlete = connection.athleteProfile;
 
   return (
-    <Card className="hover:shadow-sm transition-all">
+    <Card className="gloss-card gloss-card--interactive transition-all">
+      <span className="gloss-card__shine" aria-hidden />
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-11 w-11 flex-shrink-0">
@@ -147,7 +148,50 @@ export default function CoachAthletes() {
     { id: "all", label: "All", filter: () => true },
   ];
 
-  const filtered = connections.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
+  const renderTabContent = (t: (typeof tabs)[number]) => {
+    const items = connections.filter(t.filter);
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--helix-green)]" />
+        </div>
+      );
+    }
+    if (items.length > 0) {
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {items.map((conn: any) => (
+            <AthleteCard
+              key={conn.id}
+              connection={conn}
+              onAccept={
+                conn.status === "PENDING"
+                  ? () => updateMutation.mutate({ id: conn.id, status: "ACCEPTED" })
+                  : undefined
+              }
+              onDecline={
+                conn.status === "PENDING"
+                  ? () => updateMutation.mutate({ id: conn.id, status: "DECLINED" })
+                  : undefined
+              }
+              isPending={updateMutation.isPending}
+            />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <EmptyState
+        icon={Users}
+        title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} athletes`}
+        description={
+          t.id === "all"
+            ? "Athletes who connect with you will appear here."
+            : `No ${t.label.toLowerCase()} connections.`
+        }
+      />
+    );
+  };
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -165,63 +209,16 @@ export default function CoachAthletes() {
         }
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-6 w-full sm:w-auto">
-          {tabs.map((t) => {
-            const count = connections.filter(t.filter).length;
-            return (
-              <TabsTrigger key={t.id} value={t.id} className="flex items-center gap-1.5">
-                {t.label}
-                {count > 0 && (
-                  <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                    {count}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        {tabs.map((t) => (
-          <TabsContent key={t.id} value={t.id}>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {filtered.map((conn: any) => (
-                  <AthleteCard
-                    key={conn.id}
-                    connection={conn}
-                    onAccept={
-                      conn.status === "PENDING"
-                        ? () => updateMutation.mutate({ id: conn.id, status: "ACCEPTED" })
-                        : undefined
-                    }
-                    onDecline={
-                      conn.status === "PENDING"
-                        ? () => updateMutation.mutate({ id: conn.id, status: "DECLINED" })
-                        : undefined
-                    }
-                    isPending={updateMutation.isPending}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Users}
-                title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} athletes`}
-                description={
-                  t.id === "all"
-                    ? "Athletes who connect with you will appear here."
-                    : `No ${t.label.toLowerCase()} connections.`
-                }
-              />
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      <AppAnimatedTabs
+        value={tab}
+        onValueChange={setTab}
+        tabs={tabs.map((t) => ({
+          id: t.id,
+          label: t.label,
+          count: connections.filter(t.filter).length,
+          content: renderTabContent(t),
+        }))}
+      />
     </div>
   );
 }

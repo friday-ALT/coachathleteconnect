@@ -209,7 +209,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-svh bg-[var(--helix-black)]">
           <AppTopBar />
-          <main className={cn("app-shell-main helix-app-page flex-1")}>{children}</main>
+          <main className={cn("app-shell-main helix-app-page gloss-app-canvas flex-1")}>
+            <div className="gloss-app-canvas__glow" aria-hidden />
+            {children}
+          </main>
         </SidebarInset>
         <CommandPalette />
       </div>

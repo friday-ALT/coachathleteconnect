@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppAnimatedTabs } from "@/components/app/AppAnimatedTabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
@@ -35,7 +35,8 @@ function SessionCard({ request, onCancel }: { request: any; onCancel?: (id: stri
   const isUpcoming = sessionDate && sessionDate > new Date();
 
   return (
-    <Card className="hover:shadow-sm transition-all">
+    <Card className="gloss-card gloss-card--interactive transition-all">
+      <span className="gloss-card__shine" aria-hidden />
       <CardContent className="p-4 md:p-5">
         <div className="flex items-start gap-4">
           <Avatar className="h-11 w-11 flex-shrink-0">
@@ -162,7 +163,47 @@ export default function AthleteSessions() {
     { id: "past", label: "Past", filter: isPast },
   ];
 
-  const filtered = requests.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
+  const renderTabContent = (t: (typeof tabs)[number]) => {
+    const items = requests.filter(t.filter);
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--helix-green)]" />
+        </div>
+      );
+    }
+    if (items.length > 0) {
+      return (
+        <div className="space-y-4">
+          {items.map((req: any) => (
+            <SessionCard
+              key={req.id}
+              request={req}
+              onCancel={req.status === "PENDING" ? (id) => cancelMutation.mutate(id) : undefined}
+            />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <EmptyState
+        icon={Calendar}
+        title={`No ${t.label.toLowerCase()} sessions`}
+        description={
+          t.id === "upcoming"
+            ? "Book your first session with a coach to get started."
+            : `No ${t.label.toLowerCase()} session requests yet.`
+        }
+        action={
+          t.id === "upcoming" ? (
+            <Link href="/athlete/find-coaches">
+              <Button>Browse coaches</Button>
+            </Link>
+          ) : undefined
+        }
+      />
+    );
+  };
 
   return (
     <div className="container mx-auto max-w-4xl">
@@ -180,60 +221,16 @@ export default function AthleteSessions() {
         }
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-6 w-full sm:w-auto">
-          {tabs.map((t) => {
-            const count = requests.filter(t.filter).length;
-            return (
-              <TabsTrigger key={t.id} value={t.id} className="flex items-center gap-1.5">
-                {t.label}
-                {count > 0 && (
-                  <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
-                    {count}
-                  </span>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        {tabs.map((t) => (
-          <TabsContent key={t.id} value={t.id}>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : filtered.length > 0 ? (
-              <div className="space-y-4">
-                {filtered.map((req: any) => (
-                  <SessionCard
-                    key={req.id}
-                    request={req}
-                    onCancel={req.status === "PENDING" ? (id) => cancelMutation.mutate(id) : undefined}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Calendar}
-                title={`No ${t.label.toLowerCase()} sessions`}
-                description={
-                  t.id === "upcoming"
-                    ? "Book your first session with a coach to get started."
-                    : `No ${t.label.toLowerCase()} session requests yet.`
-                }
-                action={
-                  t.id === "upcoming" ? (
-                    <Link href="/athlete/find-coaches">
-                      <Button>Browse coaches</Button>
-                    </Link>
-                  ) : undefined
-                }
-              />
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      <AppAnimatedTabs
+        value={tab}
+        onValueChange={setTab}
+        tabs={tabs.map((t) => ({
+          id: t.id,
+          label: t.label,
+          count: requests.filter(t.filter).length,
+          content: renderTabContent(t),
+        }))}
+      />
     </div>
   );
 }

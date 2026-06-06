@@ -38,14 +38,17 @@ export function MetricCard({
   icon?: LucideIcon;
 }) {
   const inner = (
-    <div className="app-metric-card">
-      {Icon && (
-        <div className="app-metric-card__icon">
-          <Icon className="h-4 w-4" />
-        </div>
-      )}
-      <div className="app-metric-card__value">{value}</div>
-      <div className="app-metric-card__label">{label}</div>
+    <div className="app-metric-card gloss-card gloss-card--interactive">
+      <span className="gloss-card__shine" aria-hidden />
+      <div className="gloss-card__inner">
+        {Icon && (
+          <div className="app-metric-card__icon gloss-icon">
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
+        <div className="app-metric-card__value">{value}</div>
+        <div className="app-metric-card__label">{label}</div>
+      </div>
     </div>
   );
   if (href) {
@@ -68,7 +71,8 @@ export function ActionBanner({
   children?: ReactNode;
 }) {
   return (
-    <div className="app-action-banner">
+    <div className="app-action-banner gloss-banner">
+      <span className="gloss-card__shine gloss-banner__shine" aria-hidden />
       <div className="app-action-banner__accent" aria-hidden />
       <div className="app-action-banner__body">
         <p className="app-action-banner__title">{title}</p>
@@ -91,14 +95,15 @@ export function ActionBannerLink({
   actionLabel: string;
 }) {
   return (
-    <div className="app-action-banner">
+    <div className="app-action-banner gloss-banner">
+      <span className="gloss-card__shine gloss-banner__shine" aria-hidden />
       <div className="app-action-banner__accent" aria-hidden />
       <div className="app-action-banner__body">
         <p className="app-action-banner__title">{title}</p>
         {description && <p className="app-action-banner__desc">{description}</p>}
       </div>
       <Link href={href}>
-        <span className="helix-btn helix-btn--accent text-xs">{actionLabel}</span>
+        <span className="helix-btn helix-btn--accent gloss-btn text-xs">{actionLabel}</span>
       </Link>
     </div>
   );
@@ -133,7 +138,10 @@ export function PageSection({
           </Link>
         )}
       </div>
-      <div className="app-page-section__body">{children}</div>
+      <div className="app-page-section__body gloss-card">
+        <span className="gloss-card__shine" aria-hidden />
+        <div className="gloss-card__inner">{children}</div>
+      </div>
     </section>
   );
 }
@@ -187,7 +195,10 @@ export function EmptyState({
 
 export function AppPanel({ children, className, highlight }: { children: ReactNode; className?: string; highlight?: boolean }) {
   return (
-    <div className={cn("app-panel", highlight && "app-panel--highlight", className)}>{children}</div>
+    <div className={cn("app-panel gloss-card", highlight && "app-panel--highlight gloss-card--accent", className)}>
+      <span className="gloss-card__shine" aria-hidden />
+      <div className="gloss-card__inner">{children}</div>
+    </div>
   );
 }
 

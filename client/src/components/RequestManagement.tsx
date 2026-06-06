@@ -51,7 +51,8 @@ function RequestCard({
     : `${request.athleteUser?.firstName || "Athlete"} ${request.athleteUser?.lastName || ""}`.trim();
 
   return (
-    <div className="app-kanban__card" data-testid={`request-${request.id}`}>
+    <div className="app-kanban__card gloss-card gloss-card--interactive" data-testid={`request-${request.id}`}>
+      <span className="gloss-card__shine" aria-hidden />
       <div className="flex items-start gap-2.5 mb-2">
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarImage
@@ -165,7 +166,8 @@ export default function RequestManagement({ isAthleteView = false }: RequestMana
       ) : requests && requests.length > 0 ? (
         <div className="app-kanban">
           {columns.map((col) => (
-            <div key={col.id} className="app-kanban__col">
+            <div key={col.id} className="app-kanban__col gloss-card">
+              <span className="gloss-card__shine" aria-hidden />
               <div className="app-kanban__col-head">
                 <span>{col.label}</span>
                 <span className="text-[var(--helix-gray-500)]">{col.items.length}</span>

@@ -10,7 +10,7 @@ interface RouteGuardProps {
 
 export function AthleteRouteGuard({ children }: RouteGuardProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { isAthlete, isLoading: roleLoading, hasAthleteProfile, athleteProfileComplete } = useRole();
+  const { isAthlete, isCoach, isLoading: roleLoading, hasAthleteProfile, athleteProfileComplete } = useRole();
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
@@ -29,9 +29,10 @@ export function AthleteRouteGuard({ children }: RouteGuardProps) {
       return;
     }
     if (!isAthlete) {
-      setLocation("/");
+      if (isCoach) setLocation("/coach/dashboard");
+      else setLocation("/auth/role-selection");
     }
-  }, [authLoading, isAuthenticated, roleLoading, hasAthleteProfile, athleteProfileComplete, isAthlete, location, setLocation]);
+  }, [authLoading, isAuthenticated, roleLoading, hasAthleteProfile, athleteProfileComplete, isAthlete, isCoach, location, setLocation]);
 
   if (authLoading || roleLoading) {
     return (
@@ -48,7 +49,7 @@ export function AthleteRouteGuard({ children }: RouteGuardProps) {
 
 export function CoachRouteGuard({ children }: RouteGuardProps) {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { isCoach, isLoading: roleLoading, hasCoachProfile, coachProfileComplete } = useRole();
+  const { isCoach, isAthlete, isLoading: roleLoading, hasCoachProfile, coachProfileComplete } = useRole();
   const [location, setLocation] = useLocation();
 
   useEffect(() => {
@@ -67,9 +68,10 @@ export function CoachRouteGuard({ children }: RouteGuardProps) {
       return;
     }
     if (!isCoach) {
-      setLocation("/");
+      if (isAthlete) setLocation("/athlete/dashboard");
+      else setLocation("/auth/role-selection");
     }
-  }, [authLoading, isAuthenticated, roleLoading, hasCoachProfile, coachProfileComplete, isCoach, location, setLocation]);
+  }, [authLoading, isAuthenticated, roleLoading, hasCoachProfile, coachProfileComplete, isCoach, isAthlete, location, setLocation]);
 
   if (authLoading || roleLoading) {
     return (

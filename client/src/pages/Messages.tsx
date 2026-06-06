@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Send, MessageSquare, ArrowLeft, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppPageHeader } from "@/components/app/AppPrimitives";
 
 function timeAgo(dateStr: string) {
   const d = new Date(dateStr);
@@ -241,13 +242,15 @@ export default function Messages() {
   const handleSelect = (id: string) => setLocation(`/messages/${id}`);
 
   return (
-    <div className="container mx-auto px-0 md:px-4 py-0 md:py-6 max-w-5xl">
-      <div className="hidden md:block mb-4 px-4 md:px-0">
-        <h1 className="text-2xl font-bold">Messages</h1>
-        <p className="text-sm text-muted-foreground">Direct messages with your coaches and athletes</p>
+    <div className="container mx-auto max-w-5xl">
+      <div className="hidden md:block">
+        <AppPageHeader
+          title="Messages"
+          subtitle="Direct messages with your coaches and athletes."
+        />
       </div>
 
-      <Card className="overflow-hidden rounded-none md:rounded-xl border-0 md:border" style={{ height: "calc(100vh - 140px)" }}>
+      <Card className="overflow-hidden rounded-xl border border-[var(--helix-border)] bg-[var(--helix-surface)]" style={{ height: "min(720px, calc(100vh - 12rem))" }}>
         <div className="flex h-full">
           {/* Sidebar (always visible on desktop, hidden on mobile if conversation selected) */}
           <div

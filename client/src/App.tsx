@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";
 import { shouldUseAppShell } from "@/lib/appShell";
 import { AppPageTransition } from "@/components/app/AppPageTransition";
+import { AutoEnterRole } from "@/components/app/AutoEnterRole";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Browse from "@/pages/Browse";
@@ -134,6 +135,11 @@ function Router() {
         {() => <AthleteRouteGuard><Reviews /></AthleteRouteGuard>}
       </Route>
 
+      {/* Coach reviews page */}
+      <Route path="/coach/reviews">
+        {() => <CoachRouteGuard><Reviews /></CoachRouteGuard>}
+      </Route>
+
       {/* Messages — available to any authenticated user regardless of active role */}
       <Route path="/messages/:id">
         {() => <Messages />}
@@ -189,6 +195,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <AutoEnterRole />
           <AppContent />
           <Toaster />
         </TooltipProvider>

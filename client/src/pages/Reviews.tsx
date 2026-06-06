@@ -19,6 +19,7 @@ import { Loader2, Star, MessageSquare, Trophy, Send, Lock } from "lucide-react";
 import { Link } from "wouter";
 import type { CoachProfile, Review } from "@shared/schema";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
+import { AppPageHeader, AppPanel } from "@/components/app/AppPrimitives";
 
 const reviewSchema = z.object({
   coachId: z.string().min(1, "Please select a coach"),
@@ -125,22 +126,21 @@ export default function Reviews() {
       : null;
 
     return (
-      <div className="container mx-auto max-w-3xl px-4 py-6 md:py-10">
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">My Reviews</h1>
-          <p className="text-muted-foreground text-sm">Feedback from athletes you've coached</p>
-        </div>
+      <div className="container mx-auto max-w-3xl">
+        <AppPageHeader
+          label="Coach mode"
+          title="My reviews"
+          subtitle="Feedback from athletes you've coached."
+        />
 
         {avgRating && (
-          <Card className="mb-6 bg-primary/5 border-primary/20">
-            <CardContent className="p-5 flex items-center gap-5">
-              <div className="text-4xl font-bold text-primary">{avgRating}</div>
-              <div>
-                <StarRating value={Math.round(Number(avgRating))} readonly />
-                <p className="text-sm text-muted-foreground mt-1">{receivedReviews.length} review{receivedReviews.length !== 1 ? "s" : ""}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <AppPanel highlight className="mb-6 flex items-center gap-5">
+            <div className="text-4xl font-bold text-[var(--helix-green)]">{avgRating}</div>
+            <div>
+              <StarRating value={Math.round(Number(avgRating))} readonly />
+              <p className="text-sm text-[var(--helix-gray-500)] mt-1">{receivedReviews.length} review{receivedReviews.length !== 1 ? "s" : ""}</p>
+            </div>
+          </AppPanel>
         )}
 
         {receivedLoading ? (
@@ -189,11 +189,12 @@ export default function Reviews() {
   const unreviewedCoaches = acceptedCoaches.filter((c) => !alreadyReviewedIds.has(c.userId));
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-6 md:py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold mb-1">Reviews</h1>
-        <p className="text-muted-foreground text-sm">Rate coaches you've worked with</p>
-      </div>
+    <div className="container mx-auto max-w-3xl">
+      <AppPageHeader
+        label="Athlete mode"
+        title="Reviews"
+        subtitle="Rate coaches you've worked with."
+      />
 
       <Tabs defaultValue={unreviewedCoaches.length > 0 ? "write" : "mine"}>
         <TabsList className="mb-6">

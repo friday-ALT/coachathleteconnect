@@ -6,18 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Star, MapPin, DollarSign, Clock, CheckCircle2, XCircle, Calendar, Users } from "lucide-react";
+import { Loader2, Search, Star, MapPin, DollarSign, Clock, Calendar, Users } from "lucide-react";
+import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
 
 function getConnectionStatus(status: string) {
   switch (status) {
     case "PENDING":
-      return { label: "Pending", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" };
+      return { label: "Pending", variant: "warning" as const };
     case "ACCEPTED":
-      return { label: "Connected", className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" };
+      return { label: "Connected", variant: "success" as const };
     case "DECLINED":
-      return { label: "Declined", className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" };
+      return { label: "Declined", variant: "danger" as const };
     default:
-      return { label: status, className: "bg-muted text-muted-foreground" };
+      return { label: status, variant: "default" as const };
   }
 }
 
@@ -47,7 +48,7 @@ function ConnectionCard({ connection }: { connection: any }) {
                   </p>
                 )}
               </div>
-              <Badge className={s.className + " text-xs"}>{s.label}</Badge>
+              <StatusPill label={s.label} variant={s.variant} />
             </div>
 
             <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
@@ -131,21 +132,20 @@ export default function AthleteConnections() {
   const filtered = connections.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">My Connections</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage your coaching relationships.
-          </p>
-        </div>
-        <Link href="/athlete/find-coaches">
-          <Button>
-            <Search className="h-4 w-4 mr-2" />
-            Find More Coaches
-          </Button>
-        </Link>
-      </div>
+    <div className="container mx-auto max-w-4xl">
+      <AppPageHeader
+        label="Athlete mode"
+        title="My connections"
+        subtitle="Manage your coaching relationships."
+        actions={
+          <Link href="/athlete/find-coaches">
+            <Button>
+              <Search className="h-4 w-4 mr-2" />
+              Find coaches
+            </Button>
+          </Link>
+        }
+      />
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-6 w-full sm:w-auto">
@@ -177,22 +177,22 @@ export default function AthleteConnections() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mb-4 opacity-40" />
-                <p className="font-medium mb-1">
-                  No {t.id === "all" ? "" : t.label.toLowerCase()} connections
-                </p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t.id === "all"
+              <EmptyState
+                icon={Users}
+                title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} connections`}
+                description={
+                  t.id === "all"
                     ? "Browse coaches and send a connection request to get started."
-                    : `No ${t.label.toLowerCase()} connections yet.`}
-                </p>
-                {t.id === "all" && (
-                  <Link href="/athlete/find-coaches">
-                    <Button>Browse Coaches</Button>
-                  </Link>
-                )}
-              </div>
+                    : `No ${t.label.toLowerCase()} connections yet.`
+                }
+                action={
+                  t.id === "all" ? (
+                    <Link href="/athlete/find-coaches">
+                      <Button>Browse coaches</Button>
+                    </Link>
+                  ) : undefined
+                }
+              />
             )}
           </TabsContent>
         ))}

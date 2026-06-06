@@ -31,7 +31,7 @@ export default function CoachDashboard() {
     coachProfileComplete,
     isCoach,
     hasBothProfiles,
-    setActiveRole,
+    switchToRole,
   } = useRole();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -44,7 +44,7 @@ export default function CoachDashboard() {
     if (!roleLoading && !authLoading && isAuthenticated) {
       if (!hasCoachProfile) { setLocation("/auth/onboarding/coach/step1"); return; }
       if (!coachProfileComplete) { setLocation("/auth/onboarding/coach/step1"); return; }
-      if (!isCoach) { setLocation("/"); return; }
+      if (!isCoach) { setLocation("/auth/role-selection"); return; }
     }
   }, [roleLoading, authLoading, isAuthenticated, hasCoachProfile, coachProfileComplete, isCoach, setLocation]);
 
@@ -117,7 +117,7 @@ export default function CoachDashboard() {
   const headerActions = (
     <>
       {hasBothProfiles && (
-        <Button variant="outline" size="sm" onClick={() => setActiveRole("athlete")}>
+        <Button variant="outline" size="sm" onClick={() => switchToRole("athlete", "/athlete/dashboard")}>
           <User className="h-4 w-4 mr-2" />
           Switch to Athlete
         </Button>

@@ -29,7 +29,7 @@ export default function AthleteDashboard() {
     athleteProfileComplete,
     isAthlete,
     hasBothProfiles,
-    setActiveRole,
+    switchToRole,
   } = useRole();
   const [, setLocation] = useLocation();
 
@@ -44,7 +44,7 @@ export default function AthleteDashboard() {
     if (!roleLoading && !authLoading && isAuthenticated) {
       if (!hasAthleteProfile) { setLocation("/auth/onboarding/athlete/step1"); return; }
       if (!athleteProfileComplete) { setLocation("/auth/onboarding/athlete/step1"); return; }
-      if (!isAthlete) { setLocation("/"); return; }
+      if (!isAthlete) { setLocation("/auth/role-selection"); return; }
     }
   }, [roleLoading, authLoading, isAuthenticated, hasAthleteProfile, athleteProfileComplete, isAthlete, setLocation]);
 
@@ -106,7 +106,7 @@ export default function AthleteDashboard() {
   const headerActions = (
     <>
       {hasBothProfiles && (
-        <Button variant="outline" size="sm" onClick={() => setActiveRole("coach")}>
+        <Button variant="outline" size="sm" onClick={() => switchToRole("coach", "/coach/dashboard")}>
           <Trophy className="h-4 w-4 mr-2" />
           Switch to Coach
         </Button>

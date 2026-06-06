@@ -56,8 +56,10 @@ type NavItem = {
 };
 
 function AppSidebar() {
-  const [location, setLocation] = useLocation();
-  const { isAthlete, isCoach, hasBothProfiles, setActiveRole, clearRole } = useRole();
+  const [location] = useLocation();
+  const { effectiveRole, hasBothProfiles, switchToRole, clearRole } = useRole();
+  const isCoach = effectiveRole === "coach";
+  const isAthlete = effectiveRole === "athlete";
   const pending = usePendingCounts();
 
   const athleteNav: NavItem[] = [
@@ -75,17 +77,17 @@ function AppSidebar() {
     { label: "Requests", href: "/coach/requests", icon: Inbox, badge: pending.sessionRequests + pending.connectionRequests, match: (p) => p === "/coach/requests" },
     { label: "Schedule", href: "/coach/schedule", icon: Calendar, match: (p) => p === "/coach/schedule" || p === "/coach/availability" },
     { label: "Athletes", href: "/coach/athletes", icon: Users, match: (p) => p === "/coach/athletes" },
-    { label: "Reviews", href: "/reviews", icon: Star, match: (p) => p === "/reviews" },
+    { label: "Reviews", href: "/coach/reviews", icon: Star, match: (p) => p === "/coach/reviews" || p === "/reviews" },
     { label: "Messages", href: "/messages", icon: MessageSquare, match: (p) => p.startsWith("/messages") },
     { label: "Profile", href: "/coach/profile", icon: User, match: (p) => p === "/coach/profile" },
   ];
 
-  const nav = isCoach && !isAthlete ? coachNav : athleteNav;
+  const nav = isCoach ? coachNav : athleteNav;
 
   return (
     <Sidebar collapsible="icon" className="app-sidebar border-r border-[var(--helix-border)]">
       <SidebarHeader className="app-sidebar__header">
-        <Link href={isCoach && !isAthlete ? "/coach/dashboard" : "/athlete/dashboard"} className="app-sidebar__brand">
+        <Link href={isCoach ? "/coach/dashboard" : "/athlete/dashboard"} className="app-sidebar__brand">
           <span className="app-sidebar__brand-mark">CC</span>
           <span className="app-sidebar__brand-text">CoachConnect</span>
         </Link>
@@ -93,7 +95,7 @@ function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="helix-mono text-[var(--helix-gray-500)]">
-            {isCoach && !isAthlete ? "Coach" : "Athlete"}
+            {isCoach ? "Coach" : "Athlete"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -127,13 +129,8 @@ function AppSidebar() {
             size="sm"
             className="w-full justify-start text-[var(--helix-gray-400)] hover:text-[var(--helix-green)] hover:bg-[rgba(34,197,94,0.08)]"
             onClick={() => {
-              if (isAthlete) {
-                setActiveRole("coach");
-                setLocation("/coach/dashboard");
-              } else {
-                setActiveRole("athlete");
-                setLocation("/athlete/dashboard");
-              }
+              if (isAthlete) void switchToRole("coach", "/coach/dashboard");
+              else void switchToRole("athlete", "/athlete/dashboard");
             }}
           >
             {isAthlete ? <Trophy className="h-4 w-4 mr-2" /> : <User className="h-4 w-4 mr-2" />}
@@ -158,7 +155,7 @@ function AppSidebar() {
 function AppTopBar() {
   const { user } = useAuth();
   const { isAthlete, isCoach } = useRole();
-  const profileHref = isCoach && !isAthlete ? "/coach/profile" : "/athlete/profile";
+  const profileHref = isCoach ? "/coach/profile" : "/athlete/profile";
 
   return (
     <header className="app-topbar">
@@ -212,7 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <AppSidebar />
         <SidebarInset className="flex flex-col min-h-svh bg-[var(--helix-black)]">
           <AppTopBar />
-          <main className={cn("app-shell-main flex-1")}>{children}</main>
+          <main className={cn("app-shell-main helix-app-page flex-1")}>{children}</main>
         </SidebarInset>
         <CommandPalette />
       </div>

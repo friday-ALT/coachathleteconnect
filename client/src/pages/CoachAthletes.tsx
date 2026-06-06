@@ -2,7 +2,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +10,8 @@ import {
   Loader2, Users, MapPin, Check, X, Calendar, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
+import { AppPageHeader, EmptyState, StatusPill } from "@/components/app/AppPrimitives";
+import { AppPageSkeleton } from "@/components/app/AppPageSkeleton";
 
 function AthleteCard({
   connection,
@@ -48,21 +49,22 @@ function AthleteCard({
                   </p>
                 )}
               </div>
-              <Badge
-                className={
+              <StatusPill
+                label={
                   connection.status === "PENDING"
-                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 text-xs"
+                    ? "Pending"
                     : connection.status === "ACCEPTED"
-                    ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-xs"
-                    : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 text-xs"
+                    ? "Connected"
+                    : "Declined"
                 }
-              >
-                {connection.status === "PENDING"
-                  ? "Pending"
-                  : connection.status === "ACCEPTED"
-                  ? "Connected"
-                  : "Declined"}
-              </Badge>
+                variant={
+                  connection.status === "PENDING"
+                    ? "warning"
+                    : connection.status === "ACCEPTED"
+                    ? "success"
+                    : "danger"
+                }
+              />
             </div>
 
             <div className="flex flex-wrap gap-x-3 mt-2">
@@ -148,21 +150,20 @@ export default function CoachAthletes() {
   const filtered = connections.filter(tabs.find((t) => t.id === tab)?.filter ?? (() => true));
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">My Athletes</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage athlete connections and requests.
-          </p>
-        </div>
-        <Link href="/coach/requests">
-          <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-            All Requests
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
-        </Link>
-      </div>
+    <div className="container mx-auto max-w-4xl">
+      <AppPageHeader
+        label="Coach mode"
+        title="My athletes"
+        subtitle="Manage athlete connections and requests."
+        actions={
+          <Link href="/coach/requests">
+            <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+              All requests
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        }
+      />
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-6 w-full sm:w-auto">
@@ -208,17 +209,15 @@ export default function CoachAthletes() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mb-4 opacity-40" />
-                <p className="font-medium mb-1">
-                  No {t.id === "all" ? "" : t.label.toLowerCase()} athletes
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t.id === "all"
+              <EmptyState
+                icon={Users}
+                title={`No ${t.id === "all" ? "" : t.label.toLowerCase()} athletes`}
+                description={
+                  t.id === "all"
                     ? "Athletes who connect with you will appear here."
-                    : `No ${t.label.toLowerCase()} connections.`}
-                </p>
-              </div>
+                    : `No ${t.label.toLowerCase()} connections.`
+                }
+              />
             )}
           </TabsContent>
         ))}

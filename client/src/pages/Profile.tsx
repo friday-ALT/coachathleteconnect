@@ -16,11 +16,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Loader2, Upload, User, Trophy, Star, LogOut } from "lucide-react";
+import { Loader2, Upload, User, Trophy, Star, LogOut } from "lucide-react";
 import { CoachStripeConnect } from "@/components/CoachStripeConnect";
 import { Link, useLocation } from "wouter";
 import type { AthleteProfile, CoachProfile } from "@shared/schema";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
+import { AppPageHeader } from "@/components/app/AppPrimitives";
 
 const athleteSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -153,34 +154,29 @@ export default function Profile() {
     );
   }
 
-  const backHref = isAthlete ? "/athlete/dashboard" : isCoach ? "/coach/dashboard" : "/";
   const hasNoProfile = !athleteProfile && !coachProfile;
 
   // Determine which tab to show by default
   const defaultTab = isAthlete ? "athlete" : isCoach ? "coach" : (athleteProfile ? "athlete" : "coach");
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-6 md:py-10">
-      <Link href={backHref} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Dashboard
-      </Link>
-
-      <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">My Profile</h1>
-          <p className="text-muted-foreground text-sm">Manage your profile information</p>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={() => { window.location.href = "/api/logout"; }}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign out
-        </Button>
-      </div>
+    <div className="container mx-auto max-w-2xl">
+      <AppPageHeader
+        label={isCoach ? "Coach mode" : isAthlete ? "Athlete mode" : "Profile"}
+        title="My profile"
+        subtitle="Manage your profile information."
+        actions={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            onClick={() => { window.location.href = "/api/logout"; }}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign out
+          </Button>
+        }
+      />
 
       {/* Account info */}
       <Card className="mb-6">

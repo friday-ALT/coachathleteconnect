@@ -58,7 +58,7 @@ export function CommandPalette() {
     { label: "Requests", href: "/coach/requests", icon: Inbox },
     { label: "Schedule", href: "/coach/schedule", icon: Calendar },
     { label: "Athletes", href: "/coach/athletes", icon: Users },
-    { label: "Reviews", href: "/reviews", icon: Star },
+    { label: "Reviews", href: "/coach/reviews", icon: Star },
     { label: "Messages", href: "/messages", icon: MessageSquare },
     { label: "Profile", href: "/coach/profile", icon: User },
   ];

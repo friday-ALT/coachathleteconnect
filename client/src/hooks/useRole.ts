@@ -92,6 +92,13 @@ export function useRole() {
     }
   };
 
+  /** Enter a role, refresh session, then navigate — keeps sidebar shell in sync. */
+  const switchToRole = async (role: "athlete" | "coach", href: string) => {
+    await enterRoleMutation.mutateAsync(role);
+    await queryClient.refetchQueries({ queryKey: ["/api/auth/session"] });
+    window.location.href = href;
+  };
+
   // Clear role function
   const clearRole = async () => {
     await exitRoleMutation.mutateAsync();
@@ -104,6 +111,7 @@ export function useRole() {
     activeRole,
     effectiveRole,
     setActiveRole,
+    switchToRole,
     clearRole,
     isLoading,
     hasAthleteProfile,

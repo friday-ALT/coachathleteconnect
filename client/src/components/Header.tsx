@@ -38,8 +38,8 @@ export function Header() {
   const hasAnyProfile = hasAthleteProfile || hasCoachProfile;
 
   return (
-    <header className="oryzo-app-header">
-      <div className="oryzo-app-header__inner">
+    <header className="helix-app-header">
+      <div className="helix-app-header__inner">
         <Link
           href={
             effectiveRole === "athlete"
@@ -50,7 +50,7 @@ export function Header() {
               ? "/auth/role-selection"
               : "/"
           }
-          className="oryzo-app-header__logo hover:opacity-80 transition-opacity"
+          className="helix-app-header__logo hover:opacity-80 transition-opacity"
           data-testid="link-home"
         >
           CoachConnect
@@ -80,7 +80,7 @@ export function Header() {
                     <Button
                       variant={location === "/athlete/dashboard" ? "secondary" : "ghost"}
                       size="sm"
-                      className="oryzo-app-nav-link"
+                      className="helix-app-nav-link"
                       data-testid="link-athlete-dashboard"
                     >
                       <Home className="h-4 w-4 mr-1.5" />
@@ -289,17 +289,17 @@ export function Header() {
           ) : (
             <>
               <Link href="/browse">
-                <Button variant="ghost" size="sm" className="oryzo-app-nav-link">
+                <Button variant="ghost" size="sm" className="helix-app-nav-link">
                   Browse
                 </Button>
               </Link>
               <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="oryzo-app-nav-link">
+                <Button variant="ghost" size="sm" className="helix-app-nav-link">
                   Sign in
                 </Button>
               </Link>
               <Link href="/auth/signup" data-testid="link-get-started">
-                <button type="button" className="oryzo-btn oryzo-btn--accent text-xs py-1.5 px-3 h-8">
+                <button type="button" className="helix-btn helix-btn--accent text-xs py-1.5 px-3 h-8">
                   Get started
                 </button>
               </Link>

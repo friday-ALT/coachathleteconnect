@@ -251,7 +251,7 @@ export function MobileMenu() {
                 </Button>
               </Link>
               <Link href="/auth/signup" onClick={closeMenu} className="block w-full">
-                <Button className="apple-btn w-full">Get started</Button>
+                <Button className="helix-btn helix-btn--accent w-full">Get started</Button>
               </Link>
             </>
           )}

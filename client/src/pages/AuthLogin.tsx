@@ -157,7 +157,7 @@ export default function AuthLogin() {
 
             <Button
               type="submit"
-              className="w-full h-12 text-base mt-6 rounded-full bg-[#0f0f0f] hover:bg-[#2a2826]"
+              className="w-full h-12 text-base mt-6 rounded-full bg-[var(--helix-green)] hover:bg-[var(--helix-green-dim)] text-[var(--helix-black)]"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
@@ -175,7 +175,7 @@ export default function AuthLogin() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-[#b85c38] font-medium hover:underline">
+            <Link href="/auth/signup" className="text-[var(--helix-green)] font-medium hover:underline">
               Sign up
             </Link>
           </p>

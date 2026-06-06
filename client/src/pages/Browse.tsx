@@ -58,11 +58,11 @@ function BrowseCoaches() {
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
       <div className="mb-8">
-        <p className="oryzo-mono mb-3">Browse · coaches</p>
-        <h1 className="mb-3 text-3xl sm:text-5xl font-semibold tracking-tight text-[#0f0f0f] leading-[1.05]">
+        <p className="helix-mono mb-3 text-[var(--helix-green)]">Browse · coaches</p>
+        <h1 className="mb-3 text-3xl sm:text-5xl font-semibold tracking-tight text-[var(--helix-gray-100)] leading-[1.05]">
           Find a coach.
         </h1>
-        <p className="text-base text-[#6f6a63] max-w-xl leading-relaxed">
+        <p className="text-base text-[var(--helix-gray-500)] max-w-xl leading-relaxed">
           Profiles, ratings, and booking — editorial cards inspired by premium product sites.
         </p>
       </div>

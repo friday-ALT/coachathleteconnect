@@ -161,7 +161,7 @@ function AppContent() {
   return (
     <TealGlowShell>
       {!hideAppHeader && <Header />}
-      <div className={isLanding ? "" : "oryzo-app-page"}>
+      <div className={isLanding ? "" : "helix-app-page"}>
         <Router />
       </div>
     </TealGlowShell>

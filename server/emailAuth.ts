@@ -11,6 +11,7 @@ import { isDemoAuthEnabled } from './demoAuthGate';
 import { ensureDemoUserProfiles } from './demoSeed';
 import { bindAuthSession, signUserToken } from './authSession';
 import { performLogout } from './tokenVersion';
+import { isAuthenticated } from './replitAuth';
 
 const router = Router();
 
@@ -566,6 +567,49 @@ router.post('/demo-login', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/auth/delete-account — permanent deletion (App Store requirement)
+router.post('/delete-account', isAuthenticated, async (req: any, res: Response) => {
+  try {
+    const userId = req.user.claims.sub as string;
+    if (userId === DEMO_CREDENTIALS.userId) {
+      return res.status(403).json({ error: 'Demo account cannot be deleted' });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const { password, confirm } = req.body as { password?: string; confirm?: boolean };
+    if (confirm !== true) {
+      return res.status(400).json({ error: 'You must confirm account deletion' });
+    }
+
+    if (user.authProvider === 'email') {
+      if (!password || !user.passwordHash) {
+        return res.status(400).json({ error: 'Password is required to delete your account' });
+      }
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ error: 'Incorrect password' });
+      }
+    }
+
+    await db.delete(users).where(eq(users.id, userId));
+
+    req.session.destroy((err: Error | null) => {
+      if (err) {
+        console.error('Delete account session destroy error:', err);
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: 'Account deleted successfully' });
+    });
+  } catch (error: any) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ error: 'Failed to delete account. Please try again.' });
+  }
+});
+
 // POST /api/auth/logout - Logout (invalidates JWTs + destroys session)
 router.post('/logout', async (req: Request, res: Response) => {
   try {
@@ -761,6 +805,7 @@ router.get('/me', async (req: Request, res: Response) => {
       lastName: user.lastName,
       profileImageUrl: user.profileImageUrl,
       emailVerified: user.emailVerified === 1,
+      authProvider: user.authProvider ?? 'email',
     });
   } catch (error: any) {
     console.error('Get user error:', error);

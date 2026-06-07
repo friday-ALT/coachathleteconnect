@@ -1,7 +1,7 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GlossButton } from "@/components/app/AppPrimitives";
 import Schedule30DayView from "@/components/Schedule30DayView";
 import type { CoachProfile } from "@shared/schema";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
@@ -27,12 +27,12 @@ export default function CoachSchedule30Days() {
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Coach Not Found</h1>
         <p className="text-muted-foreground mb-4">The coach profile you're looking for doesn't exist.</p>
-        <Link href="/browse">
-          <Button>
+        <GlossButton asChild>
+          <Link href="/browse">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Browse
-          </Button>
-        </Link>
+          </Link>
+        </GlossButton>
       </div>
     );
   }

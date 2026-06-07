@@ -7,6 +7,7 @@ import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme'
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { profileApi, requestApi } from '../../lib/api';
+import { useDeleteAccount } from '../../lib/useDeleteAccount';
 import Avatar from '../../components/ui/Avatar';
 import StatusPill from '../../components/ui/StatusPill';
 import AppCanvas from '../../components/ui/AppCanvas';
@@ -27,6 +28,7 @@ export default function AthleteProfile() {
   const { user, logout } = useAuth();
   const { hasCoachProfile, exitRole } = useRole();
   const safeTop = useSafeTop();
+  const { confirmDelete } = useDeleteAccount((user as { authProvider?: string })?.authProvider);
 
   const { data: profile } = useQuery({
     queryKey: ['athlete-profile'],
@@ -197,7 +199,8 @@ export default function AthleteProfile() {
               onPress={() => router.push('/auth/onboarding/coach/step1')}
             />
           )}
-          <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger last />
+          <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger />
+          <ActionRow icon="trash-outline" label="Delete account" onPress={confirmDelete} danger last />
         </GlossCard>
       </ScrollView>
     </AppCanvas>

@@ -16,6 +16,7 @@ import {
   DataRow,
   EmptyState,
   AppPanel,
+  GlossButton,
 } from "@/components/app/AppPrimitives";
 import {
   Loader2, Users, DollarSign, Star, Calendar,
@@ -126,12 +127,12 @@ export default function CoachDashboard() {
       <Link href="/coach/profile">
         <Button variant="outline" size="sm">Edit profile</Button>
       </Link>
-      <Link href="/coach/schedule">
-        <Button size="sm">
+      <GlossButton asChild size="sm">
+        <Link href="/coach/schedule">
           <Calendar className="h-4 w-4 mr-2" />
           Schedule
-        </Button>
-      </Link>
+        </Link>
+      </GlossButton>
     </>
   );
 

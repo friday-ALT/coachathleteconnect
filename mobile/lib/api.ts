@@ -68,6 +68,11 @@ export const authApi = {
     const response = await api.post('/api/auth/logout');
     return response.data;
   },
+
+  deleteAccount: async (data: { confirm: true; password?: string }) => {
+    const response = await api.post('/api/auth/delete-account', data);
+    return response.data;
+  },
   
   getUser: async () => {
     const response = await api.get('/api/auth/me');

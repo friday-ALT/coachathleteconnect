@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link, useSearch, useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { GlossButton } from "@/components/app/AppPrimitives";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -148,12 +149,12 @@ export default function CoachProfileView() {
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Coach Not Found</h1>
         <p className="text-muted-foreground mb-4">The coach profile you're looking for doesn't exist.</p>
-        <Link href="/browse">
-          <Button>
+        <GlossButton asChild>
+          <Link href="/browse">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Browse
-          </Button>
-        </Link>
+          </Link>
+        </GlossButton>
       </div>
     );
   }

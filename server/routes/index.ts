@@ -50,6 +50,7 @@ export async function registerRoutes(app: Express) {
   app.use('/api/auth/apple', authRateLimit);
   app.use('/api/auth/reset-password', authRateLimit);
   app.use('/api/auth/resend-verification', authRateLimit);
+  app.use('/api/auth/delete-account', authRateLimit);
 
   // Public Supabase config
   app.get('/api/config/supabase', (_req, res) => {

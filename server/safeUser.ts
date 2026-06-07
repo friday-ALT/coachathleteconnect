@@ -5,6 +5,7 @@ export type PublicUser = {
   firstName: string | null;
   lastName: string | null;
   profileImageUrl: string | null;
+  authProvider?: string | null;
 };
 
 export function toPublicUser(user: {
@@ -13,6 +14,7 @@ export function toPublicUser(user: {
   firstName?: string | null;
   lastName?: string | null;
   profileImageUrl?: string | null;
+  authProvider?: string | null;
 } | null | undefined): PublicUser | null {
   if (!user) return null;
   return {
@@ -21,5 +23,6 @@ export function toPublicUser(user: {
     firstName: user.firstName ?? null,
     lastName: user.lastName ?? null,
     profileImageUrl: user.profileImageUrl ?? null,
+    authProvider: user.authProvider ?? null,
   };
 }

@@ -123,6 +123,9 @@ function Router() {
       <Route path="/coach/profile">
         {() => <CoachRouteGuard><Profile /></CoachRouteGuard>}
       </Route>
+      <Route path="/coach/reviews">
+        {() => <CoachRouteGuard><Reviews /></CoachRouteGuard>}
+      </Route>
 
       {/* Session booking */}
       <Route path="/book/:coachId">
@@ -136,11 +139,6 @@ function Router() {
       {/* Athlete reviews page */}
       <Route path="/athlete/reviews">
         {() => <AthleteRouteGuard><Reviews /></AthleteRouteGuard>}
-      </Route>
-
-      {/* Coach reviews page */}
-      <Route path="/coach/reviews">
-        {() => <CoachRouteGuard><Reviews /></CoachRouteGuard>}
       </Route>
 
       {/* Messages — available to any authenticated user regardless of active role */}
@@ -196,7 +194,7 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <AutoEnterRole />
           <AppContent />

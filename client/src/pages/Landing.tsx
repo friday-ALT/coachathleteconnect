@@ -10,10 +10,10 @@ import { useLocation, Link } from "wouter";
 import yassineImage from "@assets/IMG_8811_1766408856173.jpeg";
 
 const stats = [
-  { value: "500", suffix: "+", label: "Athletes trained" },
-  { value: "50", suffix: "+", label: "Expert coaches" },
-  { value: "4.9", suffix: "", label: "Average rating" },
-  { value: "24", suffix: "/7", label: "Support" },
+  { value: "2", suffix: "", label: "Roles — athlete or coach" },
+  { value: "1", suffix: "", label: "Checkout to book" },
+  { value: "1", suffix: "", label: "Account on web & app" },
+  { value: "24", suffix: "/7", label: "Browse & message" },
 ];
 
 const features = [

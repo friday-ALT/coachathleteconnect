@@ -1553,6 +1553,10 @@
 
 /* Glossy buttons */
 .gloss-btn,
+.helix-site .gloss-btn,
+.helix-site button.bg-primary,
+.helix-app-shell .gloss-btn,
+.helix-app-shell button.bg-primary,
 .gloss-app-canvas button.bg-primary,
 .gloss-app-canvas a.bg-primary,
 .gloss-app-canvas .bg-primary.text-primary-foreground {
@@ -1734,7 +1738,13 @@
   color: var(--helix-green) !important;
 }
 
-/* Prevent double-contrast CTAs (dark bg + dark text) in the app shell */
+/* Prevent double-contrast CTAs (dark bg + dark text) across Helix UI */
+.helix-site .gloss-btn,
+.helix-site button.bg-primary,
+.helix-site a.bg-primary,
+.helix-app-shell .gloss-btn,
+.helix-app-shell button.bg-primary,
+.helix-app-shell a.bg-primary,
 .gloss-app-canvas button.bg-primary,
 .gloss-app-canvas a.bg-primary,
 .gloss-app-canvas a > button.bg-primary,
@@ -1742,12 +1752,22 @@
   color: var(--helix-black) !important;
 }
 
+.helix-site .gloss-btn svg,
+.helix-site button.bg-primary svg,
+.helix-app-shell .gloss-btn svg,
+.helix-app-shell button.bg-primary svg,
 .gloss-app-canvas button.bg-primary svg,
 .gloss-app-canvas a.bg-primary svg,
 .gloss-app-canvas .gloss-btn svg {
   color: var(--helix-black) !important;
 }
 
+.helix-site .gloss-btn,
+.helix-site button.bg-primary,
+.helix-site a.bg-primary,
+.helix-app-shell .gloss-btn,
+.helix-app-shell button.bg-primary,
+.helix-app-shell a.bg-primary,
 .gloss-app-canvas a.bg-primary {
   background: linear-gradient(
     165deg,
@@ -1758,6 +1778,19 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
     0 4px 16px rgba(34, 197, 94, 0.35) !important;
+}
+
+/* Outline / ghost buttons: light text on dark surfaces */
+.helix-site button.border:not(.bg-primary):not(.gloss-btn),
+.helix-app-shell button.border:not(.bg-primary):not(.gloss-btn),
+.gloss-app-canvas button.border:not(.bg-primary):not(.gloss-btn) {
+  color: var(--helix-gray-100) !important;
+}
+
+.helix-site button.border:not(.bg-primary):not(.gloss-btn) svg,
+.helix-app-shell button.border:not(.bg-primary):not(.gloss-btn) svg,
+.gloss-app-canvas button.border:not(.bg-primary):not(.gloss-btn) svg {
+  color: var(--helix-gray-200) !important;
 }
 
 .app-sidebar__brand-mark {

@@ -22,6 +22,14 @@ import { Link, useLocation } from "wouter";
 import type { AthleteProfile, CoachProfile } from "@shared/schema";
 import { SquareGridLoader } from "@/components/SquareGridLoader";
 import { AppPageHeader } from "@/components/app/AppPrimitives";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const athleteSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -48,6 +56,30 @@ export default function Profile() {
   const { isAthlete, isCoach, hasBothProfiles, setActiveRole, clearRole } = useRole();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      const body: { confirm: true; password?: string } = { confirm: true };
+      if (user?.authProvider === "email" && deletePassword) {
+        body.password = deletePassword;
+      }
+      const res = await apiRequest("POST", "/api/auth/delete-account", body);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete account");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setDeleteOpen(false);
+      window.location.href = "/";
+    },
+    onError: (err: Error) => {
+      toast({ title: "Could not delete account", description: err.message, variant: "destructive" });
+    },
+  });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
@@ -417,6 +449,60 @@ export default function Profile() {
           )}
         </Tabs>
       )}
+
+      <Card className="mt-8 border-destructive/30">
+        <CardHeader>
+          <CardTitle className="text-destructive">Delete account</CardTitle>
+          <CardDescription>
+            Permanently remove your account, profiles, messages, and session history. This cannot be undone.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="destructive" onClick={() => setDeleteOpen(true)}>
+            Delete my account
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete account permanently?</DialogTitle>
+            <DialogDescription>
+              All your data will be removed from CoachConnect.
+              {user?.authProvider === "email" ? " Enter your password to confirm." : " Tap delete to confirm."}
+            </DialogDescription>
+          </DialogHeader>
+          {user?.authProvider === "email" && (
+            <Input
+              type="password"
+              placeholder="Your password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              className="mt-2"
+            />
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteAccountMutation.isPending || (user?.authProvider === "email" && !deletePassword)}
+              onClick={() => deleteAccountMutation.mutate()}
+            >
+              {deleteAccountMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting…
+                </>
+              ) : (
+                "Delete account"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

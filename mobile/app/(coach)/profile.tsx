@@ -15,6 +15,7 @@ import SectionHeader from '../../components/ui/SectionHeader';
 import PressableScale from '../../components/ui/PressableScale';
 import { formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
+import { useDeleteAccount } from '../../lib/useDeleteAccount';
 
 export default function CoachProfile() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function CoachProfile() {
   const { user, logout } = useAuth();
   const safeTop = useSafeTop();
   const { hasAthleteProfile, exitRole } = useRole();
+  const { confirmDelete } = useDeleteAccount((user as { authProvider?: string })?.authProvider);
 
   const { data: profile } = useQuery({
     queryKey: ['coach-profile'],
@@ -289,7 +291,8 @@ export default function CoachProfile() {
                 onPress={() => router.push('/auth/onboarding/athlete/step1')}
               />
             )}
-            <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger last />
+            <ActionRow icon="log-out-outline" label="Logout" onPress={handleLogout} danger />
+            <ActionRow icon="trash-outline" label="Delete account" onPress={confirmDelete} danger last />
           </GlossCard>
         </View>
       </ScrollView>

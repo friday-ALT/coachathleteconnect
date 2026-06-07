@@ -153,9 +153,9 @@ export default function AthleteDashboard() {
               : "Date TBD"}
             {upcomingSession.requestedTime ? ` at ${upcomingSession.requestedTime}` : ""}
           </p>
-          <Link href="/athlete/sessions" className="inline-block mt-3">
-            <Button size="sm">View session</Button>
-          </Link>
+          <GlossButton asChild size="sm" className="inline-block mt-3">
+            <Link href="/athlete/sessions">View session</Link>
+          </GlossButton>
         </AppPanel>
       )}
 
@@ -212,9 +212,11 @@ export default function AthleteDashboard() {
                 title="No connected coaches yet"
                 description="Browse coaches and send a connection request to get started."
                 action={
-                  <Link href="/athlete/find-coaches">
-                    <Button size="sm"><Search className="h-4 w-4 mr-2" />Browse coaches</Button>
-                  </Link>
+                  <GlossButton asChild size="sm">
+                    <Link href="/athlete/find-coaches">
+                      <Search className="h-4 w-4 mr-2" />Browse coaches
+                    </Link>
+                  </GlossButton>
                 }
               />
             )}

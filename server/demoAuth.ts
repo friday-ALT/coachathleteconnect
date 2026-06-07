@@ -28,7 +28,7 @@ export const DEMO_ATHLETE_PROFILE = {
   lat: 37.2296,
   lng: -80.4139,
   bio: 'Demo athlete account for testing the CoachConnect platform.',
-  skillLevel: 'Intermediate',
+  skillLevel: 'Intermediate' as const,
   goals: 'Improve technical skills and game awareness',
   preferredSessionType: '1-on-1',
   ageGroup: 'Teens',

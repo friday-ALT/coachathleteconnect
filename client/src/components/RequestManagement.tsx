@@ -86,7 +86,7 @@ function RequestCard({
       {request.requestedDate && (
         <p className="app-kanban__card-meta mt-1">
           {new Date(request.requestedDate).toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric" })}
-          {request.requestedTime ? ` · ${request.requestedTime}` : ""}
+          {request.requestedStartTime ? ` · ${request.requestedStartTime}` : ""}
         </p>
       )}
       {request.note && (

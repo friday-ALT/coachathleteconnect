@@ -41,8 +41,9 @@ export async function fulfillPaidCheckout(
     coachId: m.coachId,
     requestedDate: m.requestedDate,
     requestedStartTime: m.requestedStartTime,
-    requestedEndTime: m.requestedEndTime || null,
-    message: m.message || null,
+    groupSize: 1,
+    desiredPosition: 'Paid session',
+    note: m.message || null,
     status: 'PENDING',
   }).returning();
 

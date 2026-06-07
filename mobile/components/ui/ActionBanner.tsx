@@ -8,6 +8,7 @@ interface ActionBannerProps {
   description?: string;
   actionLabel?: string;
   onPress?: () => void;
+  glossy?: boolean;
 }
 
 export default function ActionBanner({
@@ -15,10 +16,11 @@ export default function ActionBanner({
   description,
   actionLabel,
   onPress,
+  glossy = false,
 }: ActionBannerProps) {
   return (
     <PressableScale onPress={onPress} disabled={!onPress} scaleTo={0.98}>
-      <GlossCard accent padding={0} style={styles.wrap}>
+      <GlossCard accent glossy={glossy} padding={0} style={styles.wrap}>
         <View style={styles.body}>
           <Text style={styles.title}>{title}</Text>
           {description && <Text style={styles.desc}>{description}</Text>}

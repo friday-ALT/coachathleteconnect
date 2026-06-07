@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import { setUnauthorizedHandler } from '../lib/authEvents';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
@@ -23,9 +24,20 @@ const queryClient = new QueryClient({
   },
 });
 
+function UnauthorizedRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    setUnauthorizedHandler(() => router.replace('/welcome'));
+    return () => setUnauthorizedHandler(null);
+  }, [router]);
+  return null;
+}
+
 function AppInner() {
   useNotifications(); // registers push token, sets up listeners
   return (
+    <>
+    <UnauthorizedRedirect />
     <Stack
       screenOptions={{
         headerShown: false,
@@ -48,6 +60,7 @@ function AppInner() {
       <Stack.Screen name="(athlete)" />
       <Stack.Screen name="(coach)" />
     </Stack>
+    </>
   );
 }
 

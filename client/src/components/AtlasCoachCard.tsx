@@ -4,10 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { CoachProfile } from "@shared/schema";
 
-type CoachWithMeta = CoachProfile & {
+type CoachWithMeta = Omit<CoachProfile, "ratingAvg" | "ratingCount"> & {
   userId: string;
-  ratingAvg?: number;
-  ratingCount?: number;
+  ratingAvg?: number | null;
+  ratingCount?: number | null;
 };
 
 interface AtlasCoachCardProps {
@@ -37,8 +37,8 @@ export function AtlasCoachCard({ coach, gradientVariant = 0, onRequest }: AtlasC
       data-testid={`card-coach-${coach.id}`}
     >
       <div className={`atlas-coach-card__hero bg-gradient-to-br ${heroClass}`}>
-        {coach.skillLevel && (
-          <span className="atlas-coach-card__badge">{coach.skillLevel}</span>
+        {coach.yearsCoaching != null && coach.yearsCoaching > 0 && (
+          <span className="atlas-coach-card__badge">{coach.yearsCoaching}+ yrs</span>
         )}
         <div className="atlas-coach-card__chip">
           <div className="atlas-coach-card__chip-shine" aria-hidden />

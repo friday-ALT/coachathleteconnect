@@ -111,7 +111,7 @@ export function useHelixScroll(enabled = true) {
             const display = Number.isInteger(end)
               ? Math.round(obj.val).toString()
               : obj.val.toFixed(1);
-            for (const node of el.childNodes) {
+            for (const node of Array.from(el.childNodes)) {
               if (node.nodeType === Node.TEXT_NODE) {
                 node.textContent = display;
                 break;

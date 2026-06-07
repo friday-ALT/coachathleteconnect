@@ -31,8 +31,7 @@ export function getSession() {
 
   let store: session.Store;
 
-  if (process.env.DATABASE_URL && !isProduction) {
-    // Use pg-backed session store in development only (avoids connection issues in prod)
+  if (process.env.DATABASE_URL) {
     const pgStore = connectPg(session);
     store = new pgStore({
       conString: process.env.DATABASE_URL,
@@ -44,9 +43,11 @@ export function getSession() {
       console.error('[SessionStore] pg error (non-fatal):', err.message);
     });
   } else {
-    // Use in-memory store in production — robust, no DB dependency for sessions
     const MStore = MemoryStore(session);
     store = new MStore({ checkPeriod: sessionTtl });
+    if (isProduction) {
+      console.warn('[SessionStore] DATABASE_URL unset — using in-memory sessions (not multi-instance safe)');
+    }
   }
 
   return session({

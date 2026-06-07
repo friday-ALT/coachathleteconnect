@@ -9,7 +9,7 @@ import { OryzoCoachCard } from "@/components/oryzo/OryzoCoachCard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Star, Pound, Loader2, Search, User, Calendar, UserPlus } from "lucide-react";
+import { MapPin, Star, Loader2, Search, User, Calendar, UserPlus } from "lucide-react";
 import type { CoachProfile, AthleteProfile } from "@shared/schema";
 import { useAuth } from "@/hooks/useAuth";
 import { useRole } from "@/hooks/useRole";

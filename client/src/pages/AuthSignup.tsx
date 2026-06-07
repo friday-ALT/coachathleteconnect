@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, ArrowLeft, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { OryzoAuthFrame } from "@/components/oryzo/OryzoAuthFrame";
 import { apiRequest } from "@/lib/queryClient";
 import { getSignupSuccessPath } from "@/lib/postAuthNavigation";
 import type { ActiveRole } from "@/hooks/useRole";
@@ -96,26 +97,16 @@ export default function AuthSignup() {
     },
   });
 
-  // Email sent confirmation screen
   if (emailSent) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-teal-500/10 bg-white/80 backdrop-blur-md">
-          <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">Verify Email</h1>
-          <div className="w-10" />
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-            <Mail className="h-10 w-10 text-primary" />
+      <OryzoAuthFrame title="Verify email" lead="Check your inbox to finish creating your account.">
+        <div className="flex flex-col items-center text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--helix-green)]/10">
+            <Mail className="h-10 w-10 text-[var(--helix-green)]" />
           </div>
-          
-          <h2 className="mb-2 text-2xl font-bold text-center">Check your email</h2>
-          <p className="mb-8 text-center text-muted-foreground max-w-sm">
-            We sent a verification link to <strong className="text-foreground">{submittedEmail}</strong>
+
+          <p className="mb-8 text-[var(--helix-gray-400)] max-w-sm">
+            We sent a verification link to <strong className="text-[var(--helix-gray-100)]">{submittedEmail}</strong>
           </p>
 
           <Alert className="mb-6 max-w-sm">
@@ -125,12 +116,12 @@ export default function AuthSignup() {
             </AlertDescription>
           </Alert>
 
-          <p className="text-center text-sm text-muted-foreground max-w-sm">
+          <p className="text-sm text-[var(--helix-gray-500)] max-w-sm">
             Didn't receive it?{" "}
             <button
               onClick={() => resendMutation.mutate()}
               disabled={resendMutation.isPending}
-              className="text-primary font-medium underline hover:no-underline disabled:opacity-50"
+              className="text-[var(--helix-green)] font-medium underline hover:no-underline disabled:opacity-50"
             >
               {resendMutation.isPending ? "Sending..." : "Resend email"}
             </button>
@@ -145,32 +136,25 @@ export default function AuthSignup() {
             </Alert>
           )}
 
-          <Button
-            onClick={() => setLocation("/auth/login")}
-            variant="ghost"
-            className="mt-8"
-          >
+          <Button onClick={() => setLocation(loginHref)} variant="ghost" className="mt-8">
             Back to Log In
           </Button>
         </div>
-      </div>
+      </OryzoAuthFrame>
     );
   }
 
-  // Signup form
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-teal-500/10 bg-white/80 backdrop-blur-md">
-        <Button variant="ghost" size="icon" onClick={() => setLocation("/")}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-lg font-semibold">Create Account</h1>
-        <div className="w-10" />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 px-6 py-8">
+    <OryzoAuthFrame
+      title="Create account"
+      lead={
+        roleParam === "coach"
+          ? "Sign up as a coach. You can complete your profile after verifying your email."
+          : roleParam === "athlete"
+            ? "Sign up as an athlete. Find coaches and book sessions once you're in."
+            : "Create your CoachConnect account. Pick athlete or coach after you sign in."
+      }
+    >
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => signupMutation.mutate(data))} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -270,7 +254,7 @@ export default function AuthSignup() {
 
             <Button
               type="submit"
-              className="w-full h-12 text-base mt-6"
+              className="w-full h-12 text-base mt-6 rounded-full bg-[var(--helix-green)] hover:bg-[var(--helix-green-dim)] text-[var(--helix-black)]"
               disabled={signupMutation.isPending}
             >
               {signupMutation.isPending ? (
@@ -288,12 +272,11 @@ export default function AuthSignup() {
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href={loginHref} className="text-primary font-medium hover:underline">
+            <Link href={loginHref} className="text-[var(--helix-green)] font-medium hover:underline">
               Log in
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </OryzoAuthFrame>
   );
 }

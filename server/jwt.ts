@@ -1,10 +1,15 @@
 import jwt from 'jsonwebtoken';
 import { getTokenVersion } from './tokenVersion';
 
-const JWT_SECRET = process.env.SESSION_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('SESSION_SECRET environment variable is required');
+function getJwtSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error('SESSION_SECRET environment variable is required');
+  }
+  return secret;
 }
+
+const JWT_SECRET = getJwtSecret();
 const JWT_EXPIRES = '30d';
 
 export interface JwtPayload {

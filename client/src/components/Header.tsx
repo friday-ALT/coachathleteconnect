@@ -180,9 +180,9 @@ export function Header() {
                       Athletes
                     </Button>
                   </Link>
-                  <Link href="/reviews">
+                  <Link href="/coach/reviews">
                     <Button
-                      variant={location === "/reviews" ? "secondary" : "ghost"}
+                      variant={location === "/coach/reviews" || location === "/reviews" ? "secondary" : "ghost"}
                       size="sm"
                     >
                       <Star className="h-4 w-4 mr-1.5" />

@@ -4,10 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import type { CoachProfile } from "@shared/schema";
 
-type CoachWithMeta = CoachProfile & {
+type CoachWithMeta = Omit<CoachProfile, "ratingAvg" | "ratingCount"> & {
   userId: string;
-  ratingAvg?: number;
-  ratingCount?: number;
+  ratingAvg?: number | null;
+  ratingCount?: number | null;
 };
 
 interface OryzoCoachCardProps {
@@ -26,9 +26,9 @@ export function OryzoCoachCard({ coach, onRequest }: OryzoCoachCardProps) {
   return (
     <article className="helix-coach-card" data-testid={`card-coach-${coach.id}`}>
       <div className="helix-coach-card__hero relative">
-        {coach.skillLevel && (
+        {coach.yearsCoaching != null && coach.yearsCoaching > 0 && (
           <span className="helix-mono absolute top-4 right-4 text-[var(--helix-gray-500)]">
-            {coach.skillLevel}
+            {coach.yearsCoaching}+ yrs
           </span>
         )}
         <div className="helix-coach-card__chip">

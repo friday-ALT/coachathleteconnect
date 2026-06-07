@@ -13,6 +13,7 @@ import { shouldUseAppShell } from "@/lib/appShell";
 import { AppPageTransition } from "@/components/app/AppPageTransition";
 import { AutoEnterRole } from "@/components/app/AutoEnterRole";
 import NotFound from "@/pages/not-found";
+import { LegacyRedirect } from "@/components/LegacyRedirect";
 import Landing from "@/pages/Landing";
 import Browse from "@/pages/Browse";
 import Onboarding from "@/pages/Onboarding";
@@ -63,12 +64,12 @@ function Router() {
       <Route path="/auth/role-selection" component={RoleSelection} />
       <Route path="/auth/onboarding/:role/:step" component={OnboardingSteps} />
 
-      {/* Legacy auth routes */}
-      <Route path="/signup" component={Signup} />
-      <Route path="/login" component={Login} />
-      <Route path="/forgot-password" component={ForgotPassword} />
+      {/* Legacy auth routes → canonical /auth/* */}
+      <Route path="/signup">{() => <LegacyRedirect to="/auth/signup" />}</Route>
+      <Route path="/login">{() => <LegacyRedirect to="/auth/login" />}</Route>
+      <Route path="/forgot-password">{() => <LegacyRedirect to="/auth/forgot-password" />}</Route>
       <Route path="/reset-password" component={ResetPassword} />
-      <Route path="/onboarding" component={Onboarding} />
+      <Route path="/onboarding">{() => <LegacyRedirect to="/auth/role-selection" />}</Route>
 
       {/* Legal pages (no auth required, with header) */}
       <Route path="/terms" component={TermsOfService} />
@@ -150,11 +151,11 @@ function Router() {
         {() => <Messages />}
       </Route>
 
-      {/* Legacy aliases */}
+      {/* Legacy aliases → role-aware dashboards */}
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/reviews" component={Reviews} />
-      <Route path="/requests" component={Requests} />
+      <Route path="/profile">{() => <LegacyRedirect to="/athlete/profile" />}</Route>
+      <Route path="/reviews">{() => <LegacyRedirect to="/athlete/reviews" />}</Route>
+      <Route path="/requests">{() => <LegacyRedirect to="/athlete/sessions" />}</Route>
 
       <Route component={NotFound} />
     </Switch>

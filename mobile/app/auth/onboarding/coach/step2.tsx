@@ -50,7 +50,6 @@ export default function CoachStep2() {
       await sessionApi.enterRole('coach');
     },
     onSuccess: async () => {
-      await SecureStore.setItemAsync('hasCompletedOnboarding', 'true');
       await SecureStore.deleteItemAsync('coachStep1');
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['user'] });

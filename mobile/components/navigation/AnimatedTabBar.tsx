@@ -7,7 +7,6 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -16,7 +15,6 @@ import {
   Colors,
   SpringConfig,
   BorderRadius,
-  GlossGradient,
 } from '../../constants/theme';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -85,13 +83,6 @@ export default function AnimatedTabBar({
   return (
     <View style={[styles.outer, { paddingBottom: bottomPad }]}>
       <View style={styles.pill}>
-        <LinearGradient
-          colors={[...GlossGradient.card]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-
         <Animated.View
           style={[
             styles.activePill,
@@ -153,6 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: FLOATING_TAB_BAR_HEIGHT,
     borderRadius: BorderRadius.xxl,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.borderStrong,
     overflow: 'hidden',

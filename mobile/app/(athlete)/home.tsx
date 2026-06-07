@@ -131,13 +131,14 @@ export default function AthleteHome() {
         />
 
         <View style={styles.statsRow}>
-          <StatTile value={acceptedConnections.length} label="Coaches" />
-          <StatTile value={upcomingRequests.length} label="Upcoming" color={Colors.success} />
-          <StatTile value={pendingRequests.length} label="Pending" />
+          <StatTile glossy value={acceptedConnections.length} label="Coaches" />
+          <StatTile glossy value={upcomingRequests.length} label="Upcoming" color={Colors.success} />
+          <StatTile glossy value={pendingRequests.length} label="Pending" />
         </View>
 
         {pendingReviews && pendingReviews.length > 0 && (
           <ActionBanner
+            glossy
             title={`${pendingReviews.length} coach${pendingReviews.length > 1 ? 'es' : ''} to review`}
             description="Leave feedback to help other athletes find great coaches."
             actionLabel="Rate now"
@@ -147,6 +148,7 @@ export default function AthleteHome() {
 
         {(pendingConnections.length > 0 || pendingRequests.length > 0) && (
           <ActionBanner
+            glossy
             title="Needs attention"
             description={[
               pendingConnections.length > 0 ? `${pendingConnections.length} connection request${pendingConnections.length > 1 ? 's' : ''} pending` : null,
@@ -176,7 +178,7 @@ export default function AthleteHome() {
 
         <SectionHeader label="Upcoming Sessions" count={upcomingRequests.length} />
         {upcomingRequests.length === 0 ? (
-          <GlossCard style={styles.emptyCard} padding={Spacing.xl}>
+          <GlossCard glossy style={styles.emptyCard} padding={Spacing.xl}>
             <Ionicons name="calendar-outline" size={32} color={Colors.muted} />
             <Text style={styles.emptyText}>No upcoming sessions</Text>
             <TouchableOpacity onPress={() => router.push('/(athlete)/browse')} style={styles.emptyAction}>
@@ -184,7 +186,7 @@ export default function AthleteHome() {
             </TouchableOpacity>
           </GlossCard>
         ) : (
-          <GlossCard padding={0}>
+          <GlossCard glossy padding={0}>
             {upcomingRequests.slice(0, 3).map((r: any, i: number) => (
               <View key={r.id} style={[styles.dataRow, i < 2 && styles.dataRowBorder]}>
                 <View style={styles.dataRowMain}>
@@ -201,7 +203,7 @@ export default function AthleteHome() {
 
         <SectionHeader label="My Coaches" count={acceptedConnections.length} />
         {acceptedConnections.length === 0 ? (
-          <GlossCard style={styles.emptyCard} padding={Spacing.xl}>
+          <GlossCard glossy style={styles.emptyCard} padding={Spacing.xl}>
             <Ionicons name="people-outline" size={32} color={Colors.muted} />
             <Text style={styles.emptyText}>No coaches connected yet</Text>
             <TouchableOpacity onPress={() => router.push('/(athlete)/browse')} style={styles.emptyAction}>
@@ -209,7 +211,7 @@ export default function AthleteHome() {
             </TouchableOpacity>
           </GlossCard>
         ) : (
-          <GlossCard padding={0}>
+          <GlossCard glossy padding={0}>
             {acceptedConnections.map((c: any, i: number) => (
               <TouchableOpacity
                 key={c.id}

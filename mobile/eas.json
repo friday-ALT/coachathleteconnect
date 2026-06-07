@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "WEB_URL": "http://100.65.129.201:3000"
+        "WEB_URL": "http://YOUR_LAN_IP:5000"
       }
     },
     "preview": {
@@ -17,7 +17,7 @@
         "simulator": true
       },
       "env": {
-        "WEB_URL": "http://100.65.129.201:3000"
+        "WEB_URL": "http://YOUR_LAN_IP:5000"
       }
     },
     "production": {

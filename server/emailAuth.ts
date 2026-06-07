@@ -479,14 +479,14 @@ router.post('/apple', async (req: Request, res: Response) => {
       dbUser = { id: newId, email, firstName, lastName, tokenVersion: 0 };
     }
 
-    const appleUser = {
+    const signedUser = {
       id: dbUser.id,
       email: dbUser.email ?? email ?? null,
       firstName: dbUser.firstName ?? firstName,
       lastName: dbUser.lastName ?? lastName,
       tokenVersion: (dbUser as { tokenVersion?: number }).tokenVersion ?? 0,
     };
-    const token = signUserToken(appleUser);
+    const token = signUserToken(signedUser);
 
     res.json({
       message: 'Apple sign-in successful',

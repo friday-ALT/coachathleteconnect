@@ -1,9 +1,11 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes/index";
 import { handleStripeWebhook } from "./routes/payments";
+import { applySecurityMiddleware } from "./middleware/securityHeaders";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+applySecurityMiddleware(app);
 // Stripe webhook must receive the raw body (before express.json)
 app.post(
   "/api/payments/webhook",

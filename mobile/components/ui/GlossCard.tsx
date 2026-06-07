@@ -7,25 +7,36 @@ interface GlossCardProps {
   style?: ViewStyle;
   accent?: boolean;
   padding?: number;
+  /** Diagonal gloss shine — only used on athlete home & profile */
+  glossy?: boolean;
 }
 
-/** Revolut-style glossy elevated card */
-export default function GlossCard({ children, style, accent = false, padding = 16 }: GlossCardProps) {
+export default function GlossCard({
+  children,
+  style,
+  accent = false,
+  padding = 16,
+  glossy = false,
+}: GlossCardProps) {
   return (
     <View style={[styles.wrap, accent && styles.wrapAccent, style]}>
-      <LinearGradient
-        colors={[...GlossGradient.card]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <LinearGradient
-        colors={[...GlossGradient.cardShine]}
-        start={{ x: 0, y: 0.5 }}
-        end={{ x: 0.5, y: 0.5 }}
-        style={styles.shine}
-        pointerEvents="none"
-      />
+      {glossy && (
+        <>
+          <LinearGradient
+            colors={[...GlossGradient.card]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient
+            colors={[...GlossGradient.cardShine]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 0.5, y: 0.5 }}
+            style={styles.shine}
+            pointerEvents="none"
+          />
+        </>
+      )}
       <View style={[styles.inner, { padding }]}>{children}</View>
     </View>
   );

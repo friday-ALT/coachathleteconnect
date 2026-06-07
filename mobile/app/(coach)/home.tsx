@@ -19,6 +19,7 @@ import GlossCard from '../../components/ui/GlossCard';
 import PressableScale from '../../components/ui/PressableScale';
 import { formatDate, formatTime, formatPrice } from '../../utils/format';
 import { useSafeTop } from '../../hooks/useSafeTop';
+import { useCoachStripeStatus, usePaymentsConfig, useStripeConnect } from '../../hooks/useStripeConnect';
 
 export default function CoachHome() {
   const router = useRouter();
@@ -47,6 +48,10 @@ export default function CoachHome() {
   const upcomingRequests   = requests?.filter((r: any) => r.status === 'ACCEPTED') || [];
 
   const needsAttention = pendingConnections.length + pendingRequests.length;
+
+  const { data: payConfig } = usePaymentsConfig();
+  const { data: stripeStatus } = useCoachStripeStatus(payConfig?.configured === true);
+  const stripeConnect = useStripeConnect();
 
   const handleRefresh = () => Promise.all([refetchConnections(), refetchRequests()]);
 
@@ -93,6 +98,15 @@ export default function CoachHome() {
           <StatTile value={pendingRequests.length} label="Pending" />
           <StatTile value={profile?.rating?.toFixed(1) ?? '—'} label="Rating" />
         </View>
+
+        {payConfig?.configured && stripeStatus && !stripeStatus.onboardingComplete && (
+          <ActionBanner
+            title="Connect Stripe to get paid"
+            description="Set up payouts so athletes can book paid sessions."
+            actionLabel={stripeConnect.isPending ? 'Opening…' : 'Connect Stripe'}
+            onPress={() => stripeConnect.mutate()}
+          />
+        )}
 
         {needsAttention > 0 && (
           <ActionBanner

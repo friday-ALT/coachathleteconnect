@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../lib/api';
-import * as SecureStore from 'expo-secure-store';
 import { clearAuthToken } from '../lib/authStorage';
 import { useRouter } from 'expo-router';
 import { SCREENSHOT_MODE } from '../constants/config';
@@ -22,7 +21,6 @@ export function useAuth() {
     mutationFn: authApi.logout,
     onSuccess: async () => {
       await clearAuthToken();
-      await SecureStore.deleteItemAsync('hasCompletedOnboarding');
       queryClient.clear();
       router.replace('/welcome');
     },

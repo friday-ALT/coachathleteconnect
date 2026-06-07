@@ -10,6 +10,8 @@ import {
   ALLOWED_COACH_UPDATE_FIELDS,
   validateNoProtectedFields,
 } from '../security';
+import { isValidImageFile } from '../lib/imageValidation';
+import fs from 'fs';
 
 export const profilesRouter = Router();
 
@@ -142,6 +144,10 @@ profilesRouter.put('/coach', isAuthenticated, async (req: any, res) => {
 profilesRouter.post('/avatar', isAuthenticated, upload.single('avatar'), async (req: any, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    if (!isValidImageFile(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: 'Invalid image file' });
+    }
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
     await storage.updateCoachAvatar(req.user.claims.sub, avatarUrl);
     res.json({ avatarUrl });

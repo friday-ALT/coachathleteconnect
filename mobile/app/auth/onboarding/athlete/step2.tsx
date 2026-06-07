@@ -51,7 +51,6 @@ export default function AthleteStep2() {
       await sessionApi.enterRole('athlete');
     },
     onSuccess: async () => {
-      await SecureStore.setItemAsync('hasCompletedOnboarding', 'true');
       await SecureStore.deleteItemAsync('athleteStep1');
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['user'] });

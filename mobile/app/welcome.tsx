@@ -82,12 +82,22 @@ export default function Welcome() {
     if (!response) return;
     setGoogleSessionActive(false);
     if (response.type === 'success') {
-      handleGoogleResponse(response.authentication?.accessToken);
+      const auth = response.authentication;
+      if (auth?.idToken) {
+        googleMutation.mutate({
+          idToken: auth.idToken,
+          email: '',
+          firstName: '',
+          lastName: '',
+          googleId: '',
+        });
+      } else if (auth?.accessToken) {
+        handleGoogleAccessToken(auth.accessToken);
+      }
     }
   }, [response]);
 
-  const handleGoogleResponse = async (accessToken?: string | null) => {
-    if (!accessToken) return;
+  const handleGoogleAccessToken = async (accessToken: string) => {
     try {
       const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -250,7 +260,7 @@ export default function Welcome() {
 
             <PressableScale
               style={[styles.pill, styles.pillEmail, isLoading && styles.disabled]}
-              onPress={() => router.push('/auth/login')}
+              onPress={() => router.push('/auth/get-started')}
               disabled={isLoading}
               scaleTo={0.96}
             >
@@ -259,7 +269,7 @@ export default function Welcome() {
             </PressableScale>
 
             <TouchableOpacity
-              onPress={() => router.push('/auth/signup')}
+              onPress={() => router.push('/auth/get-started')}
               disabled={isLoading}
               style={styles.signupRow}
             >

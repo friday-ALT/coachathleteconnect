@@ -21,6 +21,7 @@ import {
   Loader2, Users, DollarSign, Star, Calendar,
   Check, X, User, MapPin,
 } from "lucide-react";
+import { CoachStripeConnect } from "@/components/CoachStripeConnect";
 
 export default function CoachDashboard() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -161,6 +162,10 @@ export default function CoachDashboard() {
           actionLabel="Review now"
         />
       )}
+
+      <div className="mb-5">
+        <CoachStripeConnect />
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <MetricCard label="Total athletes" value={acceptedConnections.length} icon={Users} href="/coach/athletes" />

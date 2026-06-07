@@ -104,7 +104,7 @@ export default function AthleteProfile() {
         </View>
 
         {completionPct < 100 && (
-          <GlossCard style={styles.completionCard}>
+          <GlossCard glossy style={styles.completionCard}>
             <View style={styles.completionHeader}>
               <Text style={styles.completionTitle}>Profile strength</Text>
               <Text style={[styles.completionPct, {
@@ -128,7 +128,7 @@ export default function AthleteProfile() {
         {pendingRequests.length > 0 && (
           <>
             <SectionHeader label="Pending requests" count={pendingRequests.length} />
-            <GlossCard padding={0}>
+            <GlossCard glossy padding={0}>
               {pendingRequests.map((r: any, i: number) => (
                 <View
                   key={r.id}
@@ -170,7 +170,7 @@ export default function AthleteProfile() {
         {profile && (
           <>
             <SectionHeader label="Athlete information" />
-            <GlossCard padding={0}>
+            <GlossCard glossy padding={0}>
               <DetailRow icon="person-outline" label="Age" value={`${profile.age} years old`} />
               <DetailRow icon="trending-up-outline" label="Skill" value={profile.skillLevel} />
               <DetailRow icon="location-outline" label="Location" value={`${profile.locationCity}, ${profile.locationState}`} />
@@ -180,7 +180,7 @@ export default function AthleteProfile() {
         )}
 
         <SectionHeader label="Account" />
-        <GlossCard padding={0}>
+        <GlossCard glossy padding={0}>
           <ActionRow icon="create-outline" label="Edit profile" onPress={() => router.push('/edit-profile/athlete')} />
           <ActionRow icon="chatbubbles-outline" label="Messages" onPress={() => router.push('/messages')} />
           {hasCoachProfile && (

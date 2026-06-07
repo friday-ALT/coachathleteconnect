@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getAuthToken, clearAuthToken } from './authStorage';
+import { notifyUnauthorized } from './authEvents';
 import { API_URL } from '../constants/config';
 
 const api = axios.create({
@@ -28,6 +29,7 @@ api.interceptors.response.use(
       error.config?.headers?.Authorization
     ) {
       await clearAuthToken();
+      notifyUnauthorized();
     }
     return Promise.reject(error);
   },

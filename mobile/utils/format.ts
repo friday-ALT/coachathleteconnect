@@ -34,7 +34,7 @@ export function getStatusColor(status: string): string {
     case 'ACCEPTED':
     case 'SCHEDULED':
     case 'COMPLETED':
-      return '#22c55e';
+      return '#188038';
     case 'PENDING':
       return '#f59e0b';
     case 'DECLINED':

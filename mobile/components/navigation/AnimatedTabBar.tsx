@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Pressable,
   Animated,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,14 +13,9 @@ import type { ComponentProps } from 'react';
 import {
   Colors,
   SpringConfig,
-  BorderRadius,
 } from '../../constants/theme';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-const HORIZONTAL_MARGIN = 20;
-const PILL_WIDTH = SCREEN_W - HORIZONTAL_MARGIN * 2;
-
-export const FLOATING_TAB_BAR_HEIGHT = 72;
+export const FLOATING_TAB_BAR_HEIGHT = 56;
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -44,7 +38,7 @@ function TabIcon({ routeName, focused }: { routeName: string; focused: boolean }
 
   useEffect(() => {
     Animated.spring(scale, {
-      toValue: focused ? 1.12 : 1,
+      toValue: focused ? 1.08 : 1,
       ...SpringConfig.tab,
     }).start();
   }, [focused, scale]);
@@ -53,8 +47,8 @@ function TabIcon({ routeName, focused }: { routeName: string; focused: boolean }
     <Animated.View style={[styles.iconWrap, { transform: [{ scale }] }]}>
       <Ionicons
         name={focused ? icons.active : icons.inactive}
-        size={22}
-        color={focused ? Colors.ink : Colors.body}
+        size={24}
+        color={focused ? Colors.primary : Colors.muted}
       />
     </Animated.View>
   );
@@ -67,32 +61,11 @@ export default function AnimatedTabBar({
   badges = {},
 }: AnimatedTabBarProps) {
   const insets = useSafeAreaInsets();
-  const tabCount = state.routes.length;
-  const tabWidth = PILL_WIDTH / tabCount;
-  const indicatorX = useRef(new Animated.Value(state.index * tabWidth)).current;
-
-  useEffect(() => {
-    Animated.spring(indicatorX, {
-      toValue: state.index * tabWidth,
-      ...SpringConfig.tab,
-    }).start();
-  }, [state.index, tabWidth, indicatorX]);
-
-  const bottomPad = Math.max(insets.bottom, 10);
+  const bottomPad = Math.max(insets.bottom, 4);
 
   return (
     <View style={[styles.outer, { paddingBottom: bottomPad }]}>
-      <View style={styles.pill}>
-        <Animated.View
-          style={[
-            styles.activePill,
-            {
-              width: tabWidth - 8,
-              transform: [{ translateX: Animated.add(indicatorX, 4) }],
-            },
-          ]}
-        />
-
+      <View style={styles.bar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label = options.title ?? route.name;
@@ -123,6 +96,7 @@ export default function AnimatedTabBar({
               <Text style={[styles.label, focused && styles.labelActive]} numberOfLines={1}>
                 {label}
               </Text>
+              {focused && <View style={styles.activeIndicator} />}
             </Pressable>
           );
         })}
@@ -137,38 +111,27 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingHorizontal: HORIZONTAL_MARGIN,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  pill: {
+  bar: {
     flexDirection: 'row',
     height: FLOATING_TAB_BAR_HEIGHT,
-    borderRadius: BorderRadius.xxl,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.borderStrong,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 20,
-    elevation: 12,
-  },
-  activePill: {
-    position: 'absolute',
-    top: 6,
-    bottom: 6,
-    borderRadius: BorderRadius.xl,
-    backgroundColor: 'rgba(34, 197, 94, 0.18)',
-    borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.35)',
+    alignItems: 'stretch',
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    zIndex: 1,
+    gap: 2,
+    paddingTop: 6,
+    position: 'relative',
   },
   tabInner: {
     position: 'relative',
@@ -181,6 +144,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  activeIndicator: {
+    position: 'absolute',
+    top: 0,
+    width: 32,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: Colors.primary,
+  },
   badge: {
     position: 'absolute',
     top: -5,
@@ -188,7 +159,7 @@ const styles = StyleSheet.create({
     minWidth: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: Colors.success,
+    backgroundColor: Colors.statusRed,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 3,
@@ -197,17 +168,17 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: Colors.white,
   },
   label: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500',
-    color: Colors.body,
+    color: Colors.muted,
     letterSpacing: 0.1,
   },
   labelActive: {
-    color: Colors.ink,
-    fontWeight: '700',
+    color: Colors.primary,
+    fontWeight: '600',
   },
 });

@@ -27,7 +27,7 @@ export function AppPageHeader({
   return (
     <div className="app-page-header">
       <div className="app-page-header__copy">
-        {label && <p className="helix-mono text-[var(--helix-green)] mb-2">{label}</p>}
+        {label && <p className="helix-mono text-[var(--health-blue,var(--helix-green))] mb-2">{label}</p>}
         <h1 className="app-page-header__title">{title}</h1>
         {subtitle && <p className="app-page-header__subtitle">{subtitle}</p>}
       </div>

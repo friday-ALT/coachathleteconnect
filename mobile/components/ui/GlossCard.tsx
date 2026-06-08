@@ -1,13 +1,12 @@
 import { View, StyleSheet, type ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, BorderRadius, GlossGradient } from '../../constants/theme';
+import { Colors, BorderRadius, Shadow } from '../../constants/theme';
 
 interface GlossCardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   accent?: boolean;
   padding?: number;
-  /** Diagonal gloss shine — only used on athlete home & profile */
+  /** @deprecated Health UI uses flat cards; ignored */
   glossy?: boolean;
 }
 
@@ -16,27 +15,9 @@ export default function GlossCard({
   style,
   accent = false,
   padding = 16,
-  glossy = false,
 }: GlossCardProps) {
   return (
-    <View style={[styles.wrap, accent && styles.wrapAccent, style]}>
-      {glossy && (
-        <>
-          <LinearGradient
-            colors={[...GlossGradient.card]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-          <LinearGradient
-            colors={[...GlossGradient.cardShine]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 0.5, y: 0.5 }}
-            style={styles.shine}
-            pointerEvents="none"
-          />
-        </>
-      )}
+    <View style={[styles.wrap, accent && styles.wrapAccent, Shadow.sm, style]}>
       <View style={[styles.inner, { padding }]}>{children}</View>
     </View>
   );
@@ -44,22 +25,15 @@ export default function GlossCard({
 
 const styles = StyleSheet.create({
   wrap: {
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.borderStrong,
+    borderColor: Colors.border,
     overflow: 'hidden',
     backgroundColor: Colors.surface,
   },
   wrapAccent: {
-    borderColor: 'rgba(34, 197, 94, 0.35)',
-  },
-  shine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '55%',
-    height: '100%',
-    opacity: 0.7,
+    borderColor: 'rgba(26, 115, 232, 0.3)',
+    backgroundColor: Colors.primaryLight,
   },
   inner: {
     position: 'relative',

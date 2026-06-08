@@ -41,7 +41,7 @@ function AppInner() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0a0a0a' },
+        contentStyle: { backgroundColor: '#F8F9FA' },
         animation: 'slide_from_right',
       }}
     >

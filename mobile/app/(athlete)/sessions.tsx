@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.accentLight,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: 'rgba(26, 115, 232, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,

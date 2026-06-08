@@ -42,11 +42,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   title: {
-    fontSize: FontSizes['3xl'],
-    fontWeight: '800',
-    letterSpacing: -1,
+    fontSize: FontSizes['2xl'],
+    fontWeight: '500',
+    letterSpacing: -0.5,
     color: Colors.ink,
-    lineHeight: 40,
+    lineHeight: 34,
   },
   subtitle: {
     marginTop: 8,

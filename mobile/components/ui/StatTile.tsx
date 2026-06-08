@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: FontSizes['2xl'],
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: -0.8,
     marginBottom: 4,
     zIndex: 1,

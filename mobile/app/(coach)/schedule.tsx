@@ -254,7 +254,7 @@ export default function CoachSchedule() {
                     <Switch
                       value={schedule.enabled}
                       onValueChange={() => toggleDay(idx)}
-                      trackColor={{ false: Colors.ringTrack, true: 'rgba(34, 197, 94, 0.45)' }}
+                      trackColor={{ false: Colors.ringTrack, true: 'rgba(26, 115, 232, 0.45)' }}
                       thumbColor={schedule.enabled ? Colors.accentSoft : Colors.muted}
                       ios_backgroundColor={Colors.ringTrack}
                     />
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: Spacing.md, paddingVertical: 8,
     borderRadius: BorderRadius.full, borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.35)', backgroundColor: Colors.accentLight,
+    borderColor: 'rgba(26, 115, 232, 0.35)', backgroundColor: Colors.accentLight,
   },
   availBtnText: { fontSize: FontSizes.xs, fontWeight: '700', color: Colors.accent },
   weekSection: {
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   },
   dayCellActive: {
     backgroundColor: Colors.accentLight,
-    borderColor: 'rgba(34, 197, 94, 0.4)',
+    borderColor: 'rgba(26, 115, 232, 0.4)',
   },
   dayName: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.muted },
   dayNameActive: { color: Colors.accent, fontWeight: '700' },

@@ -1,0 +1,493 @@
+/* Google Health / Material 3 Expressive — light theme overrides */
+
+.helix-site {
+  --health-blue: #1a73e8;
+  --health-blue-dim: #1557b0;
+  --health-blue-light: #e8f0fe;
+  --health-teal: #007b83;
+  --health-purple: #7b1fa2;
+  --health-bg: #f8f9fa;
+  --health-surface: #ffffff;
+  --health-surface-2: #f1f3f4;
+  --health-text: #202124;
+  --health-text-secondary: #5f6368;
+  --health-text-tertiary: #80868b;
+  --health-border: #dadce0;
+
+  --helix-black: var(--health-bg);
+  --helix-ink: var(--health-surface);
+  --helix-surface: var(--health-surface);
+  --helix-surface-2: var(--health-surface-2);
+  --helix-gray-100: var(--health-text);
+  --helix-gray-200: #3c4043;
+  --helix-gray-400: var(--health-text-secondary);
+  --helix-gray-500: var(--health-text-tertiary);
+  --helix-gray-600: #9aa0a6;
+  --helix-green: var(--health-blue);
+  --helix-green-dim: var(--health-blue-dim);
+  --helix-green-glow: rgba(26, 115, 232, 0.22);
+  --helix-border: var(--health-border);
+  --helix-border-light: var(--health-border);
+
+  --background: 210 17% 98%;
+  --foreground: 220 9% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 9% 13%;
+  --primary: 217 88% 52%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 5% 46%;
+  --border: 220 9% 87%;
+  --ring: 217 88% 52%;
+  --radius: 1rem;
+
+  background: var(--health-bg);
+  color: var(--health-text);
+}
+
+/* Hide custom cursor on light health UI */
+.helix-cursor__dot,
+.helix-cursor__ring {
+  display: none !important;
+}
+
+/* ─── Navigation ─── */
+.helix-nav {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid var(--health-border) !important;
+}
+
+.helix-nav--scrolled {
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.12) !important;
+}
+
+.helix-nav__logo,
+.helix-nav__link {
+  color: var(--health-text) !important;
+}
+
+.helix-nav__link:hover {
+  color: var(--health-blue) !important;
+}
+
+.helix-btn--accent {
+  background: var(--health-blue) !important;
+  color: #fff !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.35) !important;
+}
+
+.helix-btn--ghost {
+  color: var(--health-blue) !important;
+  background: transparent !important;
+}
+
+.helix-btn--ghost:hover {
+  background: var(--health-blue-light) !important;
+}
+
+/* ─── Landing ─── */
+.helix-landing {
+  background: var(--health-bg) !important;
+}
+
+.helix-hero {
+  background: linear-gradient(180deg, var(--health-blue-light) 0%, var(--health-bg) 72%) !important;
+}
+
+.helix-hero__orb,
+.helix-hero__orbs {
+  opacity: 0.35 !important;
+}
+
+.helix-hero__tag {
+  color: var(--health-blue) !important;
+  background: var(--health-blue-light) !important;
+  border-radius: 9999px !important;
+}
+
+.helix-hero__title,
+.helix-hero__lead {
+  color: var(--health-text) !important;
+}
+
+.helix-hero__title em {
+  color: var(--health-blue) !important;
+}
+
+.helix-stats {
+  background: var(--health-surface) !important;
+  border-top: 1px solid var(--health-border) !important;
+  border-bottom: 1px solid var(--health-border) !important;
+}
+
+.helix-stat__value {
+  color: var(--health-text) !important;
+  -webkit-text-fill-color: var(--health-text) !important;
+}
+
+.helix-section--dark {
+  background: var(--health-bg) !important;
+  color: var(--health-text) !important;
+}
+
+.helix-section--light {
+  background: var(--health-surface) !important;
+}
+
+.helix-headline,
+.helix-body,
+.helix-step-card__title,
+.helix-step-card__text {
+  color: var(--health-text) !important;
+}
+
+.helix-step-card,
+.helix-feature-card,
+.helix-review-card {
+  background: var(--health-surface) !important;
+  border: 1px solid var(--health-border) !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1), 0 4px 12px rgba(60, 64, 67, 0.06) !important;
+}
+
+.helix-feature-card:hover,
+.helix-coach-card:hover {
+  border-color: rgba(26, 115, 232, 0.35) !important;
+  box-shadow: 0 4px 16px rgba(26, 115, 232, 0.12) !important;
+}
+
+.helix-footer {
+  background: var(--health-surface) !important;
+  border-top: 1px solid var(--health-border) !important;
+}
+
+.helix-footer__link:hover {
+  color: var(--health-blue) !important;
+}
+
+/* ─── App chrome ─── */
+.helix-app-header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid var(--health-border) !important;
+}
+
+.helix-app-header__logo {
+  color: var(--health-text) !important;
+}
+
+.helix-app-nav-link:hover {
+  color: var(--health-blue) !important;
+  background: var(--health-blue-light) !important;
+}
+
+.helix-app-page {
+  background: var(--health-bg) !important;
+}
+
+.helix-coach-card {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1) !important;
+}
+
+.helix-coach-card__hero {
+  background: linear-gradient(145deg, var(--health-blue-light), var(--health-surface-2)) !important;
+}
+
+.helix-coach-card__chip {
+  background: var(--health-surface) !important;
+  color: var(--health-text) !important;
+}
+
+/* ─── Auth ─── */
+.helix-auth {
+  background: var(--health-bg) !important;
+}
+
+.helix-auth__header {
+  background: var(--health-surface) !important;
+  border-bottom: 1px solid var(--health-border) !important;
+}
+
+.helix-auth__title {
+  color: var(--health-text) !important;
+}
+
+.helix-auth__card {
+  background: var(--health-surface) !important;
+  border: 1px solid var(--health-border) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1), 0 8px 24px rgba(60, 64, 67, 0.08) !important;
+}
+
+/* ─── App shell / sidebar ─── */
+.helix-app-shell-wrap,
+.helix-app-shell {
+  background: var(--health-bg) !important;
+}
+
+.app-sidebar,
+.app-sidebar [data-sidebar="sidebar"] {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+}
+
+.app-sidebar__brand-mark {
+  background: var(--health-blue) !important;
+  color: #fff !important;
+}
+
+.app-sidebar__brand-text {
+  color: var(--health-text) !important;
+}
+
+.app-shell-main {
+  background: var(--health-bg) !important;
+}
+
+/* Sheet-style page header */
+.app-page-header__title {
+  color: var(--health-text) !important;
+  font-size: 1.75rem !important;
+  font-weight: 500 !important;
+}
+
+.app-page-header__subtitle {
+  color: var(--health-text-secondary) !important;
+}
+
+.app-page-section__title {
+  color: var(--health-text) !important;
+}
+
+.app-page-section__link {
+  color: var(--health-blue) !important;
+}
+
+/* ─── Gloss → Health flat surfaces ─── */
+.gloss-app-canvas__glow {
+  display: none !important;
+}
+
+.gloss-card {
+  background: var(--health-surface) !important;
+  border: 1px solid var(--health-border) !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.1), 0 4px 12px rgba(60, 64, 67, 0.06) !important;
+}
+
+.gloss-card--accent {
+  border-color: rgba(26, 115, 232, 0.3) !important;
+  background: var(--health-blue-light) !important;
+}
+
+.gloss-card--interactive:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(26, 115, 232, 0.4) !important;
+  box-shadow: 0 4px 16px rgba(26, 115, 232, 0.12) !important;
+}
+
+.gloss-card__shine,
+.gloss-banner__shine {
+  display: none !important;
+}
+
+.gloss-icon {
+  background: var(--health-blue-light) !important;
+  color: var(--health-blue) !important;
+  box-shadow: none !important;
+  border-radius: 0.75rem !important;
+}
+
+.app-metric-card__value {
+  background: none !important;
+  -webkit-text-fill-color: var(--health-text) !important;
+  color: var(--health-text) !important;
+  font-weight: 500 !important;
+}
+
+.app-metric-card__label {
+  color: var(--health-text-secondary) !important;
+}
+
+.app-action-banner,
+.gloss-banner {
+  background: var(--health-blue-light) !important;
+  border: 1px solid rgba(26, 115, 232, 0.2) !important;
+  border-radius: 1.25rem !important;
+}
+
+.app-action-banner__accent {
+  background: var(--health-blue) !important;
+}
+
+.app-action-banner__title {
+  color: var(--health-text) !important;
+}
+
+.app-action-banner__desc {
+  color: var(--health-text-secondary) !important;
+}
+
+/* ─── Buttons ─── */
+.gloss-btn,
+.helix-site .gloss-btn,
+.helix-site button.bg-primary,
+.helix-app-shell .gloss-btn,
+.helix-app-shell button.bg-primary,
+.gloss-app-canvas button.bg-primary,
+.gloss-app-canvas a.bg-primary,
+.gloss-app-canvas .bg-primary.text-primary-foreground {
+  background: var(--health-blue) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.35) !important;
+  font-weight: 500 !important;
+}
+
+.gloss-btn::after,
+.gloss-app-canvas button.bg-primary::after {
+  display: none !important;
+}
+
+.gloss-btn:hover,
+.gloss-app-canvas button.bg-primary:hover {
+  background: var(--health-blue-dim) !important;
+  filter: none !important;
+  transform: none !important;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4) !important;
+}
+
+.helix-mono {
+  color: var(--health-blue) !important;
+  letter-spacing: 0.08em !important;
+}
+
+.helix-app-page .text-primary,
+.text-primary {
+  color: var(--health-blue) !important;
+}
+
+.helix-app-page [data-slot="card"],
+.helix-app-page .rounded-lg.border.bg-card {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.08) !important;
+}
+
+/* Empty states */
+.app-empty-state {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+  border-radius: 1.25rem !important;
+}
+
+.app-empty-state__title {
+  color: var(--health-text) !important;
+}
+
+.app-empty-state__desc {
+  color: var(--health-text-secondary) !important;
+}
+
+/* Onboarding */
+.helix-onboarding-step__title {
+  color: var(--health-text) !important;
+}
+
+/* Role cards */
+.helix-role-card {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+}
+
+.helix-role-card:hover {
+  border-color: var(--health-blue) !important;
+  background: var(--health-blue-light) !important;
+}
+
+/* ─── App topbar & sidebar detail ─── */
+.app-topbar {
+  background: var(--health-surface) !important;
+  border-bottom: 1px solid var(--health-border) !important;
+}
+
+.app-topbar__search {
+  background: var(--health-surface-2) !important;
+  border-color: var(--health-border) !important;
+  color: var(--health-text-secondary) !important;
+}
+
+.app-topbar__search:hover {
+  border-color: var(--health-blue) !important;
+  color: var(--health-text) !important;
+}
+
+.app-topbar__kbd {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+  color: var(--health-text-secondary) !important;
+}
+
+.app-sidebar__header,
+.app-sidebar__footer {
+  border-color: var(--health-border) !important;
+}
+
+[data-sidebar="menu-button"][data-active="true"] {
+  background: var(--health-blue-light) !important;
+  color: var(--health-blue) !important;
+}
+
+/* Inputs on light surfaces */
+.helix-site input,
+.helix-site textarea,
+.helix-site select {
+  background: var(--health-surface) !important;
+  border-color: var(--health-border) !important;
+  color: var(--health-text) !important;
+}
+
+.helix-site input::placeholder,
+.helix-site textarea::placeholder {
+  color: var(--health-text-tertiary) !important;
+}
+
+/* Primary buttons using helix-green token → white label */
+.helix-site button.bg-\[var\(--helix-green\)\],
+.helix-site a.bg-\[var\(--helix-green\)\],
+.helix-site .bg-\[var\(--helix-green\)\].text-\[var\(--helix-black\)\] {
+  color: #fff !important;
+}
+
+.helix-site button.rounded-full[class*="helix-green"],
+.helix-auth .gloss-btn {
+  color: #fff !important;
+}
+
+.helix-site a.text-\[var\(--helix-green\)\],
+.helix-site .text-\[var\(--helix-green\)\] {
+  color: var(--health-blue) !important;
+}
+
+.helix-site .hover\:text-\[var\(--helix-green\)\]:hover {
+  color: var(--health-blue) !important;
+}
+
+.helix-site .border-\[var\(--helix-border\)\] {
+  border-color: var(--health-border) !important;
+}
+
+.helix-site .text-\[var\(--helix-gray-100\)\] {
+  color: var(--health-text) !important;
+}
+
+.helix-site .text-\[var\(--helix-gray-500\)\] {
+  color: var(--health-text-secondary) !important;
+}
+
+.helix-site .hover\:border-\[var\(--helix-green\)\]:hover {
+  border-color: var(--health-blue) !important;
+}

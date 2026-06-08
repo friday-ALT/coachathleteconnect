@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0a0a0a"
+      "backgroundColor": "#F8F9FA"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -42,7 +42,7 @@
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0a0a0a"
+        "backgroundColor": "#F8F9FA"
       },
       "package": "com.fraserpage.coachathleteconnect",
       "versionCode": 1,
@@ -75,7 +75,7 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#22c55e",
+          "color": "#1A73E8",
           "sounds": []
         }
       ]
@@ -90,7 +90,7 @@
     ],
     "privacy": "public",
     "description": "Connect with expert coaches for personalized training sessions. Find coaches, book sessions, and track your progress.",
-    "primaryColor": "#22c55e",
+    "primaryColor": "#1A73E8",
     "owner": "ethanpage747"
   }
 }

@@ -2,6 +2,21 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 
+/**
+ * Public auth routes callable from native apps (no Origin/Referer headers).
+ * Still protected by rate limits; Bearer-authenticated requests skip CSRF separately.
+ */
+const CSRF_EXEMPT_AUTH_PATHS = new Set([
+  '/api/auth/signup',
+  '/api/auth/login',
+  '/api/auth/google',
+  '/api/auth/apple',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/auth/demo-login',
+  '/api/auth/resend-verification',
+]);
+
 /** Allowed browser origins for API + cookies (comma-separated in CORS_ORIGINS). */
 function getAllowedOrigins(): string[] | boolean {
   const raw = process.env.CORS_ORIGINS?.trim();
@@ -36,6 +51,7 @@ export function applySecurityMiddleware(app: Express) {
     if (!req.path.startsWith('/api/')) return next();
     if (req.path === '/api/payments/webhook') return next();
     if (req.headers.authorization?.startsWith('Bearer ')) return next();
+    if (CSRF_EXEMPT_AUTH_PATHS.has(req.path)) return next();
 
     const origin = req.headers.origin;
     const referer = req.headers.referer;

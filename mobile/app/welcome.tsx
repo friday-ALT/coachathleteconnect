@@ -8,11 +8,7 @@ import {
   Alert,
   Animated,
   Platform,
-  ImageBackground,
-  Dimensions,
 } from 'react-native';
-
-const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -31,12 +27,6 @@ import PressableScale from '../components/ui/PressableScale';
 import { Colors } from '../constants/theme';
 
 WebBrowser.maybeCompleteAuthSession();
-
-const HERO = require('../assets/welcome-hero.png');
-
-function WingLogo() {
-  return <View style={logoStyles.circle} />;
-}
 
 function GoogleMark() {
   return (
@@ -197,33 +187,31 @@ export default function Welcome() {
 
   return (
     <View style={styles.root}>
-      <StatusBar style="light" />
-      <ImageBackground
-        source={HERO}
-        style={styles.heroImage}
-        resizeMode="cover"
-        imageStyle={styles.heroImageCrop}
-      >
-        <LinearGradient
-          colors={['transparent', 'rgba(12,12,14,0.15)', 'rgba(12,12,14,0.9)', Colors.background]}
-          locations={[0, 0.45, 0.68, 0.82]}
-          style={StyleSheet.absoluteFill}
-        />
+      <StatusBar style="dark" />
+      <LinearGradient
+        colors={['#E8F0FE', '#F8F9FA', '#F8F9FA']}
+        locations={[0, 0.45, 1]}
+        style={StyleSheet.absoluteFill}
+      />
 
-        <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-          <View style={styles.brandBlock}>
-            <WingLogo />
-            <Text style={styles.title}>Coach Athlete Connect</Text>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+        <View style={styles.brandBlock}>
+          <View style={styles.logoMark}>
+            <Text style={styles.logoText}>CC</Text>
           </View>
+          <Text style={styles.title}>CoachConnect</Text>
+          <Text style={styles.subtitle}>Find coaches, book sessions, track your progress</Text>
+        </View>
 
-          <View style={styles.spacer} />
+        <View style={styles.spacer} />
 
-          <Animated.View
-            style={[
-              styles.ctaBlock,
-              { opacity: fadeIn, transform: [{ translateY: slideUp }] },
-            ]}
-          >
+        <Animated.View
+          style={[
+            styles.sheet,
+            { opacity: fadeIn, transform: [{ translateY: slideUp }] },
+          ]}
+        >
+          <View style={styles.ctaBlock}>
             <PressableScale
               style={[styles.pill, styles.pillGoogle, isLoading && styles.disabled]}
               onPress={onGooglePress}
@@ -231,7 +219,7 @@ export default function Welcome() {
               scaleTo={0.96}
             >
               {googleMutation.isPending || googleSessionActive ? (
-                <ActivityIndicator color={Colors.primaryOn} />
+                <ActivityIndicator color={Colors.ink} />
               ) : (
                 <>
                   <GoogleMark />
@@ -294,9 +282,9 @@ export default function Welcome() {
                 <Text style={styles.demoText}>Try demo account</Text>
               )}
             </TouchableOpacity>
-          </Animated.View>
-        </SafeAreaView>
-      </ImageBackground>
+          </View>
+        </Animated.View>
+      </SafeAreaView>
     </View>
   );
 }
@@ -308,38 +296,61 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  heroImage: {
-    flex: 1,
-    width: '100%',
-    overflow: 'hidden',
-  },
-  heroImageCrop: {
-    width: SCREEN_W,
-    height: SCREEN_H * 1.12,
-    marginTop: -56,
-  },
   safe: {
     flex: 1,
   },
   brandBlock: {
     alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 8 : 24,
+    paddingTop: Platform.OS === 'ios' ? 48 : 64,
     paddingHorizontal: 24,
+  },
+  logoMark: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.primaryOn,
   },
   title: {
     fontSize: 32,
-    color: '#FFFFFF',
+    color: Colors.ink,
     textAlign: 'center',
     letterSpacing: -0.8,
-    fontWeight: '800',
+    fontWeight: '500',
+  },
+  subtitle: {
+    marginTop: 8,
+    fontSize: 15,
+    color: Colors.body,
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 12,
   },
   spacer: {
     flex: 1,
   },
+  sheet: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: 8,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
   ctaBlock: {
-    paddingHorizontal: 28,
-    paddingBottom: 8,
-    paddingTop: 12,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    paddingTop: 20,
   },
   pill: {
     height: PILL_HEIGHT,
@@ -352,33 +363,35 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   pillGoogle: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   pillGoogleText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111111',
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.ink,
     letterSpacing: -0.2,
   },
   pillApple: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   pillAppleText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#f4f4f5',
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.ink,
     letterSpacing: -0.2,
   },
   pillEmail: {
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.primary,
     marginBottom: 4,
   },
   pillEmailText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#f4f4f5',
+    fontSize: 16,
+    fontWeight: '500',
+    color: Colors.primaryOn,
     letterSpacing: -0.2,
   },
   pillIcon: {

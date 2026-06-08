@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   tabActive: {
     backgroundColor: Colors.accentLight,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(26, 115, 232, 0.3)',
   },
   tabText: {
     fontSize: FontSizes.sm,

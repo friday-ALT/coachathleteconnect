@@ -112,7 +112,7 @@ function AppSidebar() {
                     </Link>
                   </SidebarMenuButton>
                   {item.badge != null && item.badge > 0 && (
-                    <SidebarMenuBadge className="bg-[var(--helix-green)] text-[var(--helix-black)]">
+                    <SidebarMenuBadge className="bg-[var(--health-blue,var(--helix-green))] text-white">
                       {item.badge > 9 ? "9+" : item.badge}
                     </SidebarMenuBadge>
                   )}
@@ -127,7 +127,7 @@ function AppSidebar() {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-[var(--helix-gray-400)] hover:text-[var(--helix-green)] hover:bg-[rgba(34,197,94,0.08)]"
+            className="w-full justify-start text-[var(--helix-gray-400)] hover:text-[var(--health-blue,var(--helix-green))] hover:bg-[var(--health-blue-light,#E8F0FE)]"
             onClick={() => {
               if (isAthlete) void switchToRole("coach", "/coach/dashboard");
               else void switchToRole("athlete", "/athlete/dashboard");
@@ -160,7 +160,7 @@ function AppTopBar() {
   return (
     <header className="app-topbar">
       <div className="app-topbar__left">
-        <SidebarTrigger className="text-[var(--helix-gray-400)] hover:text-[var(--helix-green)]" />
+        <SidebarTrigger className="text-[var(--helix-gray-400)] hover:text-[var(--health-blue,var(--helix-green))]" />
         <button
           type="button"
           className="app-topbar__search"

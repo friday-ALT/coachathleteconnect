@@ -5,18 +5,26 @@ import { Colors, GlossGradient } from '../../constants/theme';
 interface AppCanvasProps {
   children: React.ReactNode;
   style?: ViewStyle;
+  /** Colored header zone like Google Health sheet motif */
+  headerTint?: 'blue' | 'teal' | 'purple' | 'none';
 }
 
-export default function AppCanvas({ children, style }: AppCanvasProps) {
+const HEADER_COLORS = {
+  blue: ['#E8F0FE', '#F8F9FA', '#F8F9FA'] as const,
+  teal: ['#E0F2F1', '#F8F9FA', '#F8F9FA'] as const,
+  purple: ['#F3E8FD', '#F8F9FA', '#F8F9FA'] as const,
+  none: [...GlossGradient.ambient] as const,
+};
+
+export default function AppCanvas({ children, style, headerTint = 'blue' }: AppCanvasProps) {
   return (
     <View style={[styles.canvas, style]}>
       <LinearGradient
-        colors={[...GlossGradient.ambient]}
-        locations={[0, 0.4, 0.85]}
-        style={styles.ambient}
+        colors={[...HEADER_COLORS[headerTint]]}
+        locations={[0, 0.35, 0.7]}
+        style={styles.headerZone}
         pointerEvents="none"
       />
-      <View style={styles.glowGreen} pointerEvents="none" />
       <View style={styles.content}>{children}</View>
     </View>
   );
@@ -27,22 +35,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  ambient: {
+  headerZone: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 360,
-    zIndex: 0,
-  },
-  glowGreen: {
-    position: 'absolute',
-    top: -40,
-    right: -60,
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: 'rgba(34, 197, 94, 0.14)',
+    height: 280,
     zIndex: 0,
   },
   content: {

@@ -1,99 +1,86 @@
-/** Helix tokens — aligned with client/src/helix.css */
+/** Google Health / Material 3 tokens */
 
 export const Colors = {
-  // Primary green CTAs (--helix-green)
-  primary:        '#22c55e',
-  primaryDark:    '#16a34a',
-  primaryLight:   'rgba(34, 197, 94, 0.12)',
-  primaryGlow:    'rgba(34, 197, 94, 0.35)',
-  primaryOn:      '#0a0a0a',
+  primary:        '#1A73E8',
+  primaryDark:    '#1557B0',
+  primaryLight:   '#E8F0FE',
+  primaryGlow:    'rgba(26, 115, 232, 0.25)',
+  primaryOn:      '#FFFFFF',
 
-  // Accent — links, active states, highlights (same green family)
-  accent:         '#22c55e',
-  accentSoft:     '#3ef07a',
-  accentLight:    'rgba(34, 197, 94, 0.16)',
-  accentGlow:     'rgba(34, 197, 94, 0.4)',
+  accent:         '#1A73E8',
+  accentSoft:     '#4285F4',
+  accentLight:    'rgba(26, 115, 232, 0.12)',
+  accentGlow:     'rgba(26, 115, 232, 0.3)',
 
-  success:        '#22c55e',
-  successLight:   'rgba(34, 197, 94, 0.15)',
-  successGlow:    'rgba(34, 197, 94, 0.35)',
+  success:        '#188038',
+  successLight:   'rgba(24, 128, 56, 0.12)',
+  successGlow:    'rgba(24, 128, 56, 0.2)',
 
-  electric:       '#3ef07a',
-  volt:           '#22c55e',
+  electric:       '#4285F4',
+  volt:           '#1A73E8',
 
-  // Text — Helix hierarchy
-  ink:            '#f4f4f5',
-  body:           '#a1a1aa',
-  muted:          '#71717a',
-  dim:            '#52525b',
+  ink:            '#202124',
+  body:           '#5F6368',
+  muted:          '#80868B',
+  dim:            '#9AA0A6',
 
-  // Surfaces — neutral black/gray
-  border:         'rgba(255, 255, 255, 0.08)',
-  borderStrong:   'rgba(255, 255, 255, 0.14)',
-  background:     '#0a0a0a',
-  surface:        '#171717',
-  surfaceHover:   '#1f1f1f',
-  surfaceSection: '#111111',
-  surfaceDeep:    '#0a0a0a',
-  ringTrack:      '#2e2e2e',
+  border:         '#DADCE0',
+  borderStrong:   '#BDC1C6',
+  background:     '#F8F9FA',
+  surface:        '#FFFFFF',
+  surfaceHover:   '#F1F3F4',
+  surfaceSection: '#FFFFFF',
+  surfaceDeep:    '#F8F9FA',
+  ringTrack:      '#E8EAED',
 
-  // Status
-  statusGreen:    '#22c55e',
-  statusOrange:   '#eab308',
-  statusRed:      '#ef4444',
-  statusBlue:     '#3b82f6',
-  statusPurple:   '#a78bfa',
-  statusGray:     '#71717a',
+  headerTeal:     '#007B83',
+  headerPurple:   '#7B1FA2',
+  headerBlue:     '#1A73E8',
+
+  statusGreen:    '#188038',
+  statusOrange:   '#E37400',
+  statusRed:      '#D93025',
+  statusBlue:     '#1A73E8',
+  statusPurple:   '#7B1FA2',
+  statusGray:     '#80868B',
 
   white:  '#FFFFFF',
   black:  '#000000',
-  overlay: 'rgba(10, 10, 10, 0.72)',
+  overlay: 'rgba(32, 33, 36, 0.5)',
 
-  text:          '#f4f4f5',
-  textSecondary: '#71717a',
-  error:         '#ef4444',
+  text:          '#202124',
+  textSecondary: '#5F6368',
+  error:         '#D93025',
 };
 
-/** Gloss card + button gradients (mirrors .gloss-card / .gloss-btn) */
+/** Flat surfaces — no gloss gradients */
 export const GlossGradient = {
-  card: [
-    'rgba(255,255,255,0.06)',
-    'rgba(255,255,255,0.02)',
-    Colors.surface,
-    '#121212',
-  ] as const,
-  cardShine: [
-    'transparent',
-    'rgba(255,255,255,0.05)',
-    'rgba(255,255,255,0.12)',
-    'rgba(255,255,255,0.03)',
-    'transparent',
-  ] as const,
-  button: ['#3ef07a', '#22c55e', '#16a34a'] as const,
-  buttonAccent: ['#3ef07a', '#22c55e', '#16a34a'] as const,
-  buttonSuccess: ['#3ef07a', '#22c55e', '#16a34a'] as const,
-  ambient: ['rgba(34,197,94,0.12)', 'rgba(34,197,94,0.04)', 'transparent'] as const,
+  card: [Colors.surface, Colors.surface, Colors.surface, Colors.surface] as const,
+  cardShine: ['transparent', 'transparent', 'transparent', 'transparent', 'transparent'] as const,
+  button: [Colors.primary, Colors.primary, Colors.primaryDark] as const,
+  buttonAccent: [Colors.primary, Colors.primary, Colors.primaryDark] as const,
+  buttonSuccess: [Colors.success, Colors.success, '#137333'] as const,
+  ambient: ['#E8F0FE', '#F8F9FA', '#F8F9FA'] as const,
 };
 
-/** Feature-card palettes — Helix-tinted gloss tones */
 export const NTCGradients = {
-  charcoal: ['#2a2a2a', '#171717', '#111111'] as const,
-  ember:    ['#1a3d28', '#122818', '#0a140c'] as const,
-  ocean:    ['#1a2e3d', '#121f28', '#0a1018'] as const,
-  forest:   ['#143d28', '#0c2818', '#06140c'] as const,
-  slate:    ['#2a3038', '#1a1f28', '#0c1018'] as const,
-  violet:   ['#2a1a3d', '#1a1028', '#0c0814'] as const,
-  sunset:   ['#3d2a1a', '#281810', '#140c08'] as const,
-  steel:    ['#2a3238', '#1a2228', '#0c1014'] as const,
+  charcoal: ['#F1F3F4', '#FFFFFF', '#F8F9FA'] as const,
+  ember:    ['#E8F0FE', '#FFFFFF', '#F8F9FA'] as const,
+  ocean:    ['#E3F2FD', '#FFFFFF', '#F8F9FA'] as const,
+  forest:   ['#E6F4EA', '#FFFFFF', '#F8F9FA'] as const,
+  slate:    ['#ECEFF1', '#FFFFFF', '#F8F9FA'] as const,
+  violet:   ['#F3E8FD', '#FFFFFF', '#F8F9FA'] as const,
+  sunset:   ['#FEF7E0', '#FFFFFF', '#F8F9FA'] as const,
+  steel:    ['#E8EAED', '#FFFFFF', '#F8F9FA'] as const,
 };
 
 export const TabThumbTints = {
-  home:     ['rgba(34,197,94,0.35)', 'rgba(10,10,10,0.7)'] as const,
-  browse:   ['rgba(34,197,94,0.3)', 'rgba(10,10,10,0.7)'] as const,
-  sessions: ['rgba(34,197,94,0.28)', 'rgba(10,10,10,0.7)'] as const,
-  schedule: ['rgba(34,197,94,0.28)', 'rgba(10,10,10,0.7)'] as const,
-  requests: ['rgba(34,197,94,0.35)', 'rgba(10,10,10,0.7)'] as const,
-  profile:  ['rgba(34,197,94,0.25)', 'rgba(10,10,10,0.7)'] as const,
+  home:     ['rgba(26,115,232,0.12)', Colors.surface] as const,
+  browse:   ['rgba(26,115,232,0.1)', Colors.surface] as const,
+  sessions: ['rgba(26,115,232,0.1)', Colors.surface] as const,
+  schedule: ['rgba(26,115,232,0.1)', Colors.surface] as const,
+  requests: ['rgba(26,115,232,0.12)', Colors.surface] as const,
+  profile:  ['rgba(26,115,232,0.08)', Colors.surface] as const,
 };
 
 export const SpringConfig = {
@@ -135,31 +122,31 @@ export const FontSizes = {
 
 export const Shadow = {
   xs: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 1,
   },
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+    elevation: 2,
   },
   md: {
-    shadowColor: '#22c55e',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    elevation: 4,
   },
   gloss: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 5,
+    shadowColor: '#3C4043',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
 };

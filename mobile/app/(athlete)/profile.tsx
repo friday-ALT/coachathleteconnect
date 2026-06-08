@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: 'rgba(26, 115, 232, 0.25)',
   },
   verifiedText: {
     fontSize: FontSizes.xs,

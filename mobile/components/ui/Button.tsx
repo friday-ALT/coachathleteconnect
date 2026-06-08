@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, ActivityIndicator, type ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Colors, Spacing, BorderRadius, FontSizes, GlossGradient } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
 import PressableScale from './PressableScale';
 
 interface ButtonProps {
@@ -26,13 +25,10 @@ export default function Button({
   onPress,
   style,
 }: ButtonProps) {
-  const isLight = variant === 'outline' || variant === 'ghost' || variant === 'secondary';
-  const isGradient = variant === 'primary' || variant === 'accent' || variant === 'success';
+  const isFilled = variant === 'primary' || variant === 'accent' || variant === 'success';
 
   const loaderColor =
-    variant === 'primary' || variant === 'accent' || variant === 'success'
-      ? Colors.primaryOn
-      : Colors.ink;
+    isFilled ? Colors.primaryOn : Colors.primary;
 
   const content = loading ? (
     <ActivityIndicator color={loaderColor} />
@@ -46,33 +42,20 @@ export default function Button({
     </>
   );
 
-  const gradientColors =
-    variant === 'accent' ? GlossGradient.buttonAccent
-    : variant === 'success' ? GlossGradient.buttonSuccess
-    : GlossGradient.button;
-
   return (
     <PressableScale
       onPress={onPress}
       disabled={disabled || loading}
-      scaleTo={0.94}
+      scaleTo={0.97}
       style={[
         styles.button,
-        !isGradient && styles[variant],
+        styles[variant],
         styles[size],
         (disabled || loading) && styles.disabled,
-        (variant === 'primary' || variant === 'accent' || variant === 'success') && styles.glowShadow,
+        isFilled && styles.filledShadow,
         style,
       ]}
     >
-      {isGradient && (
-        <LinearGradient
-          colors={[...gradientColors]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={[StyleSheet.absoluteFill, styles.gradientFill]}
-        />
-      )}
       <View style={[styles.inner, styles[`inner_${size}`]]}>{content}</View>
     </PressableScale>
   );
@@ -85,39 +68,38 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
   },
-  gradientFill: {
-    borderRadius: BorderRadius.full,
-  },
+  primary: { backgroundColor: Colors.primary },
+  accent: { backgroundColor: Colors.primary },
+  success: { backgroundColor: Colors.success },
+  secondary: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border },
+  outline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: Colors.borderStrong },
+  ghost: { backgroundColor: 'transparent' },
+  danger: { backgroundColor: Colors.statusRed },
   inner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    zIndex: 1,
   },
   inner_sm: { paddingHorizontal: Spacing.md, minHeight: 36 },
   inner_md: { paddingHorizontal: Spacing.lg, minHeight: 48 },
   inner_lg: { paddingHorizontal: Spacing.xl, minHeight: 54 },
-  glowShadow: {
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 6,
+  filledShadow: {
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  secondary: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border },
-  outline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: Colors.borderStrong },
-  ghost: { backgroundColor: 'transparent' },
-  danger: { backgroundColor: Colors.statusRed },
   sm: {}, md: {}, lg: {},
-  disabled: { opacity: 0.4 },
-  text: { fontWeight: '700', letterSpacing: 0.1 },
+  disabled: { opacity: 0.45 },
+  text: { fontWeight: '500' },
   text_primary: { color: Colors.primaryOn },
   text_accent: { color: Colors.primaryOn },
   text_success: { color: Colors.primaryOn },
   text_secondary: { color: Colors.ink },
-  text_outline: { color: Colors.ink },
-  text_ghost: { color: Colors.accent },
+  text_outline: { color: Colors.primary },
+  text_ghost: { color: Colors.primary },
   text_danger: { color: Colors.white },
   text_sm: { fontSize: FontSizes.sm },
   text_md: { fontSize: FontSizes.base },

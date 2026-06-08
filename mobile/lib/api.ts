@@ -41,6 +41,7 @@ export default api;
 // Helper functions
 export const authApi = {
   login: async (data: { email: string; password: string }) => {
+    await clearAuthToken();
     const response = await api.post('/api/auth/login', data);
     return response.data;
   },
@@ -61,10 +62,8 @@ export const authApi = {
   },
   
   signup: async (data: { firstName: string; lastName: string; email: string; password: string }) => {
-    const response = await api.post('/api/auth/signup', data, {
-      // Avoid trailing-slash redirects that can break CSRF path matching
-      headers: { 'X-Client': 'coachconnect-mobile' },
-    });
+    await clearAuthToken();
+    const response = await api.post('/api/auth/signup', data);
     return response.data;
   },
   

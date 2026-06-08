@@ -1,27 +1,27 @@
 import Constants from 'expo-constants';
 
 // ─── Screenshot mode ───────────────────────────────────────────────────────────
-// Set to true to skip login and load directly into the app for screenshots.
-// Set back to false before building for the App Store.
 export const SCREENSHOT_MODE = false;
-export const SCREENSHOT_ROLE: 'athlete' | 'coach' = 'athlete'; // only used when SCREENSHOT_MODE is true
+export const SCREENSHOT_ROLE: 'athlete' | 'coach' = 'athlete';
+
+const PRODUCTION_API = 'https://coachathleteconnect-production.up.railway.app';
+
+const isLocalhost = (url: string) =>
+  url.includes('127.0.0.1') || url.includes('localhost');
 
 /**
- * Resolves API URL for local dev.
- * - If app.json `extra.webUrl` is a real LAN/production URL (not localhost), it wins.
- * - Otherwise, in __DEV__, use the same host Metro uses (hostUri / debuggerHost) on port 5000.
- *   That fixes Expo Go on a **physical phone**: 127.0.0.1 would point at the phone, not your Mac.
+ * API base URL for the mobile app.
+ * - app.json `extra.webUrl` (production) is the default.
+ * - Set WEB_URL / EXPO_PUBLIC_WEB_URL only when pointing at a local API.
+ * - In __DEV__ with a localhost URL, resolve Metro host for physical devices.
+ *   Note: macOS often uses port 5000 for AirPlay — use PORT=5001 npm run dev locally.
  */
 function resolveApiUrl(): string {
   const configured =
-    (Constants.expoConfig?.extra?.webUrl as string | undefined) || 'http://127.0.0.1:5000';
+    (Constants.expoConfig?.extra?.webUrl as string | undefined) || PRODUCTION_API;
 
-  const isLocalhost = (url: string) =>
-    url.includes('127.0.0.1') || url.includes('localhost');
-
-  // Explicit non-localhost URL in app.json → always use it
   if (!isLocalhost(configured)) {
-    return configured;
+    return configured.replace(/\/$/, '');
   }
 
   if (typeof __DEV__ !== 'undefined' && __DEV__) {
@@ -31,23 +31,17 @@ function resolveApiUrl(): string {
     if (raw) {
       const host = raw.split(':')[0];
       if (host && host !== 'localhost' && host !== '127.0.0.1') {
-        return `http://${host}:5000`;
+        const port = configured.match(/:(\d+)/)?.[1] || '5001';
+        return `http://${host}:${port}`;
       }
     }
   }
 
-  return configured;
+  return configured.replace(/\/$/, '');
 }
 
-// API base URL (must match where `npm run dev` is listening on your Mac).
 export const API_URL = resolveApiUrl();
 
-// ─── Google OAuth Client IDs ───────────────────────────────────────────────────
-// To enable Google Sign-In:
-//  1. Go to https://console.cloud.google.com/apis/credentials
-//  2. Create OAuth 2.0 Client IDs for Web, iOS, and Android
-//  3. For iOS bundle ID use: com.coachathleteconnect (or your app.json ios.bundleIdentifier)
-//  4. Paste the client IDs below
 export const GOOGLE_WEB_CLIENT_ID     = Constants.expoConfig?.extra?.googleWebClientId     || '';
 export const GOOGLE_IOS_CLIENT_ID     = Constants.expoConfig?.extra?.googleIosClientId     || '';
 export const GOOGLE_ANDROID_CLIENT_ID = Constants.expoConfig?.extra?.googleAndroidClientId || '';
@@ -56,7 +50,7 @@ export const API_ENDPOINTS = {
   LOGIN: `${API_URL}/api/auth/login`,
   SIGNUP: `${API_URL}/api/auth/signup`,
   LOGOUT: `${API_URL}/api/auth/logout`,
-  USER: `${API_URL}/api/auth/user`,
+  USER: `${API_URL}/api/auth/me`,
   RESEND_VERIFICATION: `${API_URL}/api/auth/resend-verification`,
   FORGOT_PASSWORD: `${API_URL}/api/auth/forgot-password`,
   ATHLETE_PROFILE: `${API_URL}/api/profiles/athlete`,

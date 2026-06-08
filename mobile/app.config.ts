@@ -1,10 +1,12 @@
 import type { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
+  // Prefer app.json production URL; only use localhost when explicitly set via env
   const webUrl =
     process.env.WEB_URL ||
     process.env.EXPO_PUBLIC_WEB_URL ||
-    'http://127.0.0.1:5000';
+    (config.extra?.webUrl as string | undefined) ||
+    'https://coachathleteconnect-production.up.railway.app';
 
   return {
     ...config,

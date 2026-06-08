@@ -17,6 +17,7 @@
     "mobile": "cd mobile && npx expo start",
     "mobile:setup": "node scripts/configure-mobile.js",
     "smoke": "node scripts/smoke-test.mjs",
+    "user:delete": "node scripts/delete-user-by-email.mjs",
     "test:security": "npx tsx server/tests/security.test.ts"
   },
   "dependencies": {

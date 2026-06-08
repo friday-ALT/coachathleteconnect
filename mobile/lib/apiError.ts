@@ -14,11 +14,11 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 
   const status = e.response?.status;
   if (status === 403) {
-    return (
+    const detail =
       (typeof d?.message === 'string' && d.message) ||
-      (typeof d?.error === 'string' && d.error) ||
-      'Access denied. Try again or log in if you already have an account.'
-    );
+      (typeof d?.error === 'string' && d.error);
+    if (detail && detail !== 'Forbidden') return detail;
+    return `Access denied (${API_URL}). Reload the app — if this persists, the API URL may be wrong.`;
   }
   if (status === 400 && typeof d?.error === 'string') {
     return d.error;

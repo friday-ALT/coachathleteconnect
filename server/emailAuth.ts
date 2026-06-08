@@ -361,12 +361,11 @@ router.post('/login', async (req: Request, res: Response) => {
       });
     }
 
-    // Only block unverified accounts when an email provider IS configured
-    if (user.emailVerified !== 1 && !!process.env.RESEND_API_KEY) {
-      return res.status(403).json({ 
-        error: 'Please verify your email address before logging in.',
-        requiresVerification: true,
-      });
+    // Auto-verify on login — email verification is optional (no Resend gate)
+    if (user.emailVerified !== 1) {
+      await db.update(users)
+        .set({ emailVerified: 1, verificationToken: null, verificationTokenExpires: null })
+        .where(eq(users.id, user.id));
     }
 
     // Verify password

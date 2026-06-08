@@ -12,6 +12,18 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
     if (typeof d.message === 'string' && d.message.trim()) return d.message;
   }
 
+  const status = e.response?.status;
+  if (status === 403) {
+    return (
+      (typeof d?.message === 'string' && d.message) ||
+      (typeof d?.error === 'string' && d.error) ||
+      'Access denied. Try again or log in if you already have an account.'
+    );
+  }
+  if (status === 400 && typeof d?.error === 'string') {
+    return d.error;
+  }
+
   const msg = e.message || '';
   if (
     e.code === 'ERR_NETWORK' ||

@@ -15,7 +15,23 @@ const CSRF_EXEMPT_AUTH_PATHS = new Set([
   '/api/auth/reset-password',
   '/api/auth/demo-login',
   '/api/auth/resend-verification',
+  '/api/auth/enter-role',
+  '/api/auth/exit-role',
+  '/api/auth/logout',
+  '/api/auth/push-token',
 ]);
+
+const MOBILE_CLIENT_HEADER = 'coachconnect-mobile';
+
+function normalizeApiPath(path: string): string {
+  const base = path.split('?')[0];
+  if (base.length > 1 && base.endsWith('/')) return base.slice(0, -1);
+  return base;
+}
+
+function hasSessionCookie(req: Request): boolean {
+  return Boolean(req.headers.cookie?.includes('connect.sid='));
+}
 
 /** Allowed browser origins for API + cookies (comma-separated in CORS_ORIGINS). */
 function getAllowedOrigins(): string[] | boolean {
@@ -49,9 +65,13 @@ export function applySecurityMiddleware(app: Express) {
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return next();
     if (!req.path.startsWith('/api/')) return next();
-    if (req.path === '/api/payments/webhook') return next();
+    const apiPath = normalizeApiPath(req.path);
+    if (apiPath === '/api/payments/webhook') return next();
     if (req.headers.authorization?.startsWith('Bearer ')) return next();
-    if (CSRF_EXEMPT_AUTH_PATHS.has(req.path)) return next();
+    if (req.headers['x-client'] === MOBILE_CLIENT_HEADER) return next();
+    if (CSRF_EXEMPT_AUTH_PATHS.has(apiPath)) return next();
+    // CSRF only applies to cookie-authenticated browser sessions
+    if (!hasSessionCookie(req)) return next();
 
     const origin = req.headers.origin;
     const referer = req.headers.referer;

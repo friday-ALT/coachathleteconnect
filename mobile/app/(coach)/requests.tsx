@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, A
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadow, Layout, screenScrollStyle } from '../../constants/theme';
 import { connectionApi, requestApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import StatusPill from '../../components/ui/StatusPill';
@@ -95,7 +95,7 @@ export default function CoachRequests() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={screenScrollStyle()}
         refreshControl={
           <RefreshControl refreshing={cLoading || rLoading} onRefresh={handleRefresh} tintColor={Colors.primary} />
         }
@@ -114,7 +114,7 @@ export default function CoachRequests() {
                       <View style={styles.cardTop}>
                         <Avatar name={c.athleteName} size={40} />
                         <View style={styles.cardInfo}>
-                          <Text style={styles.cardName}>{c.athleteName}</Text>
+                          <Text style={styles.cardName} numberOfLines={1}>{c.athleteName}</Text>
                           <Text style={styles.cardSub}>{c.skillLevel ? `${c.skillLevel} · ` : ''}{c.locationCity}</Text>
                         </View>
                         <StatusPill label="Pending" color={Colors.statusOrange} size="sm" />
@@ -156,7 +156,7 @@ export default function CoachRequests() {
                       <View style={styles.cardTop}>
                         <Avatar name={c.athleteName} size={36} />
                         <View style={styles.cardInfo}>
-                          <Text style={styles.cardName}>{c.athleteName}</Text>
+                          <Text style={styles.cardName} numberOfLines={1}>{c.athleteName}</Text>
                           <Text style={styles.cardSub}>{c.locationCity}</Text>
                         </View>
                         <StatusPill label="Connected" color={Colors.statusGreen} size="sm" />
@@ -205,7 +205,7 @@ export default function CoachRequests() {
                       <View style={styles.cardTop}>
                         <Avatar name={r.athleteName} size={40} />
                         <View style={styles.cardInfo}>
-                          <Text style={styles.cardName}>{r.athleteName}</Text>
+                          <Text style={styles.cardName} numberOfLines={1}>{r.athleteName}</Text>
                           <View style={styles.sessionMeta}>
                             <Ionicons name="calendar-outline" size={12} color={Colors.muted} />
                             <Text style={styles.cardSub}>{formatDate(r.requestedDate)}</Text>
@@ -257,7 +257,7 @@ export default function CoachRequests() {
                       <View style={styles.cardTop}>
                         <Avatar name={r.athleteName} size={36} />
                         <View style={styles.cardInfo}>
-                          <Text style={styles.cardName}>{r.athleteName}</Text>
+                          <Text style={styles.cardName} numberOfLines={1}>{r.athleteName}</Text>
                           <Text style={styles.cardSub}>{formatDate(r.requestedDate)} · {formatTime(r.requestedStartTime)}</Text>
                         </View>
                         <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.sm,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FontSizes['2xl'],
-    fontWeight: '800',
+    fontWeight: '500',
     color: Colors.ink,
   },
   pendingBadge: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.sm,
     gap: Spacing.sm,
     borderBottomWidth: 1,
@@ -359,6 +359,7 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -383,11 +384,6 @@ const styles = StyleSheet.create({
   },
 
   scroll: { flex: 1 },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-
   // Cards
   card: {
     flexDirection: 'row',
@@ -417,10 +413,11 @@ const styles = StyleSheet.create({
   },
   cardInfo: {
     flex: 1,
+    minWidth: 0,
   },
   cardName: {
     fontSize: FontSizes.base,
-    fontWeight: '700',
+    fontWeight: '600',
     color: Colors.ink,
     marginBottom: 2,
   },

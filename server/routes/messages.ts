@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { eq, and, or, desc, asc } from 'drizzle-orm';
+import { eq, and, or, desc, asc, ne, count, sql } from 'drizzle-orm';
 import { db } from '../db';
 import { conversations, messages, users, athleteProfiles, coachProfiles, notifications } from '@shared/schema';
 import { isAuthenticated } from '../replitAuth';
@@ -28,15 +28,15 @@ messagesRouter.get('/', isAuthenticated, async (req: any, res) => {
           .orderBy(desc(messages.createdAt))
           .limit(1);
 
-        const unreadCount = await db
-          .select({ id: messages.id })
+        const [{ unreadCount: unreadCountRaw }] = await db
+          .select({ unreadCount: count() })
           .from(messages)
           .where(
             and(
               eq(messages.conversationId, conv.id),
               eq(messages.read, false),
-              // only count messages the OTHER user sent
-            )
+              ne(messages.senderId, userId),
+            ),
           );
 
         const otherUserId = conv.athleteId === userId ? conv.coachId : conv.athleteId;
@@ -51,13 +51,10 @@ messagesRouter.get('/', isAuthenticated, async (req: any, res) => {
           if (cp) { otherName = cp.name; otherAvatar = cp.avatarUrl || null; }
         }
 
-        // Unread = messages from OTHER user that are unread
-        const unread = unreadCount.filter(() => latest?.senderId !== userId).length;
-
         return {
           ...conv,
           latestMessage: latest || null,
-          unreadCount: latest && latest.senderId !== userId && !latest.read ? 1 : 0,
+          unreadCount: Number(unreadCountRaw) || 0,
           otherUser: { id: otherUserId, name: otherName, avatarUrl: otherAvatar },
         };
       })
@@ -112,6 +109,31 @@ messagesRouter.post('/', isAuthenticated, async (req: any, res) => {
   }
 });
 
+/** GET /api/conversations/unread-count — count of conversations with unread messages */
+messagesRouter.get('/unread-count', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+
+    const [{ unread }] = await db
+      .select({
+        unread: sql<number>`count(distinct ${messages.conversationId})::int`,
+      })
+      .from(messages)
+      .innerJoin(conversations, eq(messages.conversationId, conversations.id))
+      .where(
+        and(
+          eq(messages.read, false),
+          ne(messages.senderId, userId),
+          or(eq(conversations.athleteId, userId), eq(conversations.coachId, userId)),
+        ),
+      );
+
+    res.json({ unread: unread ?? 0 });
+  } catch {
+    res.json({ unread: 0 });
+  }
+});
+
 /** GET /api/conversations/:id/messages — get messages for a conversation */
 messagesRouter.get('/:id/messages', isAuthenticated, async (req: any, res) => {
   try {
@@ -124,7 +146,7 @@ messagesRouter.get('/:id/messages', isAuthenticated, async (req: any, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Mark messages from other user as read
+    // Mark messages from the other user as read (not own outbound messages)
     await db
       .update(messages)
       .set({ read: true })
@@ -132,6 +154,7 @@ messagesRouter.get('/:id/messages', isAuthenticated, async (req: any, res) => {
         and(
           eq(messages.conversationId, id),
           eq(messages.read, false),
+          ne(messages.senderId, userId),
         )
       );
 
@@ -189,29 +212,3 @@ messagesRouter.post('/:id/messages', isAuthenticated, async (req: any, res) => {
   }
 });
 
-/** GET /api/conversations/unread-count — count of conversations with unread messages */
-messagesRouter.get('/unread-count', isAuthenticated, async (req: any, res) => {
-  try {
-    const userId = req.user.claims.sub;
-
-    const myConvs = await db
-      .select({ id: conversations.id })
-      .from(conversations)
-      .where(or(eq(conversations.athleteId, userId), eq(conversations.coachId, userId)));
-
-    let unread = 0;
-    for (const conv of myConvs) {
-      const [latest] = await db
-        .select()
-        .from(messages)
-        .where(eq(messages.conversationId, conv.id))
-        .orderBy(desc(messages.createdAt))
-        .limit(1);
-      if (latest && latest.senderId !== userId && !latest.read) unread++;
-    }
-
-    res.json({ unread });
-  } catch {
-    res.json({ unread: 0 });
-  }
-});

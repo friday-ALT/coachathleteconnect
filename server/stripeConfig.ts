@@ -2,6 +2,25 @@ import Stripe from 'stripe';
 import type { Response } from 'express';
 
 export const STRIPE_NOT_CONFIGURED = 'STRIPE_NOT_CONFIGURED';
+export const STRIPE_CONNECT_NOT_ENABLED = 'STRIPE_CONNECT_NOT_ENABLED';
+
+/** Stripe returns this when the platform account has not completed Connect signup. */
+export function isStripeConnectNotEnabledError(error: unknown): boolean {
+  const msg =
+    typeof error === 'object' && error && 'message' in error
+      ? String((error as { message?: string }).message)
+      : String(error);
+  return msg.includes('signed up for Connect');
+}
+
+export function stripeConnectNotEnabledBody() {
+  return {
+    message:
+      'Stripe Connect is not enabled on the platform Stripe account. The account owner must open dashboard.stripe.com/connect, complete Connect setup (Express accounts), then try Connect again.',
+    code: STRIPE_CONNECT_NOT_ENABLED,
+    setupUrl: 'https://dashboard.stripe.com/connect',
+  };
+}
 
 export function getStripeSecretKey(): string | undefined {
   const key = process.env.STRIPE_SECRET_KEY?.trim();

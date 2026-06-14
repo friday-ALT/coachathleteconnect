@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, screenScrollStyle } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { profileApi, requestApi } from '../../lib/api';
@@ -72,7 +72,7 @@ export default function AthleteProfile() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
+        contentContainerStyle={screenScrollStyle({ paddingTop: safeTop + Spacing.md })}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile header — blended into dark canvas */}
@@ -85,8 +85,8 @@ export default function AthleteProfile() {
             <Avatar name={`${user?.firstName} ${user?.lastName}`} size={80} />
           </View>
 
-          <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
+          <Text style={styles.name} numberOfLines={2}>{user?.firstName} {user?.lastName}</Text>
+          <Text style={styles.email} numberOfLines={1}>{user?.email}</Text>
 
           <View style={styles.badgesRow}>
             {user?.emailVerified && (
@@ -215,8 +215,8 @@ function DetailRow({ icon, label, value, last }: {
       <View style={rowStyles.iconWrap}>
         <Ionicons name={icon} size={16} color={Colors.accent} />
       </View>
-      <Text style={rowStyles.label}>{label}</Text>
-      <Text style={rowStyles.value}>{value}</Text>
+      <Text style={rowStyles.label} numberOfLines={1}>{label}</Text>
+      <Text style={rowStyles.value} numberOfLines={2}>{value}</Text>
     </View>
   );
 }
@@ -264,21 +264,21 @@ const rowStyles = StyleSheet.create({
     fontSize: FontSizes.sm,
     fontWeight: '600',
     color: Colors.ink,
+    flexShrink: 0,
+    width: 88,
   },
   value: {
+    flex: 1,
+    minWidth: 0,
     fontSize: FontSizes.sm,
     color: Colors.body,
-    marginLeft: 'auto',
+    textAlign: 'right',
     fontWeight: '500',
   },
 });
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
   profileHeader: {
     alignItems: 'center',
     marginBottom: Spacing.xl,
@@ -306,14 +306,20 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: FontSizes['2xl'],
-    fontWeight: '800',
+    fontWeight: '500',
     color: Colors.ink,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.md,
+    maxWidth: '100%',
     letterSpacing: -0.5,
   },
   email: {
     fontSize: FontSizes.sm,
     color: Colors.body,
     marginTop: 4,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.md,
+    maxWidth: '100%',
     fontWeight: '500',
   },
   badgesRow: {

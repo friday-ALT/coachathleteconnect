@@ -54,9 +54,12 @@ export function CoachStripeConnect() {
       if (data.url) window.location.href = data.url;
     },
     onError: (e: Error) => {
+      const isConnect = e.message.includes("signed up for Connect") || e.message.includes("Stripe Connect is not enabled");
       toast({
-        title: "Stripe setup failed",
-        description: e.message,
+        title: isConnect ? "Enable Stripe Connect first" : "Stripe setup failed",
+        description: isConnect
+          ? "Sign in at dashboard.stripe.com → Connect → complete setup (Express accounts), then try again."
+          : e.message,
         variant: "destructive",
       });
     },

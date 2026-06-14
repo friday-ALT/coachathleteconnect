@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, BorderRadius, FontSizes, Spacing } from '../../constants/theme';
+import { Colors, FontSizes, Spacing } from '../../constants/theme';
 import PressableScale from './PressableScale';
 import GlossCard from './GlossCard';
 
@@ -22,10 +22,12 @@ export default function ActionBanner({
     <PressableScale onPress={onPress} disabled={!onPress} scaleTo={0.98}>
       <GlossCard accent glossy={glossy} padding={0} style={styles.wrap}>
         <View style={styles.body}>
-          <Text style={styles.title}>{title}</Text>
-          {description && <Text style={styles.desc}>{description}</Text>}
+          <Text style={styles.title} numberOfLines={2}>{title}</Text>
+          {description && (
+            <Text style={styles.desc} numberOfLines={3}>{description}</Text>
+          )}
           {actionLabel && onPress && (
-            <Text style={styles.action}>{actionLabel} →</Text>
+            <Text style={styles.action} numberOfLines={1}>{actionLabel} →</Text>
           )}
         </View>
       </GlossCard>
@@ -36,18 +38,20 @@ export default function ActionBanner({
 const styles = StyleSheet.create({
   wrap: {
     marginBottom: Spacing.md,
+    width: '100%',
   },
   body: {
     padding: Spacing.md,
   },
   title: {
     fontSize: FontSizes.base,
-    fontWeight: '700',
+    fontWeight: '600',
     color: Colors.ink,
     letterSpacing: -0.2,
+    lineHeight: 22,
   },
   desc: {
-    marginTop: 4,
+    marginTop: 6,
     fontSize: FontSizes.sm,
     color: Colors.body,
     lineHeight: 20,

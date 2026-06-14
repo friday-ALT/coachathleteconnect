@@ -14,7 +14,7 @@ import { authApi } from '../../lib/api';
 import { getApiErrorMessage } from '../../lib/apiError';
 import { saveAuthToken } from '../../lib/authStorage';
 import { navigateAfterAuth } from '../../lib/navigateAfterAuth';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Layout } from '../../constants/theme';
 import AppCanvas from '../../components/ui/AppCanvas';
 import Button from '../../components/ui/Button';
 import { useSafeTop } from '../../hooks/useSafeTop';
@@ -210,7 +210,12 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: { flex: 1, textAlign: 'center', fontSize: FontSizes.lg, fontWeight: '700', color: Colors.ink },
   headerSpacer: { width: 40 },
-  content: { padding: Spacing.xl, paddingBottom: 48 },
+  content: {
+    paddingHorizontal: Layout.screenPaddingX,
+    paddingTop: Spacing.md,
+    paddingBottom: 48,
+    width: '100%',
+  },
   hint: {
     fontSize: FontSizes.sm,
     color: Colors.muted,

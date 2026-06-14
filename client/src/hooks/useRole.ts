@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import type { AthleteProfile, CoachProfile } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 
 export type ActiveRole = "athlete" | "coach" | null;
 
@@ -14,8 +14,9 @@ type SessionState = {
 
 export function useRole() {
   // Fetch session state from server (source of truth for active role)
-  const { data: session, isLoading: sessionLoading, error: sessionError } = useQuery<SessionState>({
+  const { data: session, isLoading: sessionLoading, error: sessionError } = useQuery<SessionState | null>({
     queryKey: ["/api/auth/session"],
+    queryFn: getQueryFn<SessionState | null>({ on401: "returnNull" }),
     retry: false,
     staleTime: 1000 * 30, // 30 seconds
   });

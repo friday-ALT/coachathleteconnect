@@ -9,6 +9,8 @@ import {
   getStripe,
   isStripeConfigured,
   stripeNotConfigured,
+  isStripeConnectNotEnabledError,
+  stripeConnectNotEnabledBody,
 } from '../stripeConfig';
 import { fulfillPaidCheckout } from '../stripeFulfillment';
 import {
@@ -263,6 +265,9 @@ router.post('/coach/onboard', isAuthenticated, async (req: any, res: Response) =
     res.json({ url: accountLink.url });
   } catch (error: any) {
     console.error('Coach onboard error:', error);
+    if (isStripeConnectNotEnabledError(error)) {
+      return res.status(503).json(stripeConnectNotEnabledBody());
+    }
     res.status(500).json({ message: error.message || 'Failed to create onboarding link' });
   }
 });

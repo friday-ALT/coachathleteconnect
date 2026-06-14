@@ -6,7 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadow, Layout, screenScrollStyle } from '../../constants/theme';
 import { requestApi, availabilityApi } from '../../lib/api';
 import Avatar from '../../components/ui/Avatar';
 import AppCanvas from '../../components/ui/AppCanvas';
@@ -159,9 +159,11 @@ export default function CoachSchedule() {
       <StatusBar style="light" />
 
       <View style={[styles.header, { paddingTop: safeTop }]}>
-        <View>
+        <View style={styles.headerMain}>
           <Text style={styles.title}>My Schedule</Text>
-          <Text style={styles.sub}>{confirmed.length} confirmed session{confirmed.length !== 1 ? 's' : ''}</Text>
+          <Text style={styles.sub} numberOfLines={1}>
+            {confirmed.length} confirmed session{confirmed.length !== 1 ? 's' : ''}
+          </Text>
         </View>
         <PressableScale style={styles.availBtn} onPress={openEditor} scaleTo={0.96}>
           <Ionicons name="settings-outline" size={15} color={Colors.accent} />
@@ -174,7 +176,7 @@ export default function CoachSchedule() {
           <TouchableOpacity onPress={() => setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate()-7); return n; })}>
             <Ionicons name="chevron-back" size={20} color={Colors.body} />
           </TouchableOpacity>
-          <Text style={styles.weekLabel}>
+          <Text style={styles.weekLabel} numberOfLines={1}>
             {MONTHS[days[0].getMonth()]} {days[0].getDate()} – {MONTHS[days[6].getMonth()]} {days[6].getDate()}, {days[6].getFullYear()}
           </Text>
           <TouchableOpacity onPress={() => setWeekStart(d => { const n = new Date(d); n.setDate(n.getDate()+7); return n; })}>
@@ -205,7 +207,11 @@ export default function CoachSchedule() {
         </View>
       </GlossCard>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={screenScrollStyle()}
+        showsVerticalScrollIndicator={false}
+      >
         <SectionHeader
           label={isSameDay(selectedDay, today) ? 'Today' : DAYS[selectedDay.getDay()] + ' ' + selectedDay.getDate()}
           count={daySessions.length}
@@ -342,7 +348,7 @@ function SessionCard({ request: r, showDate }: { request: any; showDate?: boolea
         <View style={sessionStyles.top}>
           <Avatar name={r.athleteName} size={34} />
           <View style={sessionStyles.info}>
-            <Text style={sessionStyles.name}>{r.athleteName}</Text>
+            <Text style={sessionStyles.name} numberOfLines={1}>{r.athleteName}</Text>
             {showDate && <Text style={sessionStyles.date}>{formatDate(r.requestedDate)}</Text>}
           </View>
         </View>
@@ -369,7 +375,7 @@ const sessionStyles = StyleSheet.create({
   endTime: { fontSize: FontSizes.xs, fontWeight: '600', color: Colors.accentSoft, opacity: 0.9 },
   body: { flex: 1, padding: Spacing.md },
   top: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  info: { flex: 1 },
+  info: { flex: 1, minWidth: 0 },
   name: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.ink },
   date: { fontSize: FontSizes.xs, color: Colors.muted, fontWeight: '500', marginTop: 1 },
   msg: { fontSize: FontSizes.xs, color: Colors.body, fontStyle: 'italic', marginTop: 6 },
@@ -427,29 +433,55 @@ const modal = StyleSheet.create({
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: Layout.screenPaddingX,
+    paddingBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  headerMain: {
+    flex: 1,
+    minWidth: 0,
   },
   title: {
-    fontSize: FontSizes['3xl'], fontWeight: '800', color: Colors.ink, letterSpacing: -1,
+    fontSize: FontSizes['2xl'],
+    fontWeight: '500',
+    color: Colors.ink,
+    letterSpacing: -0.5,
+    lineHeight: 34,
   },
   sub: { fontSize: FontSizes.sm, color: Colors.body, fontWeight: '500', marginTop: 6 },
   availBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    paddingHorizontal: Spacing.md, paddingVertical: 8,
-    borderRadius: BorderRadius.full, borderWidth: 1,
-    borderColor: 'rgba(26, 115, 232, 0.35)', backgroundColor: Colors.accentLight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    flexShrink: 0,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(26, 115, 232, 0.35)',
+    backgroundColor: Colors.accentLight,
   },
   availBtnText: { fontSize: FontSizes.xs, fontWeight: '700', color: Colors.accent },
   weekSection: {
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: Layout.screenPaddingX,
     marginBottom: Spacing.md,
   },
   weekNav: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', paddingVertical: Spacing.sm,
   },
-  weekLabel: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.ink },
+  weekLabel: {
+    flex: 1,
+    minWidth: 0,
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    color: Colors.ink,
+    textAlign: 'center',
+    marginHorizontal: Spacing.xs,
+  },
   daysRow: { flexDirection: 'row', gap: 4 },
   dayCell: {
     flex: 1, alignItems: 'center', paddingVertical: Spacing.sm,
@@ -468,7 +500,6 @@ const styles = StyleSheet.create({
   dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: Colors.accent },
   dotActive: { backgroundColor: Colors.success },
   scroll: { flex: 1 },
-  scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
   emptyDay: {
     backgroundColor: Colors.surface, borderRadius: BorderRadius.md,
     borderWidth: 1, borderColor: Colors.border, borderStyle: 'dashed',

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadow, screenScrollStyle } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { profileApi, requestApi } from '../../lib/api';
@@ -68,7 +68,7 @@ export default function CoachProfile() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
+        contentContainerStyle={screenScrollStyle({ paddingTop: safeTop + Spacing.md })}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.profileHeader}>
@@ -306,8 +306,8 @@ function DetailRow({ icon, label, value, last }: { icon: any; label: string; val
       <View style={detailStyles.iconWrap}>
         <Ionicons name={icon} size={16} color={Colors.accent} />
       </View>
-      <Text style={detailStyles.label}>{label}</Text>
-      <Text style={detailStyles.value}>{value}</Text>
+      <Text style={detailStyles.label} numberOfLines={1}>{label}</Text>
+      <Text style={detailStyles.value} numberOfLines={2}>{value}</Text>
     </View>
   );
 }
@@ -329,6 +329,7 @@ const detailStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 13,
+    paddingHorizontal: Spacing.md,
     gap: Spacing.md,
   },
   rowBorder: {
@@ -344,14 +345,19 @@ const detailStyles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: FontSizes.base,
+    fontSize: FontSizes.sm,
     fontWeight: '600',
     color: Colors.ink,
+    flexShrink: 0,
+    width: 100,
   },
   value: {
-    fontSize: FontSizes.base,
+    flex: 1,
+    minWidth: 0,
+    fontSize: FontSizes.sm,
     color: Colors.body,
-    marginLeft: 'auto',
+    textAlign: 'right',
+    fontWeight: '500',
   },
   exp: {
     fontSize: FontSizes.sm,
@@ -363,10 +369,6 @@ const detailStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
   profileHeader: {
     alignItems: 'center',
     marginBottom: Spacing.lg,

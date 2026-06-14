@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as SecureStore from 'expo-secure-store';
 import { profileApi, sessionApi } from '../../../../lib/api';
 import { useRequireAuth } from '../../../../hooks/useRequireAuth';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadow, Layout } from '../../../../constants/theme';
 
 const schema = z.object({
   skillLevel:    z.enum(['Beginner', 'Intermediate', 'Advanced']),
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingTop: 56, paddingBottom: Spacing.md,
+    paddingHorizontal: Layout.screenPaddingX, paddingTop: 56, paddingBottom: Spacing.md,
   },
   backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: Colors.surface, alignItems: 'center', justifyContent: 'center', ...Shadow.xs },
   progressWrap: { flexDirection: 'row', alignItems: 'center' },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   progressLine: { width: 32, height: 2, backgroundColor: Colors.border, marginHorizontal: 4 },
   progressLineDone: { backgroundColor: Colors.primary },
 
-  scroll: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, paddingBottom: 48 },
+  scroll: { paddingHorizontal: Layout.screenPaddingX, paddingTop: Spacing.md, paddingBottom: 48 },
   iconWrap: { alignItems: 'center', marginBottom: Spacing.sm },
   stepLabel: { textAlign: 'center', fontSize: FontSizes.xs, fontWeight: '600', color: Colors.primary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
   title: { fontSize: FontSizes['2xl'], fontWeight: '800', color: Colors.ink, textAlign: 'center', marginBottom: 6 },

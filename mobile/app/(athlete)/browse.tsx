@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Layout, screenScrollStyle } from '../../constants/theme';
 import { coachApi } from '../../lib/api';
 import CoachAtlasCard from '../../components/CoachAtlasCard';
 import AppCanvas from '../../components/ui/AppCanvas';
@@ -47,7 +47,7 @@ export default function Browse() {
 
       <View style={[styles.header, { paddingTop: safeTop }]}>
         <Text style={styles.headerTitle}>Find Coaches</Text>
-        <Text style={styles.headerSub}>
+        <Text style={styles.headerSub} numberOfLines={2}>
           {isSearching || isLoading ? 'Searching...' : coaches ? `${coaches.length} coaches found` : 'Find your perfect coach'}
         </Text>
       </View>
@@ -70,7 +70,11 @@ export default function Browse() {
           )}
         </View>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersRow}
+        >
           {SKILL_LEVELS.map((level) => {
             const isActive = skillLevel === level;
             const accent = level ? SKILL_COLORS[level] : Colors.accent;
@@ -97,7 +101,7 @@ export default function Browse() {
       </View>
 
       {/* Results */}
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={screenScrollStyle()} showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <View style={styles.loaderWrap}>
             <ActivityIndicator size="large" color={Colors.accent} />
@@ -133,14 +137,15 @@ export default function Browse() {
 
 const styles = StyleSheet.create({
   header: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.sm,
   },
   headerTitle: {
-    fontSize: FontSizes['3xl'],
-    fontWeight: '800',
-    letterSpacing: -1,
+    fontSize: FontSizes['2xl'],
+    fontWeight: '500',
+    letterSpacing: -0.5,
     color: Colors.ink,
+    lineHeight: 34,
   },
   headerSub: {
     fontSize: FontSizes.sm,
@@ -149,7 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   searchSection: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.md,
   },
   searchBar: {
@@ -177,6 +182,7 @@ const styles = StyleSheet.create({
   filtersRow: {
     gap: Spacing.sm,
     paddingBottom: 2,
+    paddingRight: Layout.screenPaddingX,
   },
   filterPill: {
     paddingHorizontal: Spacing.md,
@@ -193,10 +199,6 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-  },
-  scrollContent: {
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xxl,
   },
   loaderWrap: {
     alignItems: 'center',

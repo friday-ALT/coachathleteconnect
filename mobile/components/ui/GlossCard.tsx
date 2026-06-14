@@ -1,9 +1,9 @@
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Colors, BorderRadius, Shadow } from '../../constants/theme';
 
 interface GlossCardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   accent?: boolean;
   padding?: number;
   /** @deprecated Health UI uses flat cards; ignored */

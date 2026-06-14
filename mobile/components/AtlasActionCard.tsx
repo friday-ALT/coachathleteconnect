@@ -51,8 +51,8 @@ export default function AtlasActionCard({
         end={{ x: 0.8, y: 1 }}
       >
         <View style={styles.glowOrb} />
-        <Text style={styles.eyebrow}>{displayEyebrow}</Text>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.eyebrow} numberOfLines={1}>{displayEyebrow}</Text>
+        <Text style={styles.title} numberOfLines={2}>{title}</Text>
         <View style={styles.footer}>
           <Text style={styles.cta}>Start</Text>
           <Ionicons name="arrow-forward" size={16} color={Colors.ink} />
@@ -65,9 +65,10 @@ export default function AtlasActionCard({
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    borderRadius: BorderRadius.md,
+    minWidth: 0,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    minHeight: 168,
+    minHeight: 152,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: Spacing.md,
     justifyContent: 'flex-end',
-    minHeight: 168,
+    minHeight: 152,
     overflow: 'hidden',
   },
   glowOrb: {

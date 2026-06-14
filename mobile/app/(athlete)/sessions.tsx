@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Layout, screenScrollStyle } from '../../constants/theme';
 import { requestApi } from '../../lib/api';
 import StatusPill from '../../components/ui/StatusPill';
 import SectionHeader from '../../components/ui/SectionHeader';
@@ -91,7 +91,7 @@ export default function Sessions() {
         <View style={[styles.accent, { backgroundColor: Colors.statusGreen }]} />
         <View style={styles.cardBody}>
           <View style={styles.cardTop}>
-            <Text style={styles.coachName}>{r.coachName}</Text>
+            <Text style={styles.coachName} numberOfLines={1}>{r.coachName}</Text>
             <StatusPill label="Confirmed" color={Colors.statusGreen} size="sm" />
           </View>
           <View style={styles.metaRow}>
@@ -117,7 +117,7 @@ export default function Sessions() {
         <View style={[styles.accent, { backgroundColor: Colors.statusOrange }]} />
         <View style={styles.cardBody}>
           <View style={styles.cardTop}>
-            <Text style={styles.coachName}>{r.coachName}</Text>
+            <Text style={styles.coachName} numberOfLines={1}>{r.coachName}</Text>
             <StatusPill label="Pending" color={Colors.statusOrange} size="sm" />
           </View>
           <View style={styles.metaRow}>
@@ -148,7 +148,7 @@ export default function Sessions() {
         <View style={[styles.accent, { backgroundColor: Colors.statusRed }]} />
         <View style={styles.cardBody}>
           <View style={styles.cardTop}>
-            <Text style={[styles.coachName, { opacity: 0.5 }]}>{r.coachName}</Text>
+            <Text style={[styles.coachName, { opacity: 0.5 }]} numberOfLines={1}>{r.coachName}</Text>
             <StatusPill label="Declined" color={Colors.statusRed} size="sm" />
           </View>
           <View style={styles.metaRow}>
@@ -175,7 +175,7 @@ export default function Sessions() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={screenScrollStyle()}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={Colors.accent} />}
         showsVerticalScrollIndicator={false}
       >
@@ -223,14 +223,15 @@ export default function Sessions() {
 
 const styles = StyleSheet.create({
   header: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.md,
   },
   title: {
-    fontSize: FontSizes['3xl'],
-    fontWeight: '800',
-    letterSpacing: -1,
+    fontSize: FontSizes['2xl'],
+    fontWeight: '500',
+    letterSpacing: -0.5,
     color: Colors.ink,
+    lineHeight: 34,
   },
   sub: {
     fontSize: FontSizes.sm,
@@ -239,19 +240,20 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   scroll: { flex: 1 },
-  scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
-
-  sessionCard: { marginBottom: Spacing.sm },
-  sessionRow: { flexDirection: 'row', overflow: 'hidden' },
+  sessionCard: { marginBottom: Spacing.sm, width: '100%' },
+  sessionRow: { flexDirection: 'row', overflow: 'hidden', width: '100%' },
   declinedRow: { opacity: 0.6 },
   accent: { width: 4 },
-  cardBody: { flex: 1, padding: Spacing.md },
+  cardBody: { flex: 1, minWidth: 0, padding: Spacing.md },
   cardTop: {
     flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 6,
+    alignItems: 'center', marginBottom: 6, gap: Spacing.sm,
   },
-  coachName: { fontSize: FontSizes.base, fontWeight: '700', color: Colors.ink, flex: 1, marginRight: 8 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  coachName: {
+    fontSize: FontSizes.base, fontWeight: '600', color: Colors.ink,
+    flex: 1, minWidth: 0, marginRight: 4,
+  },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
   metaText: { fontSize: FontSizes.xs, color: Colors.muted, fontWeight: '500' },
   bottomRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 6, flexWrap: 'wrap' },
   message: { fontSize: FontSizes.xs, color: Colors.body, fontStyle: 'italic', flex: 1 },

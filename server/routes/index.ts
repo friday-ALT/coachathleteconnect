@@ -25,6 +25,10 @@ import { isStripeConfigured, logStripeStatusOnBoot } from '../stripeConfig';
 import { ensureDbSchema } from '../ensureDbSchema';
 
 export async function registerRoutes(app: Express) {
+  // Health check — registered before Vite catch-all in dev and before static in prod
+  app.get('/api/health', (_req, res) =>
+    res.json({ status: 'ok', stripe: isStripeConfigured() }),
+  );
   try {
     await ensureDbSchema();
     console.log('[DB] Schema patches applied');

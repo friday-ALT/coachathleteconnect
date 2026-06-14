@@ -16,14 +16,17 @@ export default function SectionHeader({
   linkLabel = 'See all',
   onPress,
 }: SectionHeaderProps) {
+  const title =
+    count !== undefined && count > 0 ? `${label} (${count})` : label;
+
   return (
     <View style={styles.row}>
-      <Text style={styles.title}>
-        {label}{count !== undefined && count > 0 ? ` (${count})` : ''}
+      <Text style={styles.title} numberOfLines={1}>
+        {title}
       </Text>
       {onPress && (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.link}>
-          <Text style={styles.linkText}>{linkLabel}</Text>
+          <Text style={styles.linkText} numberOfLines={1}>{linkLabel}</Text>
           <Ionicons name="arrow-forward" size={14} color={Colors.accent} />
         </TouchableOpacity>
       )}
@@ -38,17 +41,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: Spacing.md,
     marginTop: Spacing.xl,
+    gap: Spacing.md,
+    width: '100%',
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     fontSize: FontSizes.lg,
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontWeight: '500',
+    letterSpacing: -0.2,
     color: Colors.ink,
   },
   link: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flexShrink: 0,
+    maxWidth: '42%',
   },
   linkText: {
     fontSize: FontSizes.sm,

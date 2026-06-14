@@ -24,7 +24,7 @@ import { getApiErrorMessage } from '../lib/apiError';
 import { navigateAfterAuth } from '../lib/navigateAfterAuth';
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID } from '../constants/config';
 import PressableScale from '../components/ui/PressableScale';
-import { Colors } from '../constants/theme';
+import { Colors, Layout, Spacing } from '../constants/theme';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -149,8 +149,9 @@ export default function Welcome() {
           email: credential.email || undefined,
         },
       });
-    } catch (e: { code?: string }) {
-      if (e.code !== 'ERR_REQUEST_CANCELED') {
+    } catch (e: unknown) {
+      const code = typeof e === 'object' && e && 'code' in e ? String((e as { code?: string }).code) : undefined;
+      if (code !== 'ERR_REQUEST_CANCELED') {
         Alert.alert('Sign-in failed', 'Apple sign-in failed. Please try again.');
       }
     }
@@ -199,8 +200,10 @@ export default function Welcome() {
           <View style={styles.logoMark}>
             <Text style={styles.logoText}>CC</Text>
           </View>
-          <Text style={styles.title}>CoachConnect</Text>
-          <Text style={styles.subtitle}>Find coaches, book sessions, track your progress</Text>
+          <Text style={styles.title} numberOfLines={1}>CoachConnect</Text>
+          <Text style={styles.subtitle} numberOfLines={3}>
+            Find coaches, book sessions, track your progress
+          </Text>
         </View>
 
         <View style={styles.spacer} />
@@ -302,7 +305,8 @@ const styles = StyleSheet.create({
   brandBlock: {
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 48 : 64,
-    paddingHorizontal: 24,
+    paddingHorizontal: Layout.screenPaddingX,
+    width: '100%',
   },
   logoMark: {
     width: 56,
@@ -331,7 +335,8 @@ const styles = StyleSheet.create({
     color: Colors.body,
     textAlign: 'center',
     lineHeight: 22,
-    paddingHorizontal: 12,
+    paddingHorizontal: Layout.screenPaddingX,
+    maxWidth: 320,
   },
   spacer: {
     flex: 1,
@@ -340,7 +345,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    paddingTop: 8,
+    marginHorizontal: 12,
+    paddingTop: 12,
     shadowColor: '#3C4043',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
@@ -348,8 +354,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   ctaBlock: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingHorizontal: Layout.screenPaddingX,
+    paddingBottom: 24,
     paddingTop: 20,
   },
   pill: {
@@ -410,13 +416,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   terms: {
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.muted,
     textAlign: 'center',
-    lineHeight: 16,
-    marginTop: 4,
+    lineHeight: 18,
+    marginTop: 8,
     marginBottom: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: Spacing.sm,
   },
   demoRow: {
     alignItems: 'center',

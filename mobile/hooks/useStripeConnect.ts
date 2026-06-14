@@ -50,13 +50,20 @@ export function useStripeConnect() {
     },
     onError: (e) => {
       const msg = getApiErrorMessage(e, 'Failed to start Stripe setup.');
-      const is503 = (e as any)?.response?.status === 503;
-      const isStripeMsg = msg.includes('STRIPE_SECRET_KEY') || is503;
+      const code = (e as any)?.response?.data?.code as string | undefined;
+      const isConnect = code === 'STRIPE_CONNECT_NOT_ENABLED' || msg.includes('signed up for Connect');
+      const isNotConfigured = msg.includes('STRIPE_SECRET_KEY') || code === 'STRIPE_NOT_CONFIGURED';
       Alert.alert(
-        isStripeMsg ? 'Payments not configured on server' : 'Stripe setup failed',
-        isStripeMsg
-          ? `The API at ${API_URL} needs STRIPE_SECRET_KEY in Railway Variables, then redeploy.`
-          : msg,
+        isConnect
+          ? 'Enable Stripe Connect'
+          : isNotConfigured
+            ? 'Payments not configured on server'
+            : 'Stripe setup failed',
+        isConnect
+          ? 'The platform Stripe account must enable Connect first:\n\n1. Sign in at dashboard.stripe.com\n2. Open Connect → Get started\n3. Choose Express accounts\n4. Try Connect Stripe again'
+          : isNotConfigured
+            ? `The API at ${API_URL} needs STRIPE_SECRET_KEY in Railway Variables, then redeploy.`
+            : msg,
       );
     },
   });

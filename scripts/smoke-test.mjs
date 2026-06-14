@@ -21,7 +21,17 @@ let failed = 0;
 for (const c of checks) {
   try {
     const res = await fetch(`${BASE}${c.path}`, { redirect: 'manual' });
-    const ok = res.status === c.expect;
+    let ok = res.status === c.expect;
+    if (ok && c.path === '/api/health') {
+      const ct = res.headers.get('content-type') || '';
+      const body = await res.json().catch(() => null);
+      ok = ct.includes('application/json') && body?.status === 'ok';
+      if (!ok) {
+        console.log(`✗ ${c.name} — ${res.status} but invalid health JSON (got HTML?)`);
+        failed++;
+        continue;
+      }
+    }
     console.log(`${ok ? '✓' : '✗'} ${c.name} — ${res.status} (expected ${c.expect})`);
     ok ? passed++ : failed++;
   } catch (e) {

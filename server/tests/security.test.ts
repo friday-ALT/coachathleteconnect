@@ -30,7 +30,7 @@ async function makeRequest(
   body?: object,
   authUserId?: string
 ): Promise<{ status: number; data: any }> {
-  const baseUrl = 'http://localhost:5000';
+  const baseUrl = process.env.TEST_BASE_URL || `http://localhost:${process.env.PORT || '5000'}`;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -258,7 +258,8 @@ async function testSecurityHeaders() {
   console.log('\n=== Testing Security Headers ===');
 
   try {
-    const res = await fetch('http://localhost:5000/api/health');
+    const baseUrl = process.env.TEST_BASE_URL || `http://localhost:${process.env.PORT || '5000'}`;
+    const res = await fetch(`${baseUrl}/api/health`);
     const headers = res.headers;
     test(
       'Helmet X-Content-Type-Options',

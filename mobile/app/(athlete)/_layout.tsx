@@ -28,7 +28,11 @@ export default function AthleteLayout() {
           elevation: 0,
           height: TAB_BAR_PAD,
         },
-        sceneStyle: { paddingBottom: TAB_BAR_PAD, backgroundColor: Colors.background },
+        sceneStyle: {
+          paddingBottom: TAB_BAR_PAD,
+          backgroundColor: Colors.background,
+          overflow: 'hidden',
+        },
       }}
     >
       <Tabs.Screen name="home" options={{ title: 'Home' }} />

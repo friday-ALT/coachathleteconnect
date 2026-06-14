@@ -38,6 +38,7 @@ export default function StatTile({ value, label, color = Colors.ink, glossy = fa
 const styles = StyleSheet.create({
   tile: {
     flex: 1,
+    minWidth: 0,
     borderRadius: BorderRadius.md,
     paddingVertical: 18,
     paddingHorizontal: 12,

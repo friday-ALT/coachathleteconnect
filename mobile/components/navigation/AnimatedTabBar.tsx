@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: FLOATING_TAB_BAR_HEIGHT,
     alignItems: 'stretch',
+    paddingHorizontal: 8,
   },
   tab: {
     flex: 1,
@@ -154,8 +155,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -5,
-    right: -10,
+    top: -4,
+    right: -6,
     minWidth: 16,
     height: 16,
     borderRadius: 8,

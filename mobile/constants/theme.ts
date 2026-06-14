@@ -98,6 +98,24 @@ export const Spacing = {
   xxl: 48,
 };
 
+/** Google Health–style screen rhythm — consistent horizontal inset */
+export const Layout = {
+  screenPaddingX: 20,
+  screenPaddingBottom: 40,
+  sectionGap: 24,
+  cardGap: 12,
+  contentMaxWidth: 600,
+};
+
+/** Standard scroll content padding for tab screens */
+export function screenScrollStyle(extra?: object) {
+  return {
+    paddingHorizontal: Layout.screenPaddingX,
+    paddingBottom: Layout.screenPaddingBottom,
+    ...extra,
+  };
+}
+
 export const BorderRadius = {
   xs:   4,
   sm:   8,

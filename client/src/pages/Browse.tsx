@@ -41,7 +41,7 @@ function BrowseCoaches() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setFiltersStuck(!entry.isIntersecting),
-      { threshold: 1, rootMargin: "-3.25rem 0px 0px 0px" },
+      { threshold: 1, rootMargin: "-52px 0px 0px 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();

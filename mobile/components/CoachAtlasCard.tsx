@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
   },
   heroText: {
     flex: 1,
+    minWidth: 0,
   },
   name: {
     fontSize: FontSizes.xl,

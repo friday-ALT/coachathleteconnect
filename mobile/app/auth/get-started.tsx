@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Layout } from '../../constants/theme';
 import AppCanvas from '../../components/ui/AppCanvas';
 import Button from '../../components/ui/Button';
 import PressableScale from '../../components/ui/PressableScale';
@@ -105,8 +105,9 @@ export default function GetStartedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Layout.screenPaddingX,
     paddingBottom: Spacing.xl,
+    width: '100%',
   },
   backBtn: {
     width: 40,
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   title: {
-    fontSize: FontSizes.xxl,
+    fontSize: FontSizes['2xl'],
     fontWeight: '700',
     color: Colors.ink,
     marginBottom: Spacing.sm,
@@ -151,6 +152,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     flex: 1,
+    minWidth: 0,
   },
   roleTitle: {
     fontSize: FontSizes.lg,

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, Spacing, BorderRadius, FontSizes } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Layout, screenScrollStyle } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { connectionApi, requestApi, profileApi } from '../../lib/api';
@@ -76,7 +76,7 @@ export default function CoachHome() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, { paddingTop: safeTop + Spacing.md }]}
+        contentContainerStyle={screenScrollStyle({ paddingTop: safeTop + Spacing.md })}
         refreshControl={
           <RefreshControl
             refreshing={connectionsLoading || requestsLoading}
@@ -154,8 +154,8 @@ export default function CoachHome() {
               <View key={r.id} style={[styles.dataRow, i < Math.min(upcomingRequests.length, 4) - 1 && styles.dataRowBorder]}>
                 <Avatar name={r.athleteName} size={36} />
                 <View style={styles.dataRowMain}>
-                  <Text style={styles.dataRowTitle}>{r.athleteName}</Text>
-                  <Text style={styles.dataRowSub}>
+                  <Text style={styles.dataRowTitle} numberOfLines={1}>{r.athleteName}</Text>
+                  <Text style={styles.dataRowSub} numberOfLines={2}>
                     {formatDate(r.requestedDate)} · {formatTime(r.requestedStartTime)} – {formatTime(r.requestedEndTime)}
                   </Text>
                 </View>
@@ -178,10 +178,6 @@ export default function CoachHome() {
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
   iconBtn: {
     width: 40,
     height: 40,
@@ -194,13 +190,15 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    gap: Layout.cardGap,
     marginBottom: Spacing.lg,
+    width: '100%',
   },
   quickRow: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    gap: Layout.cardGap,
     marginBottom: Spacing.md,
+    width: '100%',
   },
   dataRow: {
     flexDirection: 'row',

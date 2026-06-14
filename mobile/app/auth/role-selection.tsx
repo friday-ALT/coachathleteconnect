@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { Colors, Spacing, BorderRadius, FontSizes, Shadow } from '../../constants/theme';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadow, Layout } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function RoleSelection() {
@@ -54,7 +54,7 @@ export default function RoleSelection() {
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardTitle}>I'm an Athlete</Text>
-              <Text style={styles.cardDesc}>Find coaches, book sessions, track progress</Text>
+              <Text style={styles.cardDesc} numberOfLines={2}>Find coaches, book sessions, track progress</Text>
             </View>
           </View>
           <View style={[styles.arrowWrap, styles.arrowWrapAthlete]}>
@@ -74,7 +74,7 @@ export default function RoleSelection() {
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardTitle}>I'm a Coach</Text>
-              <Text style={styles.cardDesc}>Get discovered, set your price, grow your roster</Text>
+              <Text style={styles.cardDesc} numberOfLines={2}>Get discovered, set your price, grow your roster</Text>
             </View>
           </View>
           <View style={[styles.arrowWrap, styles.arrowWrapCoach]}>
@@ -94,7 +94,7 @@ export default function RoleSelection() {
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardTitle}>Both</Text>
-              <Text style={styles.cardDesc}>Start as an athlete — add coaching later from your profile</Text>
+              <Text style={styles.cardDesc} numberOfLines={2}>Start as an athlete — add coaching later from your profile</Text>
             </View>
           </View>
           <View style={[styles.arrowWrap, styles.arrowWrapBoth]}>
@@ -114,8 +114,9 @@ export default function RoleSelection() {
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1, backgroundColor: Colors.background,
-    paddingHorizontal: Spacing.lg,
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: Layout.screenPaddingX,
   },
 
   topSection: {
@@ -160,9 +161,9 @@ const styles = StyleSheet.create({
   iconBubbleCoach:   { backgroundColor: `${Colors.accent}18` },
   iconBubbleBoth:    { backgroundColor: `${Colors.statusPurple}15` },
 
-  cardText: { flex: 1 },
-  cardTitle: { fontSize: FontSizes.lg, fontWeight: '700', color: Colors.ink, marginBottom: 4 },
-  cardDesc:  { fontSize: FontSizes.sm, color: Colors.body, lineHeight: 19 },
+  cardText: { flex: 1, minWidth: 0 },
+  cardTitle: { fontSize: FontSizes.lg, fontWeight: '600', color: Colors.ink, marginBottom: 4 },
+  cardDesc: { fontSize: FontSizes.sm, color: Colors.body, lineHeight: 20 },
 
   arrowWrap: {
     width: 36, height: 36, borderRadius: BorderRadius.md,

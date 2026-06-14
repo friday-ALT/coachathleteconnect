@@ -12,6 +12,40 @@ ASSETS = ROOT / "assets"
 PREVIEW = ASSETS / "previews"
 SOURCE = ASSETS / "canva-icon-source.png"
 BLACK = (0, 0, 0)
+ICON_SIZE = 1024
+# Keep a little breathing room so the C isn't flush against iOS rounded corners
+MARK_SCALE = 0.88
+
+
+def content_bbox(img: Image.Image, threshold: int = 24) -> tuple[int, int, int, int]:
+    """Bounding box of non-background pixels (the letter C)."""
+    rgb = img.convert("RGB")
+    pixels = rgb.load()
+    w, h = rgb.size
+    xs: list[int] = []
+    ys: list[int] = []
+    for y in range(h):
+        for x in range(w):
+            r, g, b = pixels[x, y]
+            if r > threshold or g > threshold or b > threshold:
+                xs.append(x)
+                ys.append(y)
+    if not xs:
+        return (0, 0, w, h)
+    return (min(xs), min(ys), max(xs) + 1, max(ys) + 1)
+
+
+def center_mark(img: Image.Image, *, size: int = ICON_SIZE, scale: float = MARK_SCALE) -> Image.Image:
+    """Crop the letter, scale it, and paste dead-center on a black square."""
+    box = content_bbox(img)
+    mark = img.crop(box)
+    target = int(size * scale)
+    mark.thumbnail((target, target), Image.Resampling.LANCZOS)
+    canvas = Image.new("RGB", (size, size), BLACK)
+    x = (size - mark.width) // 2
+    y = (size - mark.height) // 2
+    canvas.paste(mark, (x, y))
+    return canvas
 
 
 def save_icon(img: Image.Image, path: Path) -> None:
@@ -39,7 +73,7 @@ def build_splash(icon: Image.Image, *, width: int = 1284, height: int = 2778, ma
     splash = Image.new("RGB", (width, height), BLACK)
     mark = icon.resize((mark_size, mark_size), Image.Resampling.LANCZOS)
     sx = (splash.width - mark.width) // 2
-    sy = (splash.height - mark.height) // 2 - int(height * 0.04)
+    sy = (splash.height - mark.height) // 2
     splash.paste(mark, (sx, sy))
     return splash
 
@@ -49,10 +83,10 @@ def main() -> None:
         raise SystemExit(f"Source icon not found: {SOURCE}")
 
     base = Image.open(SOURCE).convert("RGB")
-    if base.size != (1024, 1024):
-        base = base.resize((1024, 1024), Image.Resampling.LANCZOS)
+    if base.size != (ICON_SIZE, ICON_SIZE):
+        base = base.resize((ICON_SIZE, ICON_SIZE), Image.Resampling.LANCZOS)
 
-    icon = base
+    icon = center_mark(base)
     adaptive = icon.copy()
     favicon = icon.resize((192, 192), Image.Resampling.LANCZOS)
     splash = build_splash(icon)

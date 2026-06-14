@@ -35,15 +35,35 @@ def content_bbox(img: Image.Image, threshold: int = 24) -> tuple[int, int, int, 
     return (min(xs), min(ys), max(xs) + 1, max(ys) + 1)
 
 
+def pixel_centroid(img: Image.Image, threshold: int = 24) -> tuple[float, float]:
+    """Luminance-weighted center — better optical balance for open letterforms like C."""
+    rgb = img.convert("RGB")
+    pixels = rgb.load()
+    w, h = rgb.size
+    sum_x = sum_y = mass = 0.0
+    for y in range(h):
+        for x in range(w):
+            r, g, b = pixels[x, y]
+            if r > threshold or g > threshold or b > threshold:
+                weight = (r + g + b) / 3.0
+                sum_x += x * weight
+                sum_y += y * weight
+                mass += weight
+    if mass == 0:
+        return (w / 2, h / 2)
+    return (sum_x / mass, sum_y / mass)
+
+
 def center_mark(img: Image.Image, *, size: int = ICON_SIZE, scale: float = MARK_SCALE) -> Image.Image:
-    """Crop the letter, scale it, and paste dead-center on a black square."""
+    """Crop the letter, scale it, and align its visual centroid to the canvas center."""
     box = content_bbox(img)
     mark = img.crop(box)
     target = int(size * scale)
     mark.thumbnail((target, target), Image.Resampling.LANCZOS)
+    cx, cy = pixel_centroid(mark)
     canvas = Image.new("RGB", (size, size), BLACK)
-    x = (size - mark.width) // 2
-    y = (size - mark.height) // 2
+    x = int(round(size / 2 - cx))
+    y = int(round(size / 2 - cy))
     canvas.paste(mark, (x, y))
     return canvas
 

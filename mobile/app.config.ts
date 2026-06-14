@@ -12,6 +12,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: config.name ?? 'CoachConnect',
     slug: config.slug ?? 'coachconnect',
+    splash: {
+      ...(config.splash ?? {}),
+      image: './assets/splash.png',
+      resizeMode: 'contain',
+      backgroundColor: '#000000',
+    },
+    ios: {
+      ...(config.ios ?? {}),
+    },
+    android: {
+      ...(config.android ?? {}),
+      adaptiveIcon: {
+        ...(config.android?.adaptiveIcon ?? {}),
+        foregroundImage: './assets/adaptive-icon.png',
+        backgroundColor: '#000000',
+      },
+    },
     extra: {
       ...config.extra,
       webUrl,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import the Canva C icon from the user screenshot into Expo app assets."""
+"""Build Expo app icon + splash from the committed Canva C source asset."""
 
 from __future__ import annotations
 
@@ -10,22 +10,8 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "assets"
 PREVIEW = ASSETS / "previews"
-
-# Main canvas — exact black square on the right (no Canva toolbar chrome)
-SOURCE = Path(
-    "/Users/ethanpage/.cursor/projects/Users-ethanpage-Documents-CoachAthleteConnect/assets/"
-    "Screenshot_2026-06-07_at_5.27.23_PM-b87e1b48-d98d-43d2-bb2d-fa2bc9f3859e.png"
-)
-CROP = (528, 96, 918, 486)
+SOURCE = ASSETS / "canva-icon-source.png"
 BLACK = (0, 0, 0)
-
-
-def square_crop(img: Image.Image, box: tuple[int, int, int, int]) -> Image.Image:
-    cropped = img.crop(box)
-    w, h = cropped.size
-    side = min(w, h)
-    cx, cy = w // 2, h // 2
-    return cropped.crop((cx - side // 2, cy - side // 2, cx + side // 2, cy + side // 2))
 
 
 def save_icon(img: Image.Image, path: Path) -> None:
@@ -48,27 +34,35 @@ def rounded_preview(img: Image.Image, corner_radius: int) -> Image.Image:
     return out
 
 
+def build_splash(icon: Image.Image, *, width: int = 1284, height: int = 2778, mark_size: int = 480) -> Image.Image:
+    """Center the C mark on a black splash canvas sized for modern phones."""
+    splash = Image.new("RGB", (width, height), BLACK)
+    mark = icon.resize((mark_size, mark_size), Image.Resampling.LANCZOS)
+    sx = (splash.width - mark.width) // 2
+    sy = (splash.height - mark.height) // 2 - int(height * 0.04)
+    splash.paste(mark, (sx, sy))
+    return splash
+
+
 def main() -> None:
     if not SOURCE.exists():
-        raise SystemExit(f"Source screenshot not found: {SOURCE}")
+        raise SystemExit(f"Source icon not found: {SOURCE}")
 
-    base = square_crop(Image.open(SOURCE).convert("RGB"), CROP)
-    icon = base.resize((1024, 1024), Image.Resampling.LANCZOS)
+    base = Image.open(SOURCE).convert("RGB")
+    if base.size != (1024, 1024):
+        base = base.resize((1024, 1024), Image.Resampling.LANCZOS)
 
-    # Android adaptive foreground — same artwork; background color set in app.json
+    icon = base
     adaptive = icon.copy()
     favicon = icon.resize((192, 192), Image.Resampling.LANCZOS)
-    splash_mark = icon.resize((480, 480), Image.Resampling.LANCZOS)
-    splash = Image.new("RGB", (1284, 2778), BLACK)
-    sx = (splash.width - splash_mark.width) // 2
-    sy = (splash.height - splash_mark.height) // 2 - 120
-    splash.paste(splash_mark, (sx, sy))
+    splash = build_splash(icon)
 
     save_icon(icon, ASSETS / "icon.png")
     save_icon(adaptive, ASSETS / "adaptive-icon.png")
     save_icon(favicon, ASSETS / "favicon.png")
     splash.save(ASSETS / "splash.png", "PNG", optimize=True)
 
+    PREVIEW.mkdir(parents=True, exist_ok=True)
     save_icon(icon, PREVIEW / "icon-1024.png")
     save_icon(rounded_preview(icon, 226), PREVIEW / "icon-ios-rounded-512.png")
     save_icon(icon.resize((180, 180), Image.Resampling.LANCZOS), PREVIEW / "icon-home-180.png")
@@ -76,7 +70,7 @@ def main() -> None:
     save_icon(adaptive, PREVIEW / "adaptive-foreground-1024.png")
     splash.resize((428, 926), Image.Resampling.LANCZOS).save(PREVIEW / "splash-preview.png", optimize=True)
 
-    print("Imported Canva icon:")
+    print("Built CoachConnect branding assets:")
     for name in ["icon.png", "adaptive-icon.png", "favicon.png", "splash.png"]:
         path = ASSETS / name
         print(f"  {path} ({path.stat().st_size // 1024} KB)")

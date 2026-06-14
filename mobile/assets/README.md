@@ -1,49 +1,28 @@
 # App Assets
 
-Place your app icons and splash screens in this directory.
+CoachConnect branding: bold white **C** on solid black (#000000).
 
-## Required Files
+## Production files
 
-### icon.png
-- **Size**: 1024x1024px
-- **Format**: PNG with transparency
-- **Purpose**: Main app icon for iOS and Android
+| File | Size | Purpose |
+|------|------|---------|
+| `icon.png` | 1024×1024 | iOS + Android app icon |
+| `adaptive-icon.png` | 1024×1024 | Android adaptive icon foreground |
+| `splash.png` | 1284×2778 | Native splash screen |
+| `favicon.png` | 192×192 | Web favicon |
+| `canva-icon-source.png` | 1024×1024 | Master source artwork |
 
-### splash.png
-- **Size**: 2048x2048px  
-- **Format**: PNG
-- **Purpose**: Splash screen shown while app loads
-- **Background**: Use #26a641 (your app's green color)
+## Regenerate from source
 
-### adaptive-icon.png (Android only)
-- **Size**: 1024x1024px
-- **Format**: PNG with transparency
-- **Purpose**: Android adaptive icon (foreground layer)
-- **Note**: Center your logo in the middle 512x512px area
+```bash
+cd mobile
+npm run icons
+```
 
-### favicon.png (Web only)
-- **Size**: 48x48px
-- **Format**: PNG
-- **Purpose**: Website favicon when running as web app
+This runs `scripts/import-canva-icon.py`, which copies `canva-icon-source.png` into all Expo asset paths and refreshes `previews/`.
 
-## Design Tips
+## Design notes
 
-1. **Keep it simple**: Icons should be recognizable at small sizes
-2. **Use brand colors**: Stick to your app's color scheme (#26a641 green)
-3. **No text**: Icons work better without text
-4. **High contrast**: Ensure icon is visible on both light and dark backgrounds
-
-## Tools to Create Icons
-
-- **Canva** (free): [canva.com](https://canva.com)
-- **Figma** (free): [figma.com](https://figma.com)
-- **Icon Generators**: Search "app icon generator" for online tools
-
-## Placeholder Icons
-
-For now, you can use solid color placeholders to test builds:
-- Create 1024x1024px image with your brand color
-- Add a simple soccer ball icon or letter "C" for CoachConnect
-- Use same image for all required files to start
-
-Once your app is working, replace with professional designs.
+- **Background:** `#000000` everywhere (icon, splash, adaptive icon)
+- **Mark:** Minimal geometric **C**, high contrast, readable at small sizes
+- **Splash:** Centered C with slight upward offset for visual balance on tall phones
